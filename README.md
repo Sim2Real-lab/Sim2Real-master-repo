@@ -1,73 +1,60 @@
-# React + TypeScript + Vite
+# Sim2Real
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sim2Real is a modern, immersive web application that bridges the gap between simulation and reality. Featuring a stunning 3D drone scene, interactive timeline, and dynamic animations, this platform is designed to provide an engaging user experience for exploring event details, prizes, brochures, and more.
 
-Currently, two official plugins are available:
+## Tech Stack
+*   **Core:** React 19, TypeScript
+*   **Build Tool:** Vite
+*   **Styling:** Tailwind CSS v4, clsx, tailwind-merge
+*   **3D/Graphics:** Three.js, React Three Fiber, React Three Drei, Spline (@splinetool/react-spline)
+*   **Animations:** GSAP (GreenSock Animation Platform)
+*   **Icons:** Lucide React
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Core Features
+*   **Interactive 3D Drone Scene:** Built with React Three Fiber and Three.js, providing an engaging, high-performance 3D background experience.
+*   **Interactive Timeline:** A dynamic timeline component tracking event milestones smoothly.
+*   **Prizes & Brochure Sections:** Beautifully designed UI sections highlighting competition rewards and informational materials.
+*   **Testimonials & FAQ:** User-friendly interfaces for reviews and frequently asked questions.
+*   **Contact Map:** Integrated contact information for easy navigation and queries.
+*   **Responsive & Animated Design:** Fully optimized for both desktop and mobile viewing with seamless scroll-based GSAP animations.
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+Make sure you have Node.js installed on your machine.
 
-## Expanding the ESLint configuration
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd sim2real
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Running the Application
+To start the development server, run:
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser to view the application.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Building for Production
+To build the project for production, run:
+```bash
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Linting
+To run ESLint and check for code issues:
+```bash
+npm run lint
 ```
+
+## License
+This project is private and proprietary.
