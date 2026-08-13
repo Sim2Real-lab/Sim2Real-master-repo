@@ -2,15 +2,6 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { cn } from '../lib/utils';
 
-interface RevealProps {
-  lines: string[];
-  className?: string;
-  delay?: number;
-  onComplete?: () => void;
-  stagger?: number;
-  duration?: number;
-}
-
 export const GSAPReveal = ({ 
   lines, 
   className, 
@@ -18,14 +9,14 @@ export const GSAPReveal = ({
   onComplete,
   stagger = 0.15,
   duration = 1.2
-}: RevealProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+}) => {
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
     
     const ctx = gsap.context(() => {
-      const elements = containerRef.current!.querySelectorAll('.reveal-text');
+      const elements = containerRef.current.querySelectorAll('.reveal-text');
       gsap.set(elements, { y: '100%' });
       
       const tl = gsap.timeline({

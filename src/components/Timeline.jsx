@@ -14,13 +14,13 @@ const TIMELINE_DATA = [
 ];
 
 export const Timeline = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray('.timeline-node') as HTMLElement[];
+      const cards = gsap.utils.toArray('.timeline-node');
       cards.forEach((card) => {
         gsap.from(card, {
           y: 50,

@@ -17,7 +17,7 @@ const TESTIMONIALS = [
   }
 ];
 
-const SplitQuote = ({ text }: { text: string }) => {
+const SplitQuote = ({ text }) => {
   return (
     <span className="inline-block">
       {text.split(' ').map((word, i) => (
@@ -32,12 +32,12 @@ const SplitQuote = ({ text }: { text: string }) => {
 };
 
 export const Testimonials = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray('.testimonial-card') as HTMLElement[];
+      const cards = gsap.utils.toArray('.testimonial-card');
       
       cards.forEach((card) => {
         const words = card.querySelectorAll('.quote-word');
@@ -78,13 +78,15 @@ export const Testimonials = () => {
       {/* FIX 2: Switched to flex to match Prizes, stripped 'relative z-10' trap */}
       <div className="max-w-6xl mx-auto px-6 flex flex-col items-center">
         
-        {/* FIX 3: Re-applied CSS blend mode. Using exclusion for highest contrast against the dark drone */}
-        <h2 
-          id="innovators-title" 
-          className="text-4xl md:text-6xl font-display font-bold mb-16 text-center tracking-tight text-white mix-blend-exclusion relative z-50 pointer-events-none"
-        >
-          Hear From Our Innovators
-        </h2>
+        {/* Wrapped Header in Card UI */}
+        <div className="p-8 md:p-10 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 mb-16 relative z-50">
+          <h2 
+            id="innovators-title" 
+            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-foreground pointer-events-none"
+          >
+            Hear From Our Innovators
+          </h2>
+        </div>
         
         {/* FIX 4: Pushed the z-20 specifically to the cards grid so they float visually over the drone */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-20 w-full">

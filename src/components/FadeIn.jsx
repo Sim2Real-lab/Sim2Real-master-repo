@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { cn } from '../lib/utils';
 
@@ -8,14 +8,8 @@ export const FadeIn = ({
   className,
   y = 30,
   duration = 1
-}: { 
-  children: ReactNode; 
-  delay?: number; 
-  className?: string;
-  y?: number;
-  duration?: number;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
 
   useEffect(() => {
     if (!ref.current) return;

@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-export const DroneModel = forwardRef<THREE.Group, any>((props, ref) => {
+export const DroneModel = forwardRef((props, ref) => {
   const { scene, nodes } = useGLTF('/droneage2.glb?v=3');
 
   useEffect(() => {
@@ -21,9 +21,9 @@ export const DroneModel = forwardRef<THREE.Group, any>((props, ref) => {
     });
 
     scene.traverse((child) => {
-      if ((child as THREE.Light).isLight) child.visible = false;
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
+      if (child.isLight) child.visible = false;
+      if (child.isMesh) {
+        const mesh = child;
         // Apply blue to propellers and any node with 'Neon' or 'Rotation' in the name
         if (mesh.name.includes('Rotation') || mesh.name.includes('Neon')) {
           mesh.material = neonBlue;
