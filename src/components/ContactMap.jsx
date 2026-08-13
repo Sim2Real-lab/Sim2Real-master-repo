@@ -6,7 +6,7 @@ export const ContactMap = () => {
       <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-300/20 rounded-full blur-[120px] mix-blend-multiply opacity-50 pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto px-6 w-full mb-32 relative z-10">
-        <h2 className="text-4xl md:text-6xl font-display font-bold mb-10 text-center tracking-tight text-foreground">
+        <h2 id="contact-heading" className="text-4xl md:text-6xl font-display font-bold mb-10 text-center tracking-tight text-foreground">
           Have Questions? Let's Connect.
         </h2>
         

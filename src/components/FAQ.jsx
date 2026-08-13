@@ -25,10 +25,10 @@ const FAQS = [
 ];
 
 export const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
-  const rightColRef = useRef<HTMLDivElement>(null);
+  const [openIndex, setOpenIndex] = useState(0);
+  const containerRef = useRef(null);
+  const leftColRef = useRef(null);
+  const rightColRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current || !leftColRef.current || !rightColRef.current) return;

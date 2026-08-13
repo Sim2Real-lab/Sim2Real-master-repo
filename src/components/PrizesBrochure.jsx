@@ -12,7 +12,7 @@ const PRIZES = [
 ];
 
 /* HELPER COMPONENT: Physically stacks letters vertically */
-const VerticalText = ({ word, className }: { word: string, className?: string }) => (
+const VerticalText = ({ word, className }) => (
   <div className={cn("flex flex-col items-center leading-[0.85]", className)}>
     {word.split('').map((char, i) => (
       <span key={i}>{char}</span>
@@ -21,13 +21,13 @@ const VerticalText = ({ word, className }: { word: string, className?: string })
 );
 
 export const PrizesBrochure = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
     
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray('.prize-card') as HTMLElement[];
+      const cards = gsap.utils.toArray('.prize-card');
       
       gsap.fromTo(cards, 
         { y: 100, opacity: 0 },
@@ -58,7 +58,7 @@ export const PrizesBrochure = () => {
           <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-50 pointer-events-none">
             Exciting Prizes Await!
           </h2>
-          <p className="text-foreground/60 max-w-2xl mx-auto font-sans leading-relaxed">
+          <p id="prize-text" className="text-foreground/60 max-w-2xl mx-auto font-sans leading-relaxed">
             Stay tuned for more detailed announcements on prize values and additional categories!
           </p>
         </div>
@@ -101,9 +101,9 @@ export const PrizesBrochure = () => {
           <VerticalText word="BROCHURE" />
         </div>
 
-        {/* NEW: The Absolute Centered Text (Single line, spaced, grey, bold) */}
+    {/* NEW: The Absolute Centered Text (Single line, spaced, grey, bold) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none">
-          <p className="font-sans text-[9px] md:text-xs font-bold text-zinc-500 uppercase tracking-[0.3em] whitespace-nowrap">
+          <p className="font-sans text-[12px] md:text-[14px] font-bold text-zinc-500 uppercase tracking-[0.3em] whitespace-nowrap">
             Get the full rulebook, speaker list, competition guidelines, and more in our comprehensive event brochure.
           </p>
         </div>

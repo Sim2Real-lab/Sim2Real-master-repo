@@ -1,29 +1,20 @@
-import { Component, type ReactNode } from 'react';
-
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-}
-
-interface State {
-  hasError: boolean;
-}
+import { Component } from 'react';
 
 /**
  * Catches errors thrown by the R3F Canvas (WebGL context loss,
  * GLTF load failures, etc.) so the rest of the page still renders.
  */
-export class CanvasErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+export class CanvasErrorBoundary extends Component {
+  constructor(props) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(): State {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
+  componentDidCatch(error) {
     console.warn('[DroneScene] 3D canvas error caught:', error.message);
   }
 

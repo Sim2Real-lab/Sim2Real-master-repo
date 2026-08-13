@@ -9,9 +9,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface DroneProxy { x: number; y: number; z: number; rotX: number; rotY: number; rotZ: number; scale: number; }
-
-function DroneController({ droneRef, proxy }: { droneRef: React.RefObject<THREE.Group | null>; proxy: React.RefObject<DroneProxy>; }) {
+function DroneController({ droneRef, proxy }) {
   const elapsed = useRef(0);
   useFrame((_, delta) => {
     const group = droneRef.current;
@@ -29,51 +27,67 @@ function DroneController({ droneRef, proxy }: { droneRef: React.RefObject<THREE.
 }
 
 export function DroneScene() {
-  const droneRef = useRef<THREE.Group>(null);
-  const gsapCtx = useRef<gsap.Context | null>(null);
+  const droneRef = useRef(null);
+  const gsapCtx = useRef(null);
 
-const proxy = useRef<DroneProxy>({
+const proxy = useRef({
     x: -5, y: 6, z:0, rotX: 0.8, rotY: 0, rotZ: 0 , scale: 0.02,
   });
 
-  useEffect(() => {
+useEffect(() => {
     gsapCtx.current = gsap.context(() => {
-  
+      
       const timeline = gsap.timeline({
         scrollTrigger: {
           trigger: '#timeline',
-          // FIX 1: Triggers much earlier, right as Event Schedule comes into view
-          start: 'top 85%', 
+          start: 'top 85%',
           endTrigger: '#footer',
-          end: 'top bottom', 
+          end: 'top bottom',
           scrub: 1.5,
         },
       });
 
-      timeline.to(proxy.current, {
-        x: -5, 
-        // FIX 2: Raised from -1.5 to 0.5 so it hovers higher up on the screen
-        y: 0, 
-        z: 0, 
-        scale: 0.01, 
-        rotX: 0.3, rotY: 0.15, rotZ: 0.15, ease: 'none', duration: 40, 
-      })
-      // Phase 2: Pinned Giant Drone
-      .to(proxy.current, {
-        x: -2.5, y: 0, z: 0, 
-        scale: 0.02, 
-        rotX: 0.3, rotY: 0.3, rotZ: -0.05, ease: 'power2.inOut', duration: 20, 
-      })
-      // Phase 3: Hold & Exit
-      .to(proxy.current, {
-        y: 12, 
-        scale: 0.01, 
-        rotX: -0.2, rotY: 0.8, rotZ: 0, 
-        ease: 'power2.in', 
-        duration: 20,
-      }, "+=40");
+      timeline
+        // Phase 1: Lock to the LEFT side. 
+        // Increased duration to 55 to hold it here until the "Stay tuned..." text passes.
+        .to(proxy.current, {
+          x: -5, 
+          y: 0, 
+          z: 0, 
+          scale: 0.01, 
+          rotX: 0.3, 
+          rotY: 0.15, 
+          rotZ: 0.15, 
+          ease: 'none', 
+          duration: 55, 
+        })
+        
+        // Phase 2: Move to EXACT MIDDLE. 
+        // Restored your -2.5 value which is the true center for your camera.
+        .to(proxy.current, {
+          x: -2.5, 
+          y: 0, 
+          z: 0, 
+          scale: 0.02, 
+          rotX: 0.3, 
+          rotY: 0.3, 
+          rotZ: -0.05, 
+          ease: 'power2.inOut', 
+          duration: 20, 
+        })
+        
+        // Phase 3: Hold & Exit. 
+        // y is pushed to 20 to guarantee absolute clearance over the contact text.
+        .to(proxy.current, {
+          y: 80, 
+          scale: 0.01, 
+          rotX: -0.2, 
+          rotY: 0.8, 
+          rotZ: 0, 
+          ease: 'power2.in', 
+          duration: 20,
+        }, "+=40"); 
       
-      // Ensure GSAP recalculates after DOM load
       setTimeout(() => {
         ScrollTrigger.refresh();
       }, 500);
@@ -82,7 +96,7 @@ const proxy = useRef<DroneProxy>({
     return () => gsapCtx.current?.revert();
   }, []);
 
- return (
+  return (
     <div className="fixed inset-0 w-full h-full z-[1] pointer-events-none" aria-hidden="true">
       <Canvas 
         // Optimization: Bloom works best when we tell the renderer to handle "High Dynamic Range"
@@ -92,7 +106,7 @@ const proxy = useRef<DroneProxy>({
           powerPreference: 'high-performance' 
         }} 
         dpr={[1, 2]} 
-        style={{ background: 'transparent' }}
+        style={{ background: 'transparent', pointerEvents: 'none' }}
       >
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={35} />
         
@@ -102,7 +116,6 @@ const proxy = useRef<DroneProxy>({
         <directionalLight position={[-4, -3, -5]} intensity={0.5} color="#4488ff" />
         <spotLight position={[0, 12, 2]} angle={0.25} penumbra={1} intensity={0.4} color="#ffffff" />
         <Environment preset="city" />
-        <ContactShadows position={[0, -2.5, 0]} opacity={0.2} scale={14} blur={2.5} far={5} resolution={256} />
 
         {/* DRONE */}
         <Suspense fallback={null}>

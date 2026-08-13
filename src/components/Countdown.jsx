@@ -29,7 +29,7 @@ export const Countdown = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const format = (num: number) => num.toString().padStart(2, '0');
+  const format = (num) => num.toString().padStart(2, '0');
 
   return (
     <div className="flex flex-col gap-2">

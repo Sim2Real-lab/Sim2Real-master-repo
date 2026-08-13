@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Spline from '@splinetool/react-spline';
 import { GSAPReveal } from './GSAPReveal';
 import { FadeIn } from './FadeIn';
@@ -6,6 +6,10 @@ import { Countdown } from './Countdown';
 
 export const Hero = () => {
   const [sequenceStep, setSequenceStep] = useState(0);
+  
+  const handleComplete = useCallback(() => {
+    setSequenceStep(1);
+  }, []);
 
   const mainTitleLines = [
     "Let's explore the power of",
@@ -35,7 +39,7 @@ export const Hero = () => {
               duration={1}
               stagger={0.15}
               delay={0.2}
-              onComplete={() => setSequenceStep(1)}
+              onComplete={handleComplete}
             />
           </div>
 
