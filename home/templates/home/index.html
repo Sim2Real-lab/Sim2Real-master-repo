@@ -11,7 +11,7 @@
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Custom CSS (will be updated by you soon) -->
-  <link rel="stylesheet" href="{%static "home/style.css" %}">
+  <link rel="stylesheet" href="{%static 'home/style.css' %}">
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
 <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
@@ -32,16 +32,7 @@
 <!-- Main body background for the Sim2Real theme -->
 <div class="body-background"></div> 
 
-<div class="top-panel">
-<header class="d-flex justify-content-between align-items-center px-4 py-3">
-  <div class="site-branding">
-    <h1 class="mb-0">SIM2REAL 2025</h1>
-    <p class="mb-0"><strong>ROBOTECH NITK</strong></p>
-    <p class="tagline">Simulate. Build. Compete.</p>
-  </div>
-</header>
-
-<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark site-navbar sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">SIM2REAL 2025</a>
 
@@ -53,17 +44,17 @@
 
     <div class="collapse navbar-collapse" id="dashboardNav">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}"><i class="fas fa-gauge-high"></i>Dashboard</a></li>
         {% if not registered %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'manage_requests' %}">Register</a></li>
-        <li class="nav-item"><a class="btn btn-success" href="{% url 'download_brochure' %}">Download Brochure</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'manage_requests' %}"> <i class="fas fa-user-plus"></i>Register</a></li>
+        <li class="nav-item"><a class="btn btn-success" href="{% url 'download_brochure' %}"> <i class="fas fa-file-arrow-down"></i>Download Brochure</a></li>
         {% endif %}
         {% if registered %}
         <li class="nav-item"><a class="nav-link" href="{% url 'problem_statement' %}">Problem Statement</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'resources' %}">Resources</a></li>
         {% endif %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'announcements' %}">Announcements</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'user_query' %}">Queries-Ask Us</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'announcements' %}"> <i class="fas fa-bullhorn"></i>Announcements</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'user_query' %}"> <i class="fas fa-circle-question"></i>Queries-Ask Us</a></li>
       </ul>
 
       {% if user.is_authenticated %}
@@ -97,6 +88,14 @@
   </div>
 </nav>
 
+<div class="top-panel">
+<header class="d-flex justify-content-between align-items-center px-4 py-3">
+  <div class="site-branding">
+    <h1 class="mb-0">SIM2REAL 2025</h1>
+    <p class="mb-0"><strong>ROBOTECH NITK</strong></p>
+    <p class="tagline">Simulate. Build. Compete.</p>
+  </div>
+</header>
 </div>
 
 <div class="container main-content-area mt-4">
@@ -115,8 +114,8 @@
     {% elif not registered %} {# Placeholder condition #}
     <div class="card registration-card mb-4">
         <div class="card-body text-center">
-            <h3 class="card-title">🚀 Ready to Simulate to Real?</h3>
-            <p class="card-text">Registration Closes on 14 September 2025.</br>If you have registered on Google form make your team and upload necessary details to access problem Statement.</p>
+            <h3 class="card-title"> Ready to Simulate to Real?</h3>
+            <p class="card-text">Registration Closes on 5 September 2025.</br>If you have registered on Google form make your team and upload necessary details to access problem Statement.</p>
             <a href="{% url 'manage_requests' %}" class="btn btn-glow">Register Now!</a>
         </div>
     </div>
@@ -136,7 +135,7 @@
             <div class="card feature-card">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-user"></i> My Profile</h5>
-                    <p class="card-text">Form or join a team, manage requests, and collaborate with your members.</p>
+                    <p class="card-text">Manage your personal details, academic information, and profile.</p>
                     <a href="{% url 'profile' %}" class="btn btn-sm btn-outline-light">My Profile</a>
                 </div>
             </div>

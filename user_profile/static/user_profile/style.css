@@ -3,21 +3,21 @@
 /* Define CSS Variables for consistent theming */
 :root {
     --primary-blue: #007bff;
-    --accent-purple: #7b1fa2; /* Slightly brighter, more accessible purple */
-    --light-purple: #9c27b0; /* More vibrant purple for accents and glows */
-    --dark-bg-color-1: #0d0d21; /* Darker base for deeper contrast */
-    --dark-bg-color-2: #1a1538; /* Slightly lighter dark for gradient */
-    --header-bg: rgba(18, 15, 36, 0.98); /* Near opaque for clear header */
-    --card-bg: rgba(28, 22, 50, 0.96); /* Near opaque for solid content cards */
-    --border-color: rgba(255, 255, 255, 0.18); /* Clearer border for definition */
+    --accent-blue:  #1769e0; /* Slightly brighter, more accessible purple */
+    --light-blue: #4f8df7; /* More vibrant purple for accents and glows */
+    --dark-bg-color-1: #eef5ff;; /* Darker base for deeper contrast */
+    --dark-bg-color-2: #ffffff; /* Slightly lighter dark for gradient */
+    --header-bg: rgba(255, 255, 255, 0.96); /* Near opaque for clear header */
+    --card-bg:rgba(255, 255, 255, 0.96); /* Near opaque for solid content cards */
+    --border-color: rgba(23, 105, 224, 0.20); /* Clearer border for definition */
     --input-bg: rgba(255, 255, 255, 0.06); /* Slightly more visible input background */
-    --input-focus-bg: rgba(255, 255, 255, 0.12); /* Brighter on focus */
-    --text-color: #f8f9fa; /* High contrast off-white for main text */
-    --text-light: #e0e0e0; /* Brighter dimmer text for labels/secondary text */
-    --text-disabled: #8b8b8b; /* Clear color for disabled text */
-    --glow-color: #9c27b0; /* Main glow color (using the slightly brighter accent) */
-    --dropdown-bg: rgba(20, 18, 38, 0.98); /* Dropdown background */
-    --dropdown-item-hover: rgba(156, 39, 176, 0.25); /* More distinct purple tint on dropdown item hover */
+    --input-focus-bg:#ffffff; /* Brighter on focus */
+    --text-color: #123a70;; /* High contrast off-white for main text */
+    --text-light: #4d6482; /* Brighter dimmer text for labels/secondary text */
+    --text-disabled:#8b98aa; /* Clear color for disabled text */
+    --glow-color: rgba(23, 105, 224, 0.25); /* Main glow color (using the slightly brighter accent) */
+    --dropdown-bg: #ffffff; /* Dropdown background */
+    --dropdown-item-hover: rgba(23, 105, 224, 0.10); /* More distinct purple tint on dropdown item hover */
     --success-color: #28a745;
     --error-color: #dc3545;
     --info-color: #17a2b8;
@@ -627,4 +627,533 @@ input, textarea, select, button {
         padding: 8px 12px;
         font-size: 0.85rem;
     }
+}
+/* =========================================================
+   FINAL PROFILE PAGE DESIGN
+   Blue + White Sim2Real Theme
+   ========================================================= */
+
+/* ---------- PAGE ---------- */
+
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+
+    font-family: "Segoe UI", Arial, sans-serif !important;
+
+    background: #f4f8ff !important;
+    color: #123a70 !important;
+
+    display: block !important;
+    overflow-x: hidden !important;
+}
+
+
+/* ---------- BACKGROUND IMAGE ---------- */
+
+body::before {
+    content: "" !important;
+
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    background-image: url("/static/assets/NITK.webp") !important;
+    background-size: cover !important;
+    background-position: center !important;
+
+    opacity: 0.35 !important;
+    filter: blur(1px) !important;
+
+    z-index: -2 !important;
+    pointer-events: none !important;
+}
+
+
+/* ---------- REMOVE DARK OVERLAY ---------- */
+
+.overlay {
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    background: rgba(255, 255, 255, 0.12) !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    z-index: -1 !important;
+    pointer-events: none !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+header {
+    position: relative !important;
+
+    width: 100% !important;
+    height: 72px !important;
+
+    min-height: 72px !important;
+
+    padding: 0 35px !important;
+    box-sizing: border-box !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #dce8f7 !important;
+
+    box-shadow: 0 3px 15px rgba(23, 105, 224, 0.10) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    color: #123a70 !important;
+
+    z-index: 100 !important;
+}
+
+
+/* ---------- HOME BUTTON ---------- */
+
+.back a {
+    color: #1769e0 !important;
+
+    font-size: 22px !important;
+
+    text-decoration: none !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 42px !important;
+    height: 42px !important;
+
+    border-radius: 50% !important;
+
+    transition: 0.2s ease !important;
+}
+
+.back a:hover {
+    background: #eef5ff !important;
+    color: #1255b5 !important;
+
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   USER SECTION
+   ========================================================= */
+
+.user-info-section {
+    display: flex !important;
+    align-items: center !important;
+
+    position: relative !important;
+
+    margin-left: auto !important;
+}
+
+
+/* ---------- PROFILE IMAGE ---------- */
+
+.profile-img {
+    width: 45px !important;
+    height: 45px !important;
+
+    border-radius: 50% !important;
+
+    object-fit: cover !important;
+
+    border: 2px solid #8db9f5 !important;
+
+    box-shadow: 0 2px 8px rgba(23, 105, 224, 0.20) !important;
+
+    margin-right: 10px !important;
+}
+
+.profile-img:hover {
+    transform: none !important;
+
+    box-shadow: 0 3px 10px rgba(23, 105, 224, 0.30) !important;
+}
+
+
+/* ---------- WELCOME TEXT ---------- */
+
+.welcome-text {
+    color: #526b89 !important;
+    font-size: 0.85rem !important;
+}
+
+.username {
+    color: #123a70 !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   DROPDOWN
+   ========================================================= */
+
+.profile-dropdown-menu {
+    background: #ffffff !important;
+
+    border: 1px solid #d5e3f5 !important;
+
+    border-radius: 10px !important;
+
+    box-shadow: 0 8px 25px rgba(20, 60, 110, 0.15) !important;
+
+    padding: 6px 0 !important;
+}
+
+.profile-dropdown-menu .dropdown-item {
+    color: #123a70 !important;
+
+    padding: 11px 20px !important;
+
+    background: transparent !important;
+}
+
+.profile-dropdown-menu .dropdown-item:hover {
+    background: #eef5ff !important;
+
+    color: #1769e0 !important;
+}
+
+
+/* =========================================================
+   MAIN PROFILE AREA
+   ========================================================= */
+
+.container {
+    position: relative !important;
+
+   width: min(1200px, calc(100% - 60px)) !important;
+
+    margin: 45px auto 60px auto !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    text-align: center !important;
+}
+
+
+/* ---------- PROFILE TITLE ---------- */
+
+.container h1 {
+    color: #123a70 !important;
+    font-size: 2.5rem !important;
+
+    font-weight: 700 !important;
+
+    margin: 0 0 8px 0 !important;
+
+    text-shadow: none !important;
+}
+
+
+/* ---------- FORM SUBTITLE ---------- */
+
+.instruction {
+    display: block !important;
+
+    color: #5c718d !important;
+
+    font-size: 1rem !important;
+
+    font-style: italic !important;
+
+    margin-bottom: 30px !important;
+}
+
+
+/* =========================================================
+   PROFILE CARD
+   ========================================================= */
+
+#profile-form {
+    background: rgba(255, 255, 255, 0.72) !important;
+
+    border: 1px solid #d8e5f5 !important;
+
+    border-radius: 18px !important;
+
+    box-shadow: 0 10px 35px rgba(255, 255, 255, 0.8)  !important;
+
+    padding: 35px 45px !important;
+
+    box-sizing: border-box !important;
+
+    text-align: left !important;
+      backdrop-filter: blur(8px) !important;
+
+    -webkit-backdrop-filter: blur(8px) !important;
+   
+}
+
+
+/* =========================================================
+   FORM FIELDS
+   ONE BELOW ANOTHER
+   ========================================================= */
+
+.personal-details {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    width: 100% !important;
+
+    gap: 0 !important;
+}
+
+
+.form-group {
+    width: 100% !important;
+
+    margin-bottom: 22px !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+}
+
+
+/* ---------- LABEL ---------- */
+
+.form-group label {
+    display: block !important;
+
+    color: #123a70 !important;
+
+    font-size: 0.95rem !important;
+
+    font-weight: 600 !important;
+
+    margin-bottom: 8px !important;
+}
+
+
+/* ---------- INPUTS ---------- */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100% !important;
+
+    min-height: 48px !important;
+
+    box-sizing: border-box !important;
+
+    padding: 15px 18px !important;
+
+    background: #ffffff !important;
+
+    color: #183b66 !important;
+
+    border: 1px solid #cbdced !important;
+
+    border-radius: 9px !important;
+
+    font-size: 1rem !important;
+
+    outline: none !important;
+
+    box-shadow: none !important;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease !important;
+}
+
+
+/* ---------- INPUT FOCUS ---------- */
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #1769e0 !important;
+
+    background: #ffffff !important;
+
+    box-shadow: 0 0 0 3px rgba(23, 105, 224, 0.12) !important;
+
+    outline: none !important;
+}
+
+
+/* ---------- PLACEHOLDER ---------- */
+
+.form-group input::placeholder {
+    color: #9aabc0 !important;
+}
+
+
+/* =========================================================
+   SAVE PROFILE BUTTON
+   ========================================================= */
+
+#profile-form button[type="submit"],
+#profile-form input[type="submit"] {
+    display: block !important;
+
+    margin: 10px auto 0 auto !important;
+
+    padding: 13px 30px !important;
+
+    background: #1769e0 !important;
+
+    color: #ffffff !important;
+
+    border: none !important;
+
+    border-radius: 8px !important;
+
+    font-size: 1rem !important;
+
+    font-weight: 700 !important;
+
+    cursor: pointer !important;
+
+    box-shadow: 0 5px 15px rgba(23, 105, 224, 0.20) !important;
+
+    transition: 0.2s ease !important;
+}
+
+#profile-form button[type="submit"]:hover,
+#profile-form input[type="submit"]:hover {
+    background: #1255b5 !important;
+
+    transform: translateY(-1px) !important;
+
+    box-shadow: 0 7px 18px rgba(23, 105, 224, 0.25) !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    header {
+        height: 65px !important;
+        min-height: 65px !important;
+
+        padding: 0 18px !important;
+    }
+
+    .container {
+        width: calc(100% - 24px) !important;
+
+        margin-top: 30px !important;
+    }
+
+    .container h1 {
+        font-size: 2rem !important;
+    }
+
+    #profile-form {
+        padding: 25px 20px !important;
+    }
+}
+/* ================================
+   FINAL PROFILE PAGE LOOK
+   ================================ */
+
+/* Keep the college image visible and stable */
+body::before {
+    opacity: 0.42 !important;
+    filter: blur(1px) !important;
+    animation: none !important;
+}
+
+/* Remove the white overlay */
+.overlay {
+    background: rgba(220, 235, 250, 0.10) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Blue glass profile card */
+#profile-form {
+    background: rgba(188, 211, 235, 0.78) !important;
+
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+
+    border: 2px solid rgba(120, 165, 210, 0.45) !important;
+
+    box-shadow: 0 12px 35px rgba(20, 70, 120, 0.18) !important;
+
+    animation: none !important;
+}
+
+/* Keep the input boxes slightly blue/white */
+#profile-form input,
+#profile-form select {
+    background: rgba(245, 249, 255, 0.82) !important;
+    border: 1px solid rgba(90, 140, 190, 0.35) !important;
+}
+
+/* Blue focus instead of purple */
+#profile-form input:focus,
+#profile-form select:focus {
+    border-color: #1769e0 !important;
+    border: 10px;
+    box-shadow: 0 0 0 2px rgba(23, 105, 224, 0.15) !important;
+}
+/* ================================
+   FILE UPLOAD BUTTON
+   ================================ */
+
+#profile-form input[type="file"] {
+    background: rgba(245, 249, 255, 0.9) !important;
+    color: #123a70 !important;
+    border: 1px solid rgba(80, 130, 190, 0.35) !important;
+    padding: 8px !important;
+}
+
+#profile-form input[type="file"]::file-selector-button {
+    background: #1769e0 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 9px 16px !important;
+    margin-right: 12px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+}
+
+#profile-form input[type="file"]::file-selector-button:hover {
+    background: #1257bd !important;
+}
+.back-home {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1769d0;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.back-home:hover {
+    color: #123b78;
 }

@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from landing_page.views import robots_txt
 from landing_page.sitemaps import LandingPageSitemap
+from django.conf import settings
+from django.conf.urls.static import static
 
 sitemaps = {
     "landing": LandingPageSitemap,

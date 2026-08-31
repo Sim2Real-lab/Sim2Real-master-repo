@@ -3,8 +3,8 @@
 /* Define CSS Variables for consistent theming */
 :root {
     --primary-blue: #007bff;
-    --accent-purple: #6a1a9a; /* Deeper, more subdued purple */
-    --light-purple: #8e2de2; /* Slightly brighter for accents */
+    --accent-blue: #0e014f; /* Deeper, more subdued purple */
+    --light-blue: #0d0043; /* Slightly brighter for accents */
     --dark-bg-color-1: #0a0a1a; /* Darkest base color */
     --dark-bg-color-2: #150f2e; /* Slightly lighter dark color */
     --panel-bg: rgba(15, 12, 30, 0.95); /* Header/Nav panel background */
@@ -12,20 +12,27 @@
     --border-color: rgba(255, 255, 255, 0.12); /* Subtle, slightly more visible border */
     --text-color: #e9ecef; /* Off-white for main text */
     --text-light: #adb5bd; /* Dimmer for secondary text */
-    --glow-color: #8e2de2; /* Main glow color */
+    --glow-color: #030a58; /* Main glow color */
     --dropdown-bg: rgba(20, 18, 38, 0.98); /* Similar to login card */
-    --dropdown-item-hover: rgba(138, 43, 226, 0.2); /* Purple tint on hover */
+    --dropdown-item-hover: rgba(13, 110, 253, 0.2); /* Purple tint on hover */
 }
 
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
+    padding-top: 85px;
     line-height: 1.6;
     /* Animated gradient background - Consistent with landing/login pages */
-    background: linear-gradient(-45deg, var(--dark-bg-color-1), var(--dark-bg-color-2), var(--dark-bg-color-1), var(--dark-bg-color-2));
-    background-size: 400% 400%;
-    animation: gradientAnimation 20s ease infinite;
+   background: linear-gradient(
+    to bottom,
+    #dbeafe 0%,
+    #eaf3ff 35%,
+    #f6faff 65%,
+    #ffffff 100%
+    );
+    background-size: 100% 100%;
+    animation: none;
     color: var(--text-color); /* Default text color for body */
     min-height: 100vh; /* Ensure body takes full viewport height */
     display: flex;
@@ -51,7 +58,7 @@ body {
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color); /* Subtle border */
     box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* Stronger shadow for depth */
-    position: sticky; /* Make it stick to the top */
+     /* Make it stick to the top */
     top: 0;
     z-index: 1000; /* Ensure it's above other content */
 }
@@ -65,17 +72,17 @@ header {
 }
 
 .site-branding h1 {
-    font-size: 2.5rem; /* Large and prominent */
+    font-size: 3.0rem; /* Large and prominent */
     font-weight: 800; /* Extra bold */
     color: white;
     margin-bottom: 5px;
     letter-spacing: 2px; /* Subtle spacing */
-    text-shadow: 0 0 10px rgba(138, 43, 226, 0.4); /* Soft purple glow */
+    text-shadow: 0 0 10px rgba(13, 110, 253, 0.4); /* Soft purple glow */
 }
 
 .site-branding strong {
     font-size: 1.2rem;
-    color: var(--light-purple); /* Accent color for sub-branding */
+    color: rgb(21, 81, 208); /* Accent color for sub-branding */
     letter-spacing: 1px;
     display: block;
     margin-bottom: 3px;
@@ -101,13 +108,13 @@ header {
     border-radius: 50%;
     object-fit: cover;
     margin-right: 12px;
-    border: 2px solid var(--light-purple); /* Glowing border */
-    box-shadow: 0 0 8px rgba(138, 43, 226, 0.5); /* Subtle glow */
+    border: 2px solid var(--light-blue); /* Glowing border */
+    box-shadow: 0 0 8px rgba(13, 110, 253, 0.5); /* Subtle glow */
     transition: all 0.3s ease;
 }
 
 .profile-img:hover {
-    box-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+    box-shadow: 0 0 15px rgba(50, 102, 179, 0.8);
     transform: scale(1.05); /* Slight scale on hover */
 }
 
@@ -138,7 +145,7 @@ header {
 }
 .profile-dropdown-toggle:hover {
     color: var(--light-purple) !important;
-    text-shadow: 0 0 8px rgba(138, 43, 226, 0.5);
+    text-shadow: 0 0 8px rgba(13, 110, 252, 0.5);
 }
 
 /* Main Navigation */
@@ -169,13 +176,13 @@ header {
     transform: translateX(-50%) scaleX(0);
     width: 0%;
     height: 2px;
-    background-color: var(--light-purple);
+    background-color: var(--light-blue);
     transition: all 0.3s ease-out;
 }
 
 .nav-link-item:hover {
     color: white;
-    text-shadow: 0 0 5px var(--light-purple);
+    text-shadow: 0 0 5px var(--light-blue);
     transform: translateY(-2px);
 }
 .nav-link-item:hover::after {
@@ -196,7 +203,7 @@ header {
     background-color: var(--dropdown-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(138, 43, 226, 0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(13, 110, 252, 0.2);
     padding: 8px 0;
 }
 
@@ -214,7 +221,7 @@ header {
 }
 
 .profile-dropdown-menu .dropdown-item i {
-    color: var(--light-purple); /* Icon color */
+    color: var(--light-blue); /* Icon color */
     width: 20px;
     text-align: center;
 }
@@ -235,37 +242,44 @@ header {
 section { 
     padding: 40px; /* Increased general padding for sections */
     margin-bottom: 40px; /* More space between sections */
-    background: var(--card-bg); /* Consistent card background */
-    border-radius: 12px;
+    background: rgba(33, 40, 76, 0.8) !important; /* Consistent card background */
+    border-radius: 20px;
     backdrop-filter: blur(20px); /* Enhanced glassmorphism for content cards */
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.35), 0 0 15px rgba(138, 43, 226, 0.2); /* Stronger, more diffused glow */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2), 0 0 15px rgba(13, 110, 252, 0.2); /* Stronger, more diffused glow */
 }
 
 h2 { 
     font-size: 2.2rem; /* Slightly larger heading */
-    color: white;
+    color: rgb(14, 13, 13);
     margin-bottom: 30px; /* More space below heading */
     text-align: center;
     border-bottom: 2px solid var(--border-color); /* Themed border */
     padding-bottom: 15px; /* More padding below border */
     font-weight: 700;
+    border-color: var(--accent-blue);
 }
 
 /* Card Styling (Registration, Feature, Announcements) */
 .card {
-    background: rgba(30, 25, 60, 0.75); /* Slightly more opaque card background */
+    background: white; /* Slightly more opaque card background */
     border: 1px solid rgba(255, 255, 255, 0.12); /* Slightly more visible border */
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3), 0 0 10px rgba(138, 43, 226, 0.18); /* Stronger shadow/glow */
+    border-radius: 15px;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.2); /* Stronger shadow/glow */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: 100%; /* Ensure cards in a row have equal height */
+    border-color: var(--accent-blue);
+    
 }
-
 .card:hover {
-    transform: translateY(-7px); /* More pronounced lift on hover */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(138, 43, 226, 0.4); /* More intense shadow/glow on hover */
+    border: 2px solid #1769E0 !important;
+    transform: translateY(-3px);
+    border-color: #030a58;
+    box-shadow:
+        0 8px 20px rgba(23, 105, 224, 0.18) !important;
+
+    background: #ffffff !important;
 }
 
 .card-body {
@@ -280,7 +294,7 @@ h2 {
     font-weight: 600;
 }
 .card-title i {
-    color: var(--light-purple);
+    color: var(--light-blue);
     margin-right: 12px; /* More space for icon */
 }
 
@@ -292,12 +306,12 @@ h2 {
 /* Specific Card Adjustments */
 .registration-card .card-title {
     font-size: 1.8rem; /* Larger for impact */
-    color: var(--light-purple); /* Highlight registration text */
-    text-shadow: 0 0 8px rgba(138, 43, 226, 0.4); /* Glow for emphasis */
+    color: rgb(29, 69, 215); /* Highlight registration text */
+    text-shadow: 0 0 8px rgba(13, 110, 253, 0); /* Glow for emphasis */
 }
 
 .registration-status-card .card-title {
-    color: #28a745; /* Green for success */
+    color: #26a81f; /* Green for success */
 }
 
 .announcements-card .card-body ul {
@@ -317,10 +331,11 @@ h2 {
 .announcements-card .card-body ul li p {
     font-size: 0.95rem; /* Slightly larger text */
     line-height: 1.6;
-    color: var(--text-light);
+    color: rgb(9, 18, 47);
+    font-weight: 500;
 }
 .announcements-card .card-body ul li strong {
-    color: white;
+    color: rgb(1, 0, 0);
 }
 .announcements-card .card-body ul li small {
     color: var(--text-light);
@@ -329,38 +344,40 @@ h2 {
 
 /* General Button Styling (re-using theme's btn-glow) */
 .btn-glow {
-    background: linear-gradient(90deg, var(--accent-purple), var(--light-purple));
+    background: rgb(21, 56, 120);
     border: none;
     color: white;
     padding: 14px 30px; /* More generous padding */
     border-radius: 50px;
     font-weight: bold;
     text-transform: uppercase;
-    box-shadow: 0 0 12px rgba(138, 43, 226, 0.6), 0 0 25px rgba(106, 26, 154, 0.4); /* Stronger glow */
+    box-shadow: 0 0 2px rgba(42, 103, 194, 0.6), 0 0 2px rgba(58, 113, 223, 0.4); /* Stronger glow */
     transition: all 0.4s ease;
     background-size: 200% auto;
     letter-spacing: 1px;
+    border-color: #477ab1;
 }
 
 .btn-glow:hover {
     background-position: right center;
-    box-shadow: 0 0 25px rgba(138, 43, 226, 0.9), 0 0 50px rgba(106, 26, 154, 0.7); /* More intense glow on hover */
+    box-shadow: 0 0 2px rgba(239, 234, 234, 0.9), 0 0 2px rgba(26, 82, 171, 0.7); /* More intense glow on hover */
     transform: translateY(-4px); /* More pronounced lift */
     color: white;
+    border-color: white;
 }
 
 .btn-outline-light {
-    color: var(--light-purple);
-    border-color: var(--light-purple);
+    color: var(--light-blue);
+    border-color: var(--light-blue);
     transition: all 0.3s ease;
-    box-shadow: 0 0 6px rgba(138, 43, 226, 0.6); /* Slightly stronger shadow */
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.6); /* Slightly stronger shadow */
     font-weight: 600;
 }
 
 .btn-outline-light:hover {
-    background-color: var(--light-purple);
+    background-color: var(--light-blue);
     color: #fff;
-    box-shadow: 0 0 20px var(--light-purple); /* More intense glow */
+    box-shadow: 0 0 20px var(--light-blue); /* More intense glow */
     transform: translateY(-2px); /* More pronounced lift */
 }
 
@@ -374,7 +391,7 @@ h2 {
 .dropdown-menu {
     background-color: var(--dropdown-bg);
     border: 1px solid var(--border-color);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(138, 43, 226, 0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(13, 110, 252, 0.2);
     padding: 8px 0;
 }
 
@@ -390,7 +407,7 @@ h2 {
 }
 
 .dropdown-item .fas { /* Style for Font Awesome icons in dropdown */
-    color: var(--light-purple);
+    color: var(--light-blue);
     margin-right: 10px;
 }
 
@@ -736,7 +753,7 @@ input, textarea, select, button {
 .gear {
   width: 60px;
   height: 60px;
-  border: 8px solid #b721ff;
+  border: 8px solid #130948;
   border-radius: 50%;
   position: absolute;
   left: 20vw;
@@ -747,4 +764,538 @@ input, textarea, select, button {
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+
+/* =========================================================
+   1. PAGE BACKGROUND
+   ========================================================= */
+
+html,
+body {
+   background: linear-gradient(
+
+        to bottom,
+
+        #dbeafe 0%,
+
+        #eaf3ff 35%,
+
+        #f6faff 65%,
+
+        #ffffff 100%
+
+    );
+    color: #173b6c !important;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* =========================================================
+   2. TOP NAVBAR
+   ========================================================= */
+
+.site-navbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dbe7f5 !important;
+    box-shadow: 0 2px 12px rgba(20, 80, 150, 0.08) !important;
+}
+
+
+/* Logo */
+
+.site-navbar .navbar-brand {
+    color: #0b2a5b !important;
+    font-weight: 800 !important;
+}
+
+
+/* Navigation links */
+
+.site-navbar .nav-link {
+    color: #173b6c !important;
+    font-weight: 600 !important;
+    transition: color 0.2s ease;
+    .nav-link i,
+nav a i {
+    margin-right: 7px;
+    font-size: 0.9em;
+}
+}
+
+.site-navbar .nav-link:hover {
+    color: #1464d2 !important;
+}
+
+
+/* Brochure button */
+
+.site-navbar .btn-success {
+    background: #1464d2 !important;
+    border-color: #1464d2 !important;
+    color: white !important;
+    border-radius: 7px !important;
+}
+
+.site-navbar .btn-success:hover {
+    background: #0b55bd !important;
+    border-color: #0b55bd !important;
+}
+
+
+/* Profile */
+
+.site-navbar .profile-img {
+    border: 2px solid #9fc4ee !important;
+}
+ .site-navbar .nav-link i,
+nav a i {
+    margin-right: 7px;
+    font-size: 0.9em;
+}
+
+
+/* =========================================================
+   12. MOBILE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+    .main-content-area {
+        padding: 20px 4% 40px !important;
+    }
+
+    .main-content-area > section {
+        padding: 18px !important;
+        border-radius: 18px !important;
+    }
+
+    .main-content-area > section h1::before,
+    .main-content-area > section h1::after {
+        display: none;
+    }
+}
+section {
+    padding: 40px;
+    margin-bottom: 40px;
+
+    background: #ffffff !important;
+
+    border-radius: 24px;
+
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+
+    border: 1px solid #dbe7f5;
+
+    box-shadow: 0 8px 25px rgba(13, 78, 140, 0.08);
+}
+/* =========================================================
+   SIM2REAL - CLEAN BLUE & WHITE DASHBOARD
+   Add this at the VERY END of style.css
+   ========================================================= */
+
+/* ---------- Whole page ---------- */
+
+body {
+    background: linear-gradient(
+
+        to bottom,
+
+        #c6dcf7 0%,
+
+        #eaf3ff 35%,
+
+        #f6faff 65%,
+
+        #ffffff 100%
+
+    );
+    color: #102A5C !important;
+}
+
+
+/* ---------- Dashboard area ---------- */
+
+.main-content-area {
+    background: #ffffff !important;
+    padding: 35px 5% 60px !important;
+}
+
+
+/* ---------- Main dashboard container ---------- */
+
+.main-content-area > section {
+    background: #ffffff !important;
+
+    border: 1px solid #D8E5F5 !important;
+    border-radius: 28px !important;
+
+    padding: 35px !important;
+    margin: 0 auto 30px !important;
+
+    box-shadow: 0 8px 30px rgba(15, 55, 110, 0.08) !important;
+
+    backdrop-filter: none !important;
+}
+
+
+/* ---------- Dashboard heading ---------- */
+
+.main-content-area > section h1,
+.main-content-area > section h2 {
+    color: #0B2A5B !important;
+
+    font-weight: 800 !important;
+    text-align: center;
+
+    margin-top: 0 !important;
+    margin-bottom: 25px !important;
+}
+
+
+/* Small blue lines around heading */
+
+.main-content-area > section h1::before,
+.main-content-area > section h1::after {
+    content: "";
+    display: inline-block;
+
+    width: 55px;
+    height: 3px;
+
+    background: #1769E0;
+
+    vertical-align: middle;
+    margin: 0 22px;
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .main-content-area {
+        padding: 25px 18px 40px !important;
+    }
+
+    .main-content-area > section {
+        padding: 20px !important;
+        border-radius: 20px !important;
+    }
+
+    .main-content-area > section h1::before,
+    .main-content-area > section h1::after {
+        display: none;
+    }
+
+    .card {
+        padding: 22px !important;
+    }
+}
+/* =========================================================
+   SIM2REAL DASHBOARD - OUTER SECTION ONLY
+   Keep existing card design unchanged
+   ========================================================= */
+
+.main-content-area {
+    background: #ffffff !important;
+
+    /* Make the outer section wider */
+    padding: 35px 2.5% 60px !important;
+
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+
+/* Outer dashboard container */
+.main-content-area > section {
+    background: #d6e2f5 !important;
+
+    border: 1px solid #D5E3F5 !important;
+
+    border-radius: 26px !important;
+
+    /* Bigger outer section */
+    padding: 40px !important;
+
+    width: 100% !important;
+    max-width: 1400px !important;
+
+    margin: 0 auto !important;
+
+    box-shadow:
+        0 8px 30px rgba(25, 75, 140, 0.08) !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* Dashboard heading */
+.main-content-area > section h1 {
+    color: #0B2F63 !important;
+}
+
+
+/* =========================================================
+   KEEP YOUR EXISTING CARDS
+   ONLY CHANGE THEIR COLORS
+   ========================================================= */
+
+.main-content-area > section .card {
+    background: #ffffff !important;
+
+    border-color: #1c5cb0 !important;
+
+    box-shadow:
+        0 5px 18px rgba(11, 29, 54, 0.08) !important;
+}
+
+
+/* Card titles */
+.main-content-area > section .card-title {
+    color: #123A70 !important;
+}
+
+
+/* Card description */
+.main-content-area > section .card-text,
+.main-content-area > section .card p {
+    color: #526985 !important;
+}
+
+
+/* Card icons */
+.main-content-area > section .card i,
+.main-content-area > section .card svg {
+    color: #1769E0 !important;
+}
+
+
+/* =========================================================
+   ANNOUNCEMENTS - SAME CARD STYLE, ONLY COLORS
+   ========================================================= */
+
+.main-content-area > section .announcements-card {
+    background: #F8FBFF !important;
+
+    border-color: #9FC3F3 !important;
+
+    box-shadow:
+        0 5px 18px rgba(30, 80, 150, 0.08) !important;
+}
+
+
+/* Announcement heading */
+.main-content-area > section .announcements-card .card-title {
+    color: #123A70 !important;
+}
+
+
+/* Announcement icon */
+.main-content-area > section .announcements-card i,
+.main-content-area > section .announcements-card svg {
+    color: #1769E0 !important;
+}
+
+
+/* Announcement text */
+.main-content-area > section .announcements-card li {
+    color: #385574 !important;
+}
+
+
+/* Announcement date */
+.main-content-area > section .announcements-card small,
+.main-content-area > section .announcements-card time {
+    color: #71849B !important;
+}
+
+
+/* Announcement separator */
+.main-content-area > section .announcements-card li {
+    border-bottom-color: #D9E6F5 !important;
+}
+/* =========================================================
+   DASHBOARD BUTTON COLORS
+   ========================================================= */
+
+/* REGISTER NOW button */
+.main-content-area .registration-card button,
+.main-content-area .registration-card .btn {
+    background: #1769E0 !important;
+    border: 1px solid #1769E0 !important;
+    color: #ffffff !important;
+}
+
+
+/* My Profile + Go to Team buttons */
+.main-content-area .card button,
+.main-content-area .card .btn {
+    background: #ffffff !important;
+    border: 2px solid #1769E0 !important;
+    color: #123A70 !important;
+}
+
+
+/* Hover for card buttons */
+.main-content-area .card button:hover,
+.main-content-area .card .btn:hover {
+    background: #1769E0 !important;
+    border-color: #1769E0 !important;
+    color: #ffffff !important;
+    border-color: #1769E0 ;
+}
+
+
+/* View All Announcements */
+.main-content-area .announcements-card button,
+.main-content-area .announcements-card .btn {
+    background: #ffffff !important;
+    border: 2px solid #1769E0 !important;
+    color: #123A70 !important;
+}
+
+
+/* Hover */
+.main-content-area .announcements-card button:hover,
+.main-content-area .announcements-card .btn:hover {
+    background: #16335e !important;
+    color: #ffffff !important;
+}
+/* =========================================================
+   CLEAN DASHBOARD BUTTONS
+   ========================================================= */
+
+/* All dashboard card buttons */
+.main-content-area > section .card button,
+.main-content-area > section .card .btn,
+.main-content-area > section .announcements-card button,
+.main-content-area > section .announcements-card .btn {
+    background: #1769E0 !important;
+    color: #fbfdff !important;
+    border: 2px solid #1769E0 !important;
+    box-shadow: 0 3px 10px rgba(23, 105, 224, 0.12) !important;
+    transition: all 0.2s ease !important;
+}
+
+
+/* Clean hover */
+.main-content-area > section .card button:hover,
+.main-content-area > section .card .btn:hover,
+.main-content-area > section .announcements-card button:hover,
+.main-content-area > section .announcements-card .btn:hover {
+    background: #EAF3FF !important;
+    color: #123A70 !important;
+    border-color: #1769E0 !important;
+
+    /* Remove the strong purple/blue glow */
+    box-shadow: 0 4px 12px rgba(23, 105, 224, 0.18) !important;
+
+    transform: translateY(-1px) !important;
+}
+/* =========================================
+   NEW SIM2REAL ROVER HERO
+   ========================================= */
+
+.top-panel {
+    width: 100% !important;
+    height: 300px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    position: relative !important;
+    overflow: hidden !important;
+
+    background-image: url("/static/assets/roverbanner.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+
+    background-color: white !important;
+}
+
+.top-panel::after {
+    display: none !important;
+}
+
+/* Your new heading */
+.top-panel header {
+    position: absolute !important;
+    left: 7% !important;
+    top: 50% !important;
+
+    transform: translateY(-50%) !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    z-index: 5 !important;
+}
+
+/* SIM2REAL 2025 */
+.top-panel h1 {
+    color: #123b78 !important;
+    font-size: 4rem !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+    font-style: italic;
+}
+
+/* ROBOTECH NITK */
+.top-panel h2 {
+    color: #1769e0 !important;
+    font-size: 1.5rem !important;
+    margin: 10px 0 !important;
+}
+
+/* Simulate. Build. Compete. */
+.top-panel p {
+    color: #45617f !important;
+    font-size: 1.15rem !important;
+    font-style: italic !important;
+}
+/* ===== NEW SIM2REAL HERO ===== */
+
+.top-panel {
+    position: relative;
+    width: 100%;
+    height: 380px !important;
+    min-height: 0 !important;
+
+    background-image: url("/static/assets/roverbanner.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    margin-top: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(20, 60, 120, 0.15);
+}
+
+.top-panel::after {
+    display: none !important;
+}
+/* FIX ANNOUNCEMENTS HEADING */
+.announcements-card h5.card-title {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #123b78 !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+    background: transparent !important;
+    text-shadow: none !important;
+}
+
+.announcements-card h5.card-title i {
+    color: #123b78 !important;
+    display: inline-block !important;
+    visibility: visible !important;
 }
