@@ -1299,3 +1299,109 @@ body {
     display: inline-block !important;
     visibility: visible !important;
 }
+@media (max-width: 767px) {
+    nav .container-fluid {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .navbar-brand {
+        margin-right: auto;
+    }
+
+    /* Force the profile dropdown to sit on the top header row next to the toggle */
+    .navbar > .container-fluid > .navbar-collapse + .navbar-nav,
+    .navbar-nav.ms-auto {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        order: 2 !important;
+        margin-left: auto !important;
+        margin-right: 10px !important;
+    }
+
+    /* Compact the profile display link */
+    .navbar-nav.ms-auto .nav-link {
+        padding: 0.25rem 0.4rem !important;
+    }
+
+    /* Position the hamburger toggle button on the far right */
+    .navbar-toggler {
+        order: 3 !important;
+        display: block !important;
+        width: auto !important;
+        margin: 0 !important;
+        padding: 5px 8px !important;
+        background-color: transparent !important;
+    }
+
+    .navbar-toggler-icon {
+        display: inline-block !important;
+        width: 1.25em;
+        height: 1.25em;
+        vertical-align: middle;
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(15, 43, 91, 1)' stroke-width='2.5' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100%;
+    }
+
+    /* The collapsible menu links drop underneath */
+    .navbar-collapse {
+        flex-basis: 100% !important;
+        width: 100% !important;
+        order: 4 !important;
+    }
+
+    .navbar-collapse .navbar-nav.me-auto {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding-top: 10px;
+        width: 100%;
+    }
+
+    .navbar-collapse .navbar-nav.me-auto .nav-item {
+        margin-bottom: 8px;
+    }
+}
+@media (max-width: 767px) {
+    /* Hide the username text on mobile, showing only the icon */
+    .navbar-nav.ms-auto .nav-link span {
+        display: none !important;
+    }
+
+    /* Style the Font Awesome icon for mobile */
+    .navbar-nav.ms-auto .nav-link i.fa-user-circle,
+    .navbar-nav.ms-auto .nav-link i.fa-user {
+        font-size: 1.4rem !important;
+        color: #0f2b5b !important;
+        padding: 4px;
+    }
+
+    /* Fix dropdown positioning on mobile */
+    .navbar-nav.ms-auto .dropdown-menu {
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        float: none !important;
+    }
+}
+/* Force announcement headings and section titles to be fully visible */
+.announcements-container h2, 
+.announcements-container h3, 
+.announcements-container h5, 
+.announcements-section h2, 
+.announcements-section h3,
+div:has(> .fa-bullhorn, > svg, .bi-megaphone) + *,
+.announcements-header h2 {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #0f2b5b !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    margin-left: 10px !important;
+}

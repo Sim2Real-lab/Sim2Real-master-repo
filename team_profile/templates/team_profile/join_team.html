@@ -1,84 +1,97 @@
 {% extends 'team_profile/team_base.html' %}
+{% load static %}
 {% block title %}Join Team{% endblock %}
 {% block extra_styles %}
 <style>
-    h2 {
-        color: white;
-        display: block;
-        padding-bottom: 15px;
-    }
-    .join{
-    background-color:#0057e7;;
-    cursor: pointer;
-    color: #fff;
-    padding: 7px;
-    border: 0;
-    display: block;
-    margin: 25px auto 0 auto; 
-    width: 120px;
-    border-radius: 5px;
-    position: relative;
-    width: 50%;
-    }
-    .join:hover {
-  box-shadow: 0px 3px 2px #0092e7 inset;
-}
-
-.container{
-    background-color:rgba(31, 32, 35, 0.8);
-    padding:20px;
-    border-radius:20px;
-    height:250px;
-    align-content:center;
-    justify-self: center;
-    height:auto;
-}
-div{
-    color:#fff;
-}
-input{
-    background:rgba(128, 128, 128, 0.305);
-    border-radius:25px;
-    border:0;
-    color: #fff;
-}
-input:focus{
-    background-color: rgba(118, 112, 112, 0.519);
-}
-.individual-members {
-    margin: 20px;
-    background:  rgba(118, 112, 112, 0.519);
-    height: 100px;
-    border-radius: 10px;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    padding-left: 25px;
-    padding-right: 25px;
-    flex-direction:column;
-}
-.role-tag{
-    display:block;
-}
-
-    ul {
-        list-style-type: none;
-        padding-left: 0;
+    /* Tech Background Pattern */
+    body {
+        background-image: url('{% static "assets/image.png" %}') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+        background-color: #f4f7fb !important;
     }
 
-    li {
+    .top-panel {
+        display: none !important;
+    }
+
+    /* Target the old dark container and make it completely invisible/transparent */
+    .container {
+        background-color: transparent !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        max-width: 650px !important;
+        margin: 40px auto !important;
+        padding: 0 !important;
+    }
+
+    /* Target your inner form card and make it crisp white */
+    .card, .form-card, form, .inner-container {
+        background-color: #ffffff !important;
+        padding: 45px !important;
+        border-radius: 12px !important;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    h2, h3, h4 {
+        color: #0f2b5b !important;
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    label {
+        color: #0f2b5b !important;
+        font-weight: 700;
+        font-size: 14px;
         margin-bottom: 8px;
-        font-size: 16px;
+        display: block;
+        text-align: left;
     }
 
-    .highlight {
-        font-weight: bold;
-        color: #58a6ff;
+    input[type="text"], input[type="email"], input[type="password"], select {
+        width: 100% !important;
+        padding: 12px 15px !important;
+        border: 1px solid #d2d6dc !important;
+        border-radius: 6px !important;
+        background-color: #ffffff !important;
+        font-size: 14px !important;
+        color: #333333 !important;
+        margin-bottom: 20px !important;
+        box-sizing: border-box !important;
+    }
+
+    input:focus {
+        outline: none !important;
+        border-color: #0066ff !important;
+    }
+
+    .create, .join, button[type="submit"], input[type="submit"] {
+        background-color: #0066ff !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 12px 30px !important;
+        border-radius: 25px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        display: block !important;
+        width: 180px !important;
+        margin: 20px auto 0 auto !important;
+        transition: background-color 0.3s ease !important;
+    }
+
+    .create:hover, .join:hover, button[type="submit"]:hover, input[type="submit"]:hover {
+        background-color: #0052cc !important;
     }
 </style>
-{% endblock %}
 
+{% endblock %}
 {% block content %}
+
 <div class="container">
     {% if already_in_team %}
         <h2>You are already in a team!</h2>

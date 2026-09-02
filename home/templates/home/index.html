@@ -62,8 +62,7 @@
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="dropdownUser1"
              role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{% static 'assets/default.png' %}" alt="Profile" class="profile-img rounded-circle me-2">
-            {{ user.username }}
+           <i class="fas fa-user-circle fa-lg" style="color: #0f2b5b; vertical-align: middle;"></i>{{ user.username }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser1">
             <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>My Profile</a></li>
@@ -234,6 +233,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 2500); // Show overlay for 2.5 seconds
     });
     {% endif %}
+</script>
+<script>
+    function moveProfileForMobile() {
+        const profileDropdown = document.querySelector('.navbar-nav.ms-auto');
+        const containerFluid = document.querySelector('.navbar .container-fluid');
+        const toggler = document.querySelector('.navbar-toggler');
+
+        if (window.innerWidth <= 767) {
+            // Move profile out of collapse and onto the top bar next to the toggle
+            if (profileDropdown && toggler && profileDropdown.parentElement !== containerFluid) {
+                containerFluid.insertBefore(profileDropdown, toggler);
+            }
+        } else {
+            // Put it back when on desktop
+            const navbarCollapse = document.getElementById('dashboardNav');
+            if (profileDropdown && navbarCollapse && !navbarCollapse.contains(profileDropdown)) {
+                navbarCollapse.appendChild(profileDropdown);
+            }
+        }
+    }
+
+    window.addEventListener('resize', moveProfileForMobile);
+    window.addEventListener('DOMContentLoaded', moveProfileForMobile);
 </script>
 </body>
 </html>

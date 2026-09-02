@@ -1,72 +1,92 @@
 {% extends 'team_profile/team_base.html' %}
+{% load static %}
 {% block title %}Create Team{% endblock %}
 
 {% block extra_styles %}
 <style>
-    h2, h3, p, li {
-        color: white;
+    /* Tech Background Pattern */
+    body {
+        background-image: url('{% static "assets/image.png" %}') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+        background-color: #f4f7fb !important;
     }
 
+    .top-panel {
+        display: none !important;
+    }
+
+    /* Target the old dark container and make it completely invisible/transparent */
     .container {
-        background-color: rgba(31, 32, 35, 0.85);
-        padding: 25px;
-        border-radius: 20px;
+        background-color: transparent !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        max-width: 650px !important;
+        margin: 40px auto !important;
+        padding: 0 !important;
+    }
+
+    /* Target your inner form card and make it crisp white */
+    .card, .form-card, form, .inner-container {
+        background-color: #ffffff !important;
+        padding: 45px !important;
+        border-radius: 12px !important;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    h2, h3, h4 {
+        color: #0f2b5b !important;
+        text-align: center;
+        font-weight: 700;
         margin-bottom: 25px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
-    .container.secondary {
-        background-color: rgba(50, 50, 50, 0.7);
-    }
-
-    .create {
-        background-color: #0057e7;
-        color: #fff;
-        padding: 10px 20px;
-        border: 0;
-        border-radius: 5px;
-        margin-top: 15px;
-        width: 100%;
-        max-width: 200px;
+    label {
+        color: #0f2b5b !important;
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 8px;
         display: block;
-        margin-left: auto;
-        margin-right: auto;
-        transition: background-color 0.3s, box-shadow 0.3s;
+        text-align: left;
     }
 
-    .create:hover {
-        background-color:hsl(118, 87.50%, 12.50%);
-        box-shadow: 0 3px 5px rgba(0, 146, 231, 0.3);
-    }
-
-    input[type="text"], input[type="email"], select {
-        background-color: rgba(128, 128, 128, 0.3);
-        border: none;
-        border-radius: 25px;
-        padding: 10px;
-        color: #fff;
-        width: 100%;
-        margin-bottom: 15px;
+    input[type="text"], input[type="email"], input[type="password"], select {
+        width: 100% !important;
+        padding: 12px 15px !important;
+        border: 1px solid #d2d6dc !important;
+        border-radius: 6px !important;
+        background-color: #ffffff !important;
+        font-size: 14px !important;
+        color: #333333 !important;
+        margin-bottom: 20px !important;
+        box-sizing: border-box !important;
     }
 
     input:focus {
-        background-color: rgba(118, 112, 112, 0.5);
-        outline: none;
+        outline: none !important;
+        border-color: #0066ff !important;
     }
 
-    ul {
-        list-style-type: none;
-        padding-left: 0;
+    .create, .join, button[type="submit"], input[type="submit"] {
+        background-color: #0066ff !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 12px 30px !important;
+        border-radius: 25px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        display: block !important;
+        width: 180px !important;
+        margin: 20px auto 0 auto !important;
+        transition: background-color 0.3s ease !important;
     }
 
-    li {
-        margin-bottom: 8px;
-        font-size: 16px;
-    }
-
-    .highlight {
-        font-weight: bold;
-        color: #58a6ff;
+    .create:hover, .join:hover, button[type="submit"]:hover, input[type="submit"]:hover {
+        background-color: #0052cc !important;
     }
 </style>
 {% endblock %}
