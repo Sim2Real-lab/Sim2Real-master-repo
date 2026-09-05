@@ -1064,7 +1064,7 @@ body {
 
 
 /* Card description */
-.main-content-area > section .card-text,
+.main-content-area > section .card-text,s
 .main-content-area > section .card p {
     color: #526985 !important;
 }
@@ -1082,7 +1082,7 @@ body {
    ========================================================= */
 
 .main-content-area > section .announcements-card {
-    background: #F8FBFF !important;
+    background: #fdfeff !important;
 
     border-color: #9FC3F3 !important;
 
@@ -1119,7 +1119,7 @@ body {
 
 /* Announcement separator */
 .main-content-area > section .announcements-card li {
-    border-bottom-color: #D9E6F5 !important;
+    border-bottom-color: #f2eded !important;
 }
 /* =========================================================
    DASHBOARD BUTTON COLORS
@@ -1156,7 +1156,7 @@ body {
 /* View All Announcements */
 .main-content-area .announcements-card button,
 .main-content-area .announcements-card .btn {
-    background: #ffffff !important;
+    background: #0c0c0c !important;
     border: 2px solid #1769E0 !important;
     color: #123A70 !important;
 }
@@ -1178,7 +1178,7 @@ body {
 .main-content-area > section .announcements-card button,
 .main-content-area > section .announcements-card .btn {
     background: #1769E0 !important;
-    color: #fbfdff !important;
+    color: #fef9f9 !important;
     border: 2px solid #1769E0 !important;
     box-shadow: 0 3px 10px rgba(23, 105, 224, 0.12) !important;
     transition: all 0.2s ease !important;

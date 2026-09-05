@@ -33,11 +33,38 @@
         </div>
         </header>
         <div class="overlay"></div>
-        {% if not user.team.exists %}
-           <div class="alert alert-warning text-center mt-4" role="alert">
-    You are not part of any team. <a href="{% url 'create_team' %}">Create</a> or <a href="{% url 'join_team' %}">Join</a> a team.
-  </div>
-        {% endif %}
+       {% if not user.team.exists %}
+<div class="team-start-card">
+
+    <div class="team-icon">
+        <i class="fa fa-users"></i>
+    </div>
+
+    <h2>Ready to Compete?</h2>
+
+    <p class="team-subtitle">
+        You're not part of any team yet.
+    </p>
+
+    <p class="team-description">
+        Create a new team or join an existing one to get started
+        and participate in the competition.
+    </p>
+
+    <div class="team-actions">
+        <a href="{% url 'create_team' %}" class="create-team-btn">
+            <i class="fa fa-plus"></i>
+            Create Team
+        </a>
+
+        <a href="{% url 'join_team' %}" class="join-team-btn">
+            <i class="fa fa-users"></i>
+            Join Team
+        </a>
+    </div>
+
+</div>
+{% endif %}
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

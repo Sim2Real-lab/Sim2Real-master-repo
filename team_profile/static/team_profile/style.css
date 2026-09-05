@@ -243,7 +243,7 @@ h1 {
     border-radius: 50px;
     font-weight: bold;
     text-transform: uppercase;
-    box-shadow: 0 0 15px rgba(156, 39, 176, 0.7), 0 0 30px rgba(123, 31, 162, 0.5);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(2, 2, 2, 0.5);
     transition: all 0.4s ease;
     background-size: 200% auto;
     letter-spacing: 1.5px;
@@ -256,7 +256,7 @@ h1 {
 
 .btn-glow:hover {
     background-position: right center;
-    box-shadow: 0 0 30px rgba(156, 39, 176, 1), 0 0 60px rgba(123, 31, 162, 0.8);
+    box-shadow: 0 0 30px rgb(5, 5, 5), 0 0 60px rgba(4, 4, 4, 0.8);
     transform: translateY(-5px);
     color: white;
 }
@@ -413,5 +413,443 @@ h1 {
         padding: 8px 12px;
         font-size: 0.8rem;
         margin-bottom: 12px;
+    }
+}
+    
+/* Clean Team Message */
+.alert.alert-warning {
+    width: fit-content;
+    max-width: 650px;
+    margin: 25px auto !important;
+    padding: 16px 28px;
+
+    background: #f8fbff;
+    border: 1px solid #c9def5;
+    border-radius: 10px;
+
+    color: #173f73;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+
+    box-shadow: 0 4px 14px rgba(30, 80, 140, 0.08);
+}
+
+.alert.alert-warning a {
+    color: #1769d5;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 0 4px;
+}
+
+.alert.alert-warning a:hover {
+    color: #0d55b5;
+    text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .alert.alert-warning {
+        width: calc(100% - 40px);
+        max-width: none;
+        padding: 14px 16px;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+}
+/* =========================================
+   TEAM START CARD - MODERN BLUE DESIGN
+   ========================================= */
+
+.team-start-card {
+    width: 560px;
+    max-width: calc(100% - 30px);
+    margin: 185px auto 40px;
+    padding: 38px 45px;
+    box-sizing: border-box;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    text-align: center;
+
+    box-shadow: 0 10px 35px rgba(30, 80, 150, 0.12);
+
+    position: relative;
+    z-index: 10;
+}
+
+/* Team icon */
+
+.team-icon {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eaf3ff;
+    border-radius: 50%;
+
+    color: #1769d5;
+    font-size: 30px;
+}
+
+/* Heading */
+
+.team-start-card h2 {
+    margin: 0 0 10px;
+
+    color: #173f73;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+/* Small subtitle */
+
+.team-subtitle {
+    margin: 0 0 10px;
+
+    color: #536b8c;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Description */
+
+.team-description {
+    max-width: 450px;
+    margin: 0 auto 25px;
+
+    color: #71829b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Buttons container */
+
+.team-actions {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+}
+
+/* Common button */
+
+.create-team-btn,
+.join-team-btn {
+    width: 190px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: all 0.25s ease;
+}
+
+/* Create Team */
+
+.create-team-btn {
+    background: #1769d5;
+    color: #ffffff;
+
+    box-shadow: 0 5px 15px rgba(23, 105, 213, 0.22);
+}
+
+.create-team-btn:hover {
+    background: #0f5bbb;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Join Team */
+
+.join-team-btn {
+    background: #ffffff;
+    color: #1769d5;
+
+    border: 2px solid #1769d5;
+}
+
+.join-team-btn:hover {
+    background: #1769d5;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 650px) {
+
+    .team-start-card {
+        margin: 100px 15px 30px;
+        padding: 30px 20px;
+    }
+
+    .team-start-card h2 {
+        font-size: 25px;
+    }
+
+    .team-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .create-team-btn,
+    .join-team-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+body {
+    background-image: url("/static/assets/image.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    background-color: #f4f7fb !important;
+
+    min-height: 100vh;
+}
+/* ===== FINAL BACKGROUND OVERRIDE ===== */
+
+body {
+    background: url("/static/assets/image.png") center center / cover no-repeat fixed !important;
+}
+
+/* Remove old background shapes */
+body::before,
+body::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Remove old animated background */
+body {
+    animation: none !important;
+}
+
+/* Keep page content transparent so background is visible */
+.content {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+/* =========================================================
+   TEAM PAGE - SAME NAVBAR + LIGHT BACKGROUND
+   ========================================================= */
+
+/* Remove old dark/gradient background */
+html,
+body {
+    margin: 0 !important;
+    min-height: 100vh !important;
+    background: #f4f8ff !important;
+}
+
+/* New background image */
+body {
+    background-image: url("/static/assets/image.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+/* Remove old dark wrappers */
+body > .container,
+body > .container-fluid,
+.top-panel,
+.main-content {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+/* =====================================================
+   TEAM PAGE - WHITE NAVBAR
+   ===================================================== */
+
+.site-navbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dbe7f5 !important;
+    box-shadow: 0 2px 12px rgba(20, 80, 150, 0.08) !important;
+    color: #173f73 !important;
+}
+
+.site-navbar .navbar-brand {
+    color: #173f73 !important;
+    font-weight: 800 !important;
+}
+
+.site-navbar .nav-link {
+    color: #173f73 !important;
+    font-weight: 600 !important;
+}
+
+.site-navbar .nav-link:hover {
+    color: #1769d5 !important;
+}
+
+.site-navbar .btn-success {
+    background: #1769d5 !important;
+    border-color: #1769d5 !important;
+    color: white !important;
+    border-radius: 7px !important;
+}
+
+.site-navbar .btn-success:hover {
+    background: #0d5bc0 !important;
+    border-color: #0d5bc0 !important;
+}
+
+.site-navbar .profile-img {
+    border: 2px solid #dbe7f5 !important;
+}
+
+/* Make sure old dark header does not appear */
+header {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+/* =====================================================
+   FINAL TEAM PAGE OVERRIDE
+   ===================================================== */
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    background: #f4f8ff !important;
+}
+
+/* Remove old overlay/background layers */
+body::before,
+body::after,
+.overlay {
+    display: none !important;
+}
+
+/* NAVBAR */
+header {
+    background: #ffffff !important;
+    color: #173f73 !important;
+    min-height: 76px !important;
+    padding: 0 50px !important;
+    border-bottom: 1px solid #dbe7f5 !important;
+    box-shadow: 0 2px 12px rgba(20, 80, 150, 0.08) !important;
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+/* Home icon */
+header .back,
+header .back a,
+header .back i {
+    color: #173f73 !important;
+}
+
+/* Profile */
+header .profile-img {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    border: 2px solid #2b7de9 !important;
+}
+
+/* Dropdown arrow */
+header .dropdown-toggle {
+    color: #173f73 !important;
+}
+
+/* PAGE BACKGROUND */
+body {
+    background-image: url("/static/assets/image.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+/* Remove old dark containers */
+body > .container,
+body > .container-fluid,
+.top-panel,
+.main-content,
+.card,
+.row {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* TEAM CARD */
+.team-wrapper {
+    width: 650px !important;
+    max-width: calc(100% - 40px) !important;
+    margin: 120px auto 60px !important;
+    padding: 40px !important;
+    box-sizing: border-box !important;
+
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 30px rgba(30, 80, 140, 0.12) !important;
+}
+
+/* Headings */
+.team-wrapper h1,
+.team-wrapper h2,
+.team-wrapper h3 {
+    color: #234d7d !important;
+}
+
+/* Text */
+.team-wrapper p,
+.team-wrapper label,
+.team-wrapper span {
+    color: #718096 !important;
+}
+
+/* Buttons */
+.team-wrapper .create,
+.team-wrapper .join,
+.team-wrapper button {
+    background: #1769d5 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 9px !important;
+}
+
+.team-wrapper .join {
+    background: #ffffff !important;
+    color: #1769d5 !important;
+    border: 2px solid #1769d5 !important;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    header {
+        padding: 0 20px !important;
+    }
+
+    .team-wrapper {
+        width: auto !important;
+        max-width: calc(100% - 24px) !important;
+        margin: 50px auto 30px !important;
+        padding: 28px 20px !important;
     }
 }

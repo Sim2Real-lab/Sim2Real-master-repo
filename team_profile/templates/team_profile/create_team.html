@@ -20,22 +20,28 @@
 
     /* Target the old dark container and make it completely invisible/transparent */
     .container {
-        background-color: transparent !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        border: none !important;
-        max-width: 650px !important;
-        margin: 40px auto !important;
-        padding: 0 !important;
-    }
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
     /* Target your inner form card and make it crisp white */
-    .card, .form-card, form, .inner-container {
-        background-color: #ffffff !important;
-        padding: 45px !important;
-        border-radius: 12px !important;
-        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08) !important;
-    }
+   .card,
+.form-card,
+.inner-container {
+    background: #ffffff !important;
+    width: 650px !important;
+    max-width: calc(100% - 30px) !important;
+    margin: 50px auto !important;
+    padding: 40px 45px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 28px rgba(30, 80, 140, 0.12) !important;
+    box-sizing: border-box;
+}
 
     h2, h3, h4 {
         color: #0f2b5b !important;
@@ -88,13 +94,142 @@
     .create:hover, .join:hover, button[type="submit"]:hover, input[type="submit"]:hover {
         background-color: #0052cc !important;
     }
+    /* ===== CREATE TEAM PAGE ===== */
+
+.create-team-page {
+    width: 100%;
+    max-width: 650px;
+    margin: 50px auto;
+    padding: 40px 45px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(30, 80, 140, 0.12);
+    box-sizing: border-box;
+}
+
+/* Remove old outer container styling */
+.create-team-page h2 {
+    color: #173f73 !important;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 28px;
+}
+
+.create-team-page h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    margin: 12px auto 0;
+    background: #1769d5;
+    border-radius: 5px;
+}
+
+.create-team-page form {
+    width: 100%;
+}
+
+.create-team-page input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    height: 44px;
+    border: 1px solid #cbd9e9;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 15px;
+    margin-bottom: 18px;
+}
+
+.create-team-page input:focus {
+    outline: none;
+    border-color: #1769d5;
+    box-shadow: 0 0 0 3px rgba(23, 105, 213, 0.10);
+}
+
+.create-team-page .create {
+    display: block;
+    width: 200px;
+    margin: 10px auto 0;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    background: #1769d5 !important;
+    color: white !important;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.create-team-page .create:hover {
+    background: #0d5bbd !important;
+}
+.create-team-page p {
+        color: #333333 !important;
+        font-size: 14px !important;
+        margin-bottom: 15px !important;
+        line-height: 1.5 !important;
+    }
+
+    .create-team-page strong {
+        color: #0f2b5b !important;
+    }
+
+    .create-team-page a {
+        color: #0066ff !important;
+        text-decoration: underline !important;
+        font-weight: 600 !important;
+    }
+
+    .create-team-page ul {
+        margin: 15px 0 20px 20px !important;
+        padding: 0 !important;
+    }
+
+    .create-team-page li {
+        color: #333333 !important;
+        margin-bottom: 8px !important;
+        font-size: 14px !important;
+    }
+
+    .create-team-page .highlight {
+        color: #0066ff !important;
+        font-weight: 700 !important;
+    }
+
+    .create-team-page section {
+        margin-top: 20px !important;
+        padding-top: 15px !important;
+        border-top: 1px solid #e5e9f0 !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 
 <!-- TEAM CREATION / JOIN CODE BOX -->
-<div class="container">
+<div class="create-team-page">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
     {% if show_join_code %}
         <h2>Team Name : <span class="highlight">{{ team.name }}</span></h2>
         <p>Your Join Code: <strong>{{ team.join_code }}</strong></p>
@@ -119,7 +254,7 @@
 
 <!-- TEAM MEMBERS LIST BOX -->
 {% if members %}
-<div class="container secondary">
+<div class="team-members-card">
     <h3>Current Team Members:</h3>
     <ul>
         {% for member in members %}
