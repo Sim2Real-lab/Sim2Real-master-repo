@@ -1,11 +1,34 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import fs from 'fs';
+import path from 'path';
+
+// A simple plugin to move index.html into Django's template directory
+function moveIndexHtml() {
+  return {
+    name: 'move-index-html',
+    closeBundle() {
+      const src = path.resolve(__dirname, '../static/landing_page/react/index.html');
+      const dest = path.resolve(__dirname, '../templates/landing_page/index.html');
+      
+      // Make sure the destination directory exists
+      if (!fs.existsSync(path.dirname(dest))) {
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+      }
+      
+      fs.copyFileSync(src, dest);
+      fs.unlinkSync(src);
+    }
+  }
+}
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  base: './', // Relative path for local testing without a backend server
+  plugins: [react(), tailwindcss(), moveIndexHtml()],
+  base: '/static/landing_page/react/', // Point to Django's static URL
   build: {
+    outDir: '../static/landing_page/react', // Output directly to Django static
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
