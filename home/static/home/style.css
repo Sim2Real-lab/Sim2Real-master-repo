@@ -1242,10 +1242,11 @@ body {
 /* SIM2REAL 2025 */
 .top-panel h1 {
     color: #123b78 !important;
-    font-size: 4rem !important;
+    font-size: 3.7rem !important;
     font-weight: 800 !important;
     margin: 0 !important;
     font-style: italic;
+
 }
 
 /* ROBOTECH NITK */
@@ -1321,6 +1322,7 @@ body {
         order: 2 !important;
         margin-left: auto !important;
         margin-right: 10px !important;
+        color: rgb(223, 224, 236) !important;
     }
 
     /* Compact the profile display link */
@@ -1404,4 +1406,56 @@ div:has(> .fa-bullhorn, > svg, .bi-megaphone) + *,
     font-size: 24px !important;
     font-weight: 700 !important;
     margin-left: 10px !important;
+}
+/* =========================
+   WHITE PROFILE DROPDOWN
+   ========================= */
+
+.site-navbar .dropdown-menu {
+    background: #ffffff !important;
+    border: 1px solid #dbe5f2 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 25px rgba(20, 60, 110, 0.15) !important;
+    padding: 6px 0 !important;
+    min-width: 180px;
+}
+
+/* Profile menu items */
+.site-navbar .dropdown-menu .dropdown-item {
+    color: #173f73 !important;
+    background: #ffffff !important;
+    padding: 12px 16px !important;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Hover */
+.site-navbar .dropdown-menu .dropdown-item:hover {
+    background: #eef5ff !important;
+    color: #1769d5 !important;
+}
+
+/* Divider */
+.site-navbar .dropdown-menu .dropdown-divider {
+    border-top: 1px solid #e5edf7 !important;
+    margin: 4px 0 !important;
+}
+
+/* Icons inside profile menu */
+.site-navbar .dropdown-menu i {
+    color: #1769d5 !important;
+}
+
+/* Logout button should also look like the other items */
+.site-navbar .dropdown-menu button.dropdown-item {
+    color: #173f73 !important;
+    background: #ffffff !important;
+    border: none !important;
+    width: 100%;
+    text-align: left;
+}
+
+.site-navbar .dropdown-menu button.dropdown-item:hover {
+    background: #eef5ff !important;
+    color: #1769d5 !important;
 }

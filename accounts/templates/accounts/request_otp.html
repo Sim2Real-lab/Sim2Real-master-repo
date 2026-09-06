@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,7 +94,7 @@ body::after {
     right: -25vmax;
     transform: rotate(45deg) translate(0, 0);
     animation-delay: 10s;
-    box-shadow: 0 0 60px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 0 60px rgba(252, 253, 255, 0.4);
 }
 
 @keyframes geometricMovement {
@@ -136,12 +137,13 @@ body::after {
 }
 
 h2 {
-    color: var(--text-color);
+    color: rgb(4, 12, 33) !important;
+    text-align: center;
     font-size: 2.2rem;
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: 30px;
     letter-spacing: 1.5px;
-    text-shadow: 0 0 10px rgba(156, 39, 176, 0.4);
+  
 }
 
 /* Django Messages Styling - Consistent with other pages */
@@ -352,6 +354,70 @@ input, textarea, select, button {
         margin-top: 20px;
         font-size: 0.75rem;
     }
+}
+/* ===== SAME THEME AS SIGN IN PAGE ===== */
+
+body {
+    background-image:
+        linear-gradient(rgba(244, 248, 255, 0.95), rgba(244, 248, 255, 0.95)),
+     url("{% static 'assets/NITK.webp' %}") !important;
+
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+
+    background-color: #f4f8ff !important;
+    color: #173f73 !important;
+}
+/* Remove old geometric background shapes */
+body::before,
+body::after {
+    content: none !important;
+    display: none !important;
+}
+/* Heading */
+h2 {
+    color: #173f73 !important;
+}
+
+/* Email label */
+form label {
+    color: #173f73 !important;
+}
+
+/* Email input */
+form input {
+    background: #ffffff !important;
+    color: #173f73 !important;
+    border: 1px solid #cbd9e9 !important;
+}
+
+/* Input focus */
+form input:focus {
+    border-color: #2476d8 !important;
+    box-shadow: 0 0 0 3px rgba(36, 118, 216, 0.12) !important;
+}
+
+/* SEND OTP */
+form button[type="submit"] {
+    background: #1769d5 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 5px 14px rgba(36, 118, 216, 0.22) !important;
+}
+
+form button[type="submit"]:hover {
+    background: #125bb8 !important;
+}
+
+/* Back to login */
+.back-to-login {
+    color: #1769d5 !important;
+}
+
+.back-to-login:hover {
+    color: #125bb8 !important;
 }
 
   </style>
