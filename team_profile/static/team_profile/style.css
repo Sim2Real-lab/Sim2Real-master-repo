@@ -1,0 +1,855 @@
+/* team_profile/style.css - Themed for Sim2Real Team Profile Page (Professional & Accessible) */
+
+/* Define CSS Variables for consistent theming */
+:root {
+    --primary-blue: #007bff;
+    --accent-purple: #8a2be2; /* More vibrant electric purple */
+    --light-purple: #a855f7; /* Brighter, more electric purple for accents and glows */
+    --dark-bg-color-1: #0b0a1f; /* Deeper, slightly blue-tinted dark base */
+    --dark-bg-color-2: #171436; /* Slightly lighter, similar tinted dark for gradient */
+    --header-bg: rgba(18, 15, 45, 0.98); /* Near opaque for clear header, tinted */
+    --card-bg: rgba(30, 25, 55, 0.96); /* Near opaque for solid content cards, tinted */
+    --border-color: rgba(255, 255, 255, 0.18); /* Clearer border for definition */
+    --input-bg: rgba(255, 255, 255, 0.08); /* Slightly more visible input background */
+    --input-focus-bg: rgba(255, 255, 255, 0.15); /* Brighter on focus */
+    --text-color: #f8f9fa; /* High contrast off-white for main text */
+    --text-light: #e0e0e0; /* Brighter dimmer text for labels/secondary text */
+    --text-disabled: #8b8b8b; /* Clear color for disabled text */
+    --glow-color: #a855f7; /* Main glow color (using the brighter electric accent) */
+    --dropdown-bg: rgba(25, 20, 45, 0.98); /* Dropdown background, matching new tints */
+    --dropdown-item-hover: rgba(168, 85, 247, 0.28); /* More distinct purple tint on dropdown item hover */
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    /* Animated gradient background - Consistent with landing/login pages */
+    background: linear-gradient(-45deg, var(--dark-bg-color-1), var(--dark-bg-color-2), var(--dark-bg-color-1), var(--dark-bg-color-2));
+    background-size: 400% 400%;
+    animation: gradientAnimation 20s ease infinite;
+    color: var(--text-color); /* Default text color for body */
+    min-height: 100vh; /* Ensure body takes full viewport height */
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    position: relative; /* Needed for geometric shapes */
+    text-rendering: optimizeLegibility; /* Improve text rendering */
+    -webkit-font-smoothing: antialiased; /* Smoother fonts */
+    -moz-osx-font-smoothing: grayscale; /* Smoother fonts */
+}
+
+/* Animated gradient background animation */
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* New: Geometric background elements - Made animation-rich and visible */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    opacity: 0.28; /* Significantly increased opacity for better visibility */
+    z-index: -1;
+    animation: geometricMovement 30s ease-in-out infinite alternate; /* Faster, smoother animation */
+    will-change: transform, opacity, box-shadow; /* Include box-shadow for smooth transitions */
+}
+
+/* Large abstract blueish circle */
+body::before {
+    width: 80vmax; /* Larger for more presence */
+    height: 80vmax;
+    /* Changed to a subtle dark blue radial gradient */
+    background-image: radial-gradient(circle at center, rgba(20, 20, 80, 0.7) 0%, rgba(20, 20, 80, 0) 60%); 
+    top: -30vmax;
+    left: -30vmax;
+    transform: rotate(0deg) translate(0, 0);
+    animation-delay: 0s;
+    box-shadow: 0 0 70px rgba(20, 20, 80, 0.4); /* Subtle blue glow */
+}
+
+/* Smaller abstract purple triangle */
+body::after {
+    width: 60vmax; /* Larger for more presence */
+    height: 60vmax;
+    /* Changed to a linear gradient using the light-purple */
+    background-image: linear-gradient(135deg, var(--light-purple) 0%, rgba(168, 85, 247, 0) 50%); 
+    bottom: -25vmax;
+    right: -25vmax;
+    transform: rotate(45deg) translate(0, 0);
+    animation-delay: 10s; /* More distinct delay for varied movement */
+    box-shadow: 0 0 60px rgba(168, 85, 247, 0.4); /* Subtle purple glow */
+}
+
+@keyframes geometricMovement {
+    0% { 
+        transform: translate(0, 0) rotate(0deg); 
+        opacity: 0.28; 
+    }
+    25% { 
+        transform: translate(12%, 12%) rotate(25deg); /* More pronounced movement */
+        opacity: 0.35; /* Peak opacity during movement */
+    }
+    50% { 
+        transform: translate(-12%, -12%) rotate(0deg); /* More pronounced movement */
+        opacity: 0.4; /* Higher peak opacity */
+    }
+    75% { 
+        transform: translate(10%, -10%) rotate(-25deg); /* More pronounced movement */
+        opacity: 0.35;
+    }
+    100% { 
+        transform: translate(0, 0) rotate(0deg); 
+        opacity: 0.28; 
+    }
+}
+
+
+/* Header Styling - Consistent with User Profile Page */
+header {
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.back a {
+    color: var(--text-light);
+    font-size: 1.6rem;
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.back a:hover {
+    color: var(--light-purple);
+    transform: scale(1.15);
+    box-shadow: 0 0 12px rgba(156, 39, 176, 0.7);
+}
+
+.back a:focus-visible {
+    outline: 2px solid var(--light-purple);
+    outline-offset: 2px;
+}
+
+/* Profile Image in Header - Consistent with User Profile Page */
+.profile-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    border: 2px solid var(--light-purple);
+    box-shadow: 0 0 8px rgba(156, 39, 176, 0.5);
+    transition: all 0.3s ease;
+}
+
+.profile-img:hover {
+    box-shadow: 0 0 15px rgba(156, 39, 176, 0.8);
+    transform: scale(1.05);
+}
+
+/* Dropdown Menu Styling - Synchronized with Home & User Profile Pages */
+/* Dropdown Menu Styling (User Profile) - Synchronized with Home Page */
+
+.dropdown-menu {
+    background-color: var(--dropdown-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4), 0 0 10px rgba(138, 43, 226, 0.2);
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    color: var(--text-color);
+    padding: 10px 20px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--dropdown-item-hover);
+    color: white;
+}
+
+.dropdown-item .fas { /* Style for Font Awesome icons in dropdown */
+    color: var(--light-purple);
+    margin-right: 10px;
+}
+
+.dropdown-divider {
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
+/* Main Content Wrapper */
+.content {
+    flex-grow: 1; /* Allows content to take available vertical space */
+    padding: 40px 20px; /* Generous padding */
+    max-width: 900px; /* Max width for readability, can adjust */
+    margin: 30px auto; /* Center the content card */
+    position: relative;
+    z-index: 1;
+    background: var(--card-bg); /* Use card background for content area */
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 25px rgba(156, 39, 176, 0.3);
+    display: flex; /* Use flex for internal layout of block content */
+    flex-direction: column;
+    justify-content: center; /* Center content vertically if space allows */
+    min-height: calc(100vh - 150px); /* Adjust based on header/footer height, prevent scroll */
+}
+
+/* Placeholder for team-specific content styles (will be applied inside .content) */
+h1 {
+    color: var(--text-color);
+    font-size: 2.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 35px;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 12px rgba(156, 39, 176, 0.4);
+}
+
+/* Common button styling (if any specific buttons are used within team content) */
+.btn-glow {
+    background: linear-gradient(90deg, var(--accent-purple), var(--light-purple));
+    border: none;
+    color: white;
+    padding: 14px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(2, 2, 2, 0.5);
+    transition: all 0.4s ease;
+    background-size: 200% auto;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto 0 auto;
+    max-width: 280px;
+    outline: none;
+}
+
+.btn-glow:hover {
+    background-position: right center;
+    box-shadow: 0 0 30px rgb(5, 5, 5), 0 0 60px rgba(4, 4, 4, 0.8);
+    transform: translateY(-5px);
+    color: white;
+}
+
+.btn-glow:focus-visible {
+    outline: 3px solid var(--light-purple);
+    outline-offset: 3px;
+}
+
+/* Django Message Styling */
+.alert {
+    background-color: var(--error-color);
+    border: 1px solid var(--error-color);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 20px auto; /* Center the alert */
+    max-width: 600px; /* Limit width for readability */
+    font-weight: 500;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(var(--error-color), 0.4);
+    display: flex; /* Use flex to align close button */
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* For close button positioning */
+}
+
+.alert.alert-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    box-shadow: 0 2px 10px rgba(var(--success-color), 0.4);
+}
+
+.alert .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    margin-left: 15px; /* Space from text */
+}
+
+.alert .btn-close:hover {
+    opacity: 1;
+}
+
+
+/* Media Queries for Responsiveness */
+
+/* Tablets and smaller desktops */
+@media (max-width: 991.98px) {
+    header {
+        padding: 15px 20px;
+    }
+    .back a {
+        font-size: 1.4rem;
+        padding: 6px;
+    }
+    .profile-img {
+        width: 38px;
+        height: 38px;
+    }
+    .content {
+        padding: 30px 15px;
+        margin: 20px auto;
+        min-height: calc(100vh - 120px); /* Adjust min-height for header */
+    }
+    h1 {
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+    }
+    .dropdown-menu .dropdown-item {
+        padding: 8px 15px;
+    }
+}
+
+/* Mobile devices (larger phones) */
+@media (max-width: 767.98px) {
+    body {
+        animation: none;
+    }
+    body::before { /* Keep geometric elements for smaller screens but static */
+        animation: none;
+        filter: none; /* No filter on mobile for better performance/simplicity */
+        opacity: 0.25; /* More visible on mobile */
+        background-size: 90vmax; /* Larger size for mobile */
+    }
+    body::after { /* Keep geometric elements for smaller screens but static */
+        animation: none;
+        filter: none; /* No filter on mobile for better performance/simplicity */
+        opacity: 0.25; /* More visible on mobile */
+        background-size: 70vmax; /* Larger size for mobile */
+    }
+
+    header {
+        padding: 10px 15px;
+    }
+    .back a {
+        font-size: 1.1rem;
+        padding: 5px;
+    }
+    .profile-img {
+        width: 32px;
+        height: 32px;
+    }
+    .content {
+        padding: 25px 15px;
+        margin: 15px auto;
+        max-width: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 15px rgba(156, 39, 176, 0.2);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        min-height: calc(100vh - 100px); /* Adjust min-height for smaller header */
+    }
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 25px;
+    }
+    .alert {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+}
+
+/* Smaller mobile phones */
+@media (max-width: 479.98px) {
+    header {
+        padding: 8px 10px;
+    }
+    .back a {
+        font-size: 1rem;
+        padding: 4px;
+    }
+    .profile-img {
+        width: 28px;
+        height: 28px;
+    }
+    .content {
+        padding: 20px 10px;
+        margin: 10px auto;
+    }
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+    }
+    .alert {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        margin-bottom: 12px;
+    }
+}
+    
+/* Clean Team Message */
+.alert.alert-warning {
+    width: fit-content;
+    max-width: 650px;
+    margin: 25px auto !important;
+    padding: 16px 28px;
+
+    background: #f8fbff;
+    border: 1px solid #c9def5;
+    border-radius: 10px;
+
+    color: #173f73;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+
+    box-shadow: 0 4px 14px rgba(30, 80, 140, 0.08);
+}
+
+.alert.alert-warning a {
+    color: #1769d5;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 0 4px;
+}
+
+.alert.alert-warning a:hover {
+    color: #0d55b5;
+    text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .alert.alert-warning {
+        width: calc(100% - 40px);
+        max-width: none;
+        padding: 14px 16px;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+}
+/* =========================================
+   TEAM START CARD - MODERN BLUE DESIGN
+   ========================================= */
+
+.team-start-card {
+    width: 560px;
+    max-width: calc(100% - 30px);
+    margin: 185px auto 40px;
+    padding: 38px 45px;
+    box-sizing: border-box;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    text-align: center;
+
+    box-shadow: 0 10px 35px rgba(30, 80, 150, 0.12);
+
+    position: relative;
+    z-index: 10;
+}
+
+/* Team icon */
+
+.team-icon {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eaf3ff;
+    border-radius: 50%;
+
+    color: #1769d5;
+    font-size: 30px;
+}
+
+/* Heading */
+
+.team-start-card h2 {
+    margin: 0 0 10px;
+
+    color: #173f73;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+/* Small subtitle */
+
+.team-subtitle {
+    margin: 0 0 10px;
+
+    color: #536b8c;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Description */
+
+.team-description {
+    max-width: 450px;
+    margin: 0 auto 25px;
+
+    color: #71829b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Buttons container */
+
+.team-actions {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+}
+
+/* Common button */
+
+.create-team-btn,
+.join-team-btn {
+    width: 190px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: all 0.25s ease;
+}
+
+/* Create Team */
+
+.create-team-btn {
+    background: #1769d5;
+    color: #ffffff;
+
+    box-shadow: 0 5px 15px rgba(23, 105, 213, 0.22);
+}
+
+.create-team-btn:hover {
+    background: #0f5bbb;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Join Team */
+
+.join-team-btn {
+    background: #ffffff;
+    color: #1769d5;
+
+    border: 2px solid #1769d5;
+}
+
+.join-team-btn:hover {
+    background: #1769d5;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 650px) {
+
+    .team-start-card {
+        margin: 100px 15px 30px;
+        padding: 30px 20px;
+    }
+
+    .team-start-card h2 {
+        font-size: 25px;
+    }
+
+    .team-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .create-team-btn,
+    .join-team-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+body {
+    background-image: url("/static/assets/image.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    background-color: #f4f7fb !important;
+
+    min-height: 100vh;
+}
+/* ===== FINAL BACKGROUND OVERRIDE ===== */
+
+body {
+    background: url("/static/assets/image.png") center center / cover no-repeat fixed !important;
+}
+
+/* Remove old background shapes */
+body::before,
+body::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Remove old animated background */
+body {
+    animation: none !important;
+}
+
+/* Keep page content transparent so background is visible */
+.content {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+/* =========================================================
+   TEAM PAGE - SAME NAVBAR + LIGHT BACKGROUND
+   ========================================================= */
+
+/* Remove old dark/gradient background */
+html,
+body {
+    margin: 0 !important;
+    min-height: 100vh !important;
+    background: #f4f8ff !important;
+}
+
+/* New background image */
+body {
+    background-image: url("/static/assets/image.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+/* Remove old dark wrappers */
+body > .container,
+body > .container-fluid,
+.top-panel,
+.main-content {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+/* =====================================================
+   TEAM PAGE - WHITE NAVBAR
+   ===================================================== */
+
+.site-navbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #dbe7f5 !important;
+    box-shadow: 0 2px 12px rgba(20, 80, 150, 0.08) !important;
+    color: #173f73 !important;
+}
+
+.site-navbar .navbar-brand {
+    color: #173f73 !important;
+    font-weight: 800 !important;
+}
+
+.site-navbar .nav-link {
+    color: #173f73 !important;
+    font-weight: 600 !important;
+}
+
+.site-navbar .nav-link:hover {
+    color: #1769d5 !important;
+}
+
+.site-navbar .btn-success {
+    background: #1769d5 !important;
+    border-color: #1769d5 !important;
+    color: white !important;
+    border-radius: 7px !important;
+}
+
+.site-navbar .btn-success:hover {
+    background: #0d5bc0 !important;
+    border-color: #0d5bc0 !important;
+}
+
+.site-navbar .profile-img {
+    border: 2px solid #dbe7f5 !important;
+}
+
+/* Make sure old dark header does not appear */
+header {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+/* =====================================================
+   FINAL TEAM PAGE OVERRIDE
+   ===================================================== */
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    background: #f4f8ff !important;
+}
+
+/* Remove old overlay/background layers */
+body::before,
+body::after,
+.overlay {
+    display: none !important;
+}
+
+/* NAVBAR */
+header {
+    background: #ffffff !important;
+    color: #173f73 !important;
+    min-height: 76px !important;
+    padding: 0 50px !important;
+    border-bottom: 1px solid #dbe7f5 !important;
+    box-shadow: 0 2px 12px rgba(20, 80, 150, 0.08) !important;
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+/* Home icon */
+header .back,
+header .back a,
+header .back i {
+    color: #173f73 !important;
+}
+
+/* Profile */
+header .profile-img {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    border: 2px solid #2b7de9 !important;
+}
+
+/* Dropdown arrow */
+header .dropdown-toggle {
+    color: #173f73 !important;
+}
+
+/* PAGE BACKGROUND */
+body {
+    background-image: url("/static/assets/image.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+/* Remove old dark containers */
+body > .container,
+body > .container-fluid,
+.top-panel,
+.main-content,
+.card,
+.row {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* TEAM CARD */
+.team-wrapper {
+    width: 650px !important;
+    max-width: calc(100% - 40px) !important;
+    margin: 120px auto 60px !important;
+    padding: 40px !important;
+    box-sizing: border-box !important;
+
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 30px rgba(30, 80, 140, 0.12) !important;
+}
+
+/* Headings */
+.team-wrapper h1,
+.team-wrapper h2,
+.team-wrapper h3 {
+    color: #234d7d !important;
+}
+
+/* Text */
+.team-wrapper p,
+.team-wrapper label,
+.team-wrapper span {
+    color: #718096 !important;
+}
+
+/* Buttons */
+.team-wrapper .create,
+.team-wrapper .join,
+.team-wrapper button {
+    background: #1769d5 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 9px !important;
+}
+
+.team-wrapper .join {
+    background: #ffffff !important;
+    color: #1769d5 !important;
+    border: 2px solid #1769d5 !important;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    header {
+        padding: 0 20px !important;
+    }
+
+    .team-wrapper {
+        width: auto !important;
+        max-width: calc(100% - 24px) !important;
+        margin: 50px auto 30px !important;
+        padding: 28px 20px !important;
+    }
+}

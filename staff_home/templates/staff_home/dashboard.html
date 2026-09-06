@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIM2REAL | ROBOTECH-NITK</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="{%static "home/style.css" %}">
+</head>
+<body>
+<div class="top-panel">
+<header class="d-flex justify-content-between align-items-center px-4 py-3">
+  <div>
+    <h1>SIM2REAL 2025</h1>
+    <strong>ROBOTECH NITK</strong>
+    <p>Simulate. Build. Compete.</p>
+  </div>
+</header>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <!-- Navbar brand -->
+    <a class="navbar-brand text-white" href="#">SIM2REAL 2025</a>
+
+    <!-- Hamburger button for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardNav" aria-controls="dashboardNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar links -->
+    <div class="collapse navbar-collapse" id="dashboardNav">
+      <ul class="navbar-nav me-auto mb-2 mb-md-0">
+        <li class="nav-item"><a class="nav-link" href="{% url 'verify_payments' %}">Verify Payments</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'respond_queries' %}">Check General Queries</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'user_query' %}">Check Submissions</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'respond_queries' %}">Check User Queries</a></li>
+      </ul>
+
+      {% if user.is_authenticated %}
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="dropdownUser1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{% static 'assets/default.png' %}" alt="Profile" class="profile-img me-2">
+            {{ user.username }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">Logout</button>
+              </form>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      {% endif %}
+
+    </div>
+  </div>
+</nav>
+
+
+</div>
+
+</div>
+<div class="container main-content-area mt-4">
+  <!-- Dynamic content relevant to a logged-in hackathon participant -->
+  <section class="dashboard-section p-4 rounded-lg shadow-lg">
+    <h2 class="text-center mb-4">Sim2Real 2025 Organisers Dashboard</h2>
+
+<div class="container mt-4">
+  <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-address-card" aria-hidden="true"></i>Check Users</h5>
+                    <p class="card-text">Check Members Registeration of the event.</p>
+                    <a href="{% url 'user_data' %}" class="btn btn-sm btn-outline-light">Check</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-address-card" aria-hidden="true"></i>Check Teams</h5>
+                    <p class="card-text">Check Team Registeration of the event.</p>
+                    <a href="{% url 'check_registration' %}" class="btn btn-sm btn-outline-light">Check</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-users" aria-hidden="true"></i>Check Payment Status</h5>
+                    <p class="card-text">Check Members Registeration and Payment. Verify the users and let them access the problem statment.</p>
+                    <a href="{% url 'verify_payments' %}" class="btn btn-sm btn-outline-light">Check</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Test Module</h5>
+                    <p class="card-text">Master Quiz Module</p>
+                    <a href="{% url 'list_tests' %}" class="btn btn-sm btn-outline-light">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-file-upload me-2"></i> Manage Submission</h5>
+                    <p class="card-text">Submit your project, view guidelines, and track your submission status.</p>
+                    <a href="{% url 'manage_submissions' %}" class="btn btn-sm btn-outline-light">Check</a> {# Placeholder URL #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-life-ring" aria-hidden="true"></i>Check Queries</h5>
+                    <p class="card-text">Submit your project, view guidelines, and track your submission status.</p>
+                    <a href="{% url 'respond_queries' %}" class="btn btn-sm btn-outline-light">Check</a> {# Placeholder URL #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-envelope" aria-hidden="true"></i> Make/Upload Problem Statment</h5>
+                    <p class="card-text">Upload the Problem Statment for the contest. You may edit or update it in the Website also</p>
+                    <a href="{% url 'manage_problem_statement' %}" class="btn btn-sm btn-outline-light">Upload</a> {# Placeholder URL #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-envelope" aria-hidden="true"></i> Upload Resources</h5>
+                    <p class="card-text">Upload Helpful Content suppoerting the problem statement</p>
+                    <a href="{% url 'manage_resources' %}" class="btn btn-sm btn-outline-light">Upload</a> {# Placeholder URL #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-envelope" aria-hidden="true"></i> Upload Brochure</h5>
+                    <p class="card-text">Upload brochure, and let the participants access it.</p>
+                    <a href="{% url 'upload_brochure' %}" class="btn btn-sm btn-outline-light">Upload</a> {# Placeholder URL #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-bullhorn" aria-hidden="true"></i> Make Announcements</h5>
+                    <p class="card-text">Announcements can me made for multiple user categories, along with validity and TTL.</p>
+                    <a href="{% url 'make_announcments' %}" class="btn btn-sm btn-outline-light">Announce</a> {# Placeholder URL #}
+                </div>
+            </div>
+        </div>
+      <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-user"></i> My Profile</h5>
+                    <p class="card-text">Form or join a team, manage requests, and collaborate with your members.</p>
+                    <a href="{% url 'profile' %}" class="btn btn-sm btn-outline-light">View</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  {% block content %}
+  <!-- All sections (home, schedule, teams, etc.) can go here if extending this layout -->
+  {% endblock %}
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{%static "home/script.js" %}"></script>
+</body>
+</html>

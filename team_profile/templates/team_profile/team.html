@@ -1,0 +1,71 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{%static 'team_profile/style.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
+<link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
+    <title>Team</title>
+</head>
+<body>
+    <header>
+      <div class="back"><a href="{%url 'home'%}"><i class="fa fa-home"></i></a></div>
+      <div class="dropdown">
+        <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" href="#" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="{% static 'assets/default.png' %}" alt="Profile" class="profile-img">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="{%url 'profile'%}">My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+            <button type="submit" class="dropdown-item">Logout</button>
+            </form>
+          </li>
+        </ul> 
+        </div>
+        </header>
+        <div class="overlay"></div>
+       {% if not user.team.exists %}
+<div class="team-start-card">
+
+    <div class="team-icon">
+        <i class="fa fa-users"></i>
+    </div>
+
+    <h2>Ready to Compete?</h2>
+
+    <p class="team-subtitle">
+        You're not part of any team yet.
+    </p>
+
+    <p class="team-description">
+        Create a new team or join an existing one to get started
+        and participate in the competition.
+    </p>
+
+    <div class="team-actions">
+        <a href="{% url 'create_team' %}" class="create-team-btn">
+            <i class="fa fa-plus"></i>
+            Create Team
+        </a>
+
+        <a href="{% url 'join_team' %}" class="join-team-btn">
+            <i class="fa fa-users"></i>
+            Join Team
+        </a>
+    </div>
+
+</div>
+{% endif %}
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

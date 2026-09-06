@@ -1,0 +1,181 @@
+{% extends 'team_profile/team_base.html' %}
+{%load static%}
+{% block extra_styles %}
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    h2 {
+        color: #ffffff;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    p, strong, label {
+        color: #dddddd;
+        font-size: 14px;
+    }
+
+    .container {
+        background-color: rgba(31, 32, 35, 0.9);
+        padding: 30px 25px;
+        border-radius: 15px;
+        margin: 80px auto 0 auto;
+        width: 380px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
+    }
+
+    form {
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    input, select, textarea {
+        background: rgba(128, 128, 128, 0.25);
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        width: 100%;
+        padding: 10px 12px;
+        margin: 10px 0 18px 0;
+        font-size: 14px;
+        transition: background 0.3s ease, border 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        background-color: rgba(180, 180, 180, 0.25);
+        border: 1px solid #0092e7;
+        outline: none;
+    }
+
+    button {
+        background: linear-gradient(90deg, #0057e7, #0092e7);
+        cursor: pointer;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 10px auto 0 auto;
+        width: 100%;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    button:hover {
+        background: linear-gradient(90deg, #0092e7, #0057e7);
+        box-shadow: 0px 3px 8px rgba(0, 146, 231, 0.4);
+    }
+
+    ul.errorlist {
+        color: #ff4d4d;
+        font-size: 13px;
+        margin: -5px 0 10px 0;
+        padding-left: 15px;
+        list-style: none;
+    }
+
+    ul.errorlist li {
+        margin-bottom: 5px;
+    }
+
+    .free-registration-banner {
+        background-color: #28a745;
+        color: #fff;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* ✅ QR styling */
+    .qr-section {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .qr-section img {
+        width: 200px;
+        height: 200px;
+        border-radius: 10px;
+        border: 2px solid #0092e7;
+        margin-bottom: 10px;
+    }
+
+    .qr-note {
+        font-size: 13px;
+        color: #bbbbbb;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  {% if not team.is_outsider %}
+  <div class="free-registration-banner">
+      As all team members are NITK students, your team has been registered for free.
+      {% if not team.is_verified %} Waiting for organiser verification. {% endif %}
+  </div>
+  {% endif %}
+
+  <h2>Payment for Team: {{ team.name }}</h2>
+  <p>Total members: {{ team.members.count }}</p>
+
+  {% if team.is_outsider %}
+  <p>Amount to be paid: <strong>₹500</strong></p>
+
+  <!-- ✅ QR Code Section -->
+  <div class="qr-section">
+      <img src="{% static 'assets/upi_qr.jpg' %}" alt="UPI QR Code">
+      <p class="qr-note">Scan this QR code to pay using any UPI app (PhonePe, GPay, Paytm, etc.)</p>
+  </div>
+
+  <h2>Submit Payment Proof</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload & Submit</button>
+  </form>
+  {% else %}
+  <p>Amount to be paid: <strong>Free</strong></p>
+  {% endif %}
+
+  <p style="margin-bottom: 20px; font-size: 13px; text-align: center;">
+    By submitting, you confirm that all details are correct.  
+    For any concerns, raise a query or contact organisers.
+  </p>
+</div>
+
+{% if messages %}
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  {% for message in messages %}
+  <div class="toast align-items-center text-white bg-{{ message.tags }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ message }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+  toastElList.forEach(function(toastEl) {
+    new bootstrap.Toast(toastEl, { delay: 5000 }).show();
+  });
+});
+</script>
+{% endif %}
+{% endblock %}

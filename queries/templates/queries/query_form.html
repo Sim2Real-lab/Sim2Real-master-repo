@@ -1,0 +1,245 @@
+
+{% extends 'home/index.html' %}
+{% load static %}
+{% block title %}
+Queries | Ask Us
+{% endblock %}
+
+{% block content %}
+
+<style>
+    /* =========================================
+       1. PAGE OVERRIDES
+       ========================================= */
+    body {
+        background-image: url('{% static "assets/image.png" %}') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+        background-color: #f4f7fb !important; /* Fallback color */
+    }
+    /* Hide the massive dashboard banner */
+    .top-panel {
+        display: none !important;
+    }
+
+    /* Force the Hamburger menu icon to be dark blue so it's visible on white */
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(15, 43, 91, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E") !important;
+    }
+    .navbar-toggler {
+        border-color: rgba(15, 43, 91, 0.2) !important;
+    }
+
+    /* =========================================
+       2. MAIN FORM CARD
+       ========================================= */
+    .query-card {
+        background-color: #ffffff;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto !important; 
+        padding: 45px;
+        border-radius: 12px;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+        box-sizing: border-box;
+    }
+
+    /* --- Form Header --- */
+    .query-card h2 {
+        text-align: center;
+        color: #0f2b5b; 
+        font-size: 26px;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 35px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .query-card h2::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 45px;
+        height: 3px;
+        background-color: #0066ff; 
+        border-radius: 2px;
+    }
+
+    /* =========================================
+       3. INPUTS & BUTTONS
+       ========================================= */
+    .query-card label {
+        display: block;
+        color: #0f2b5b; 
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 8px;
+        text-align: left;
+    }
+
+    .query-card input[type="text"],
+    .query-card input[type="email"],
+    .query-card input[type="number"],
+    .query-card input[type="tel"],
+    .query-card textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #d2d6dc; 
+        border-radius: 6px; 
+        background-color: #ffffff;
+        font-size: 14px;
+        color: #333333;
+        box-sizing: border-box; 
+        font-family: inherit;
+        transition: border-color 0.2s ease-in-out;
+        margin-bottom: 20px;
+    }
+
+    .query-card textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .query-card input:focus,
+    .query-card textarea:focus {
+        outline: none;
+        border-color: #0066ff;
+    }
+
+    /* --- Submit Button --- */
+    .submit {
+        background-color: #0066ff; 
+        color: #ffffff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px; 
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 180px; 
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+        display: block;
+        margin-left: auto;
+        margin-right: auto; /* Centers the button */
+    }
+
+    .submit:hover {
+        background-color: #0052cc; 
+    }
+
+    /* --- Link --- */
+    .query-response {
+        display: block;
+        margin-top: 15px;
+        color: #2b70d4; 
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .query-response:hover {
+        text-decoration: underline;
+    }
+
+    /* =========================================
+       4. PROFILE DROPDOWN (LIGHT THEME)
+       ========================================= */
+    .dropdown-menu {
+        background-color: #ffffff !important;
+        border: 1px solid #d2d6dc !important;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .dropdown-item {
+        color: #0f2b5b !important;
+        font-weight: 500 !important;
+    }
+
+    .dropdown-item i {
+        color: #0066ff !important; 
+    }
+
+    .dropdown-item:hover {
+        background-color: #f4f7fb !important;
+        color: #0066ff !important;
+    }
+    /* =========================================
+       5. FIX MOBILE NAVBAR
+       ========================================= */
+    /* Let the navbar wrap so the dropdown menu drops underneath */
+    nav .container-fluid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Keep the toggle button compact on the right */
+    .navbar-toggler {
+        width: auto !important;
+        margin: 0 !important;
+        padding: 5px 10px !important;
+    }
+
+    /* Force the collapsible link menu to take full width below the top row */
+    .navbar-collapse {
+        flex-basis: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Stack links neatly on mobile */
+    @media (max-width: 767px) {
+        .navbar-nav {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding-top: 10px;
+        }
+
+        .navbar-nav .nav-item {
+            margin-bottom: 8px;
+        }   
+    }
+    /* Remove background and shadows from all parent layout wrappers */
+    .container, .content-wrapper, main, .main-content, .card, .row {
+        background-color: transparent !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+</style>
+
+<div style="display: flex; justify-content: center; width: 100%; padding-top: 30px; padding-bottom: 50px;">
+<div class="query-card">
+  <h2 >Ask any Queries</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      <div >
+        <label for="{{ field.id_for_label }}">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+          <div style="color: red; font-size: 0.9em;">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <div style="text-align: center;">
+      <button type="submit" class="submit">
+        Submit Query
+      </button>
+      <a class="query-response" href="{%url 'query_response'%}">Check Previous Queries</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

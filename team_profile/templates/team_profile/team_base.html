@@ -1,0 +1,109 @@
+{% extends 'home/index.html' %}
+{% load static %}
+
+{% block title %}
+Team Management
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Tech Background Pattern */
+    body {
+        background-image: url('{% static "assets/image.png" %}') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+        background-color: #f4f7fb !important;
+    }
+
+    /* Hide the top rover banner on team pages */
+    body > .container-fluid:first-of-type, .top-panel, .hero-section, .banner-container, img[src*="rover"] {
+        display: none !important;
+    }
+
+    /* Neutralize legacy wrappers */
+    .container, .content-wrapper, main, .main-content, .card, .row {
+        background-color: transparent !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Standard White Card Container (Matching Query Form) */
+    .team-card-container, .container {
+        background-color: #ffffff !important;
+        width: 100% !important;
+        max-width: 850px !important;
+        margin: 40px auto !important;
+        padding: 45px !important;
+        border-radius: 12px !important;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08) !important;
+        box-sizing: border-box !important;
+    }
+
+    h2, h3, h4 {
+        color: #0f2b5b !important;
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    p, label, span, div {
+        color: #333333 !important;
+    }
+
+    label {
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        color: #0f2b5b !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+        text-align: left !important;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], select {
+        width: 100% !important;
+        padding: 12px 15px !important;
+        border: 1px solid #d2d6dc !important;
+        border-radius: 6px !important;
+        background-color: #ffffff !important;
+        font-size: 14px !important;
+        color: #333333 !important;
+        margin-bottom: 20px !important;
+        box-sizing: border-box !important;
+    }
+
+    input:focus {
+        outline: none !important;
+        border-color: #0066ff !important;
+    }
+
+    /* Buttons matching query form style */
+    button, input[type="submit"], .create, .join, .create-team-btn, .join-team-btn {
+        background-color: #0066ff !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 12px 30px !important;
+        border-radius: 25px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        display: block !important;
+        width: 180px !important;
+        margin: 20px auto 0 auto !important;
+        text-decoration: none !important;
+        text-align: center !important;
+        transition: background-color 0.3s ease !important;
+    }
+
+    button:hover, input[type="submit"]:hover, .create:hover, .join:hover, .create-team-btn:hover, .join-team-btn:hover {
+        background-color: #0052cc !important;
+    }
+</style>
+
+<div class="team-card-container">
+    {% block team_content %}
+    {% endblock %}
+</div>
+{% endblock %}

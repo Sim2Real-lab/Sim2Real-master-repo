@@ -1,0 +1,32 @@
+{% extends "home/index.html" %}
+{% block title %}Problem Statement | SIM2REAL{% endblock %}
+
+{% block content %}
+  {% if visible %}
+    <h2 class="text-center mb-4">Problem Statement</h2>
+
+    <!-- Sections -->
+    {% if sections %}
+      {% for section in sections %}
+        <section class="mb-4">
+          <h3>{{ section.title }}</h3>
+          <p>{{ section.content|linebreaks }}</p>
+        </section>
+      {% endfor %}
+    {% endif %}
+
+    <!-- File download -->
+    {% if file %}
+      <div class="mt-4 text-center">
+        <a href="{{ file.url }}" class="btn btn-primary" download>
+          📄 Download Full Problem Statement
+        </a>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="alert alert-warning text-center">
+      <strong>No Problem Statement Available</strong>
+    </div>
+  {% endif %}
+{% endblock %}

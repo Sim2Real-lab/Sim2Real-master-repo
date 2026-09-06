@@ -1,0 +1,84 @@
+{% extends "staff_home/base.html" %}
+{% block content %}
+<h2 style="color:white;">{% if question %}Edit Question{% else %}Add Question{% endif %} for "{{ test.title }}"</h2>
+
+<form method="POST" id="questionForm">
+    {% csrf_token %}
+    <div class="mb-3" style="color:white;">
+        {{ form.text.label_tag }} {{ form.text }}
+    </div>
+
+    <div class="mb-3" style="color:white;">
+        {{ form.question_type.label_tag }} {{ form.question_type }}
+    </div>
+
+    <div class="mb-3" style="color:white;">
+        {{ form.marks.label_tag }} {{ form.marks }}
+    </div>
+
+    <div class="mb-3" style="color:white;">
+        {{ form.negative_marks.label_tag }} {{ form.negative_marks }}
+    </div>
+
+    <div class="form-check mb-3" style="color:white;">
+        {{ form.compiler_enabled }} {{ form.compiler_enabled.label_tag }}
+    </div>
+
+    <!-- Options for MCQ/MAQ -->
+    <div id="optionsContainer" style="color:white; display:none;">
+        <label>Options</label>
+        <div id="optionList">
+            {% if question and question.options %}
+                {% for opt in question.options %}
+                <div class="mb-2 option-row">
+                    <input type="text" name="options[]" value="{{ opt.text }}" class="form-control d-inline-block" style="width:70%;">
+                    <input type="checkbox" name="correct_answer[]" value="{{ forloop.counter0 }}" {% if opt.correct %}checked{% endif %}> Correct
+                    <button type="button" class="btn btn-sm btn-danger remove-option">X</button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <button type="button" class="btn btn-sm btn-primary mt-2" id="addOption">+ Add Option</button>
+    </div>
+
+    <!-- Hidden field to store correct answer(s) for non-MCQ -->
+    {{ form.correct_answer }}
+
+    <button type="submit" class="btn btn-success mt-3">Save</button>
+    <a href="{% url 'manage_questions' test.id %}" class="btn btn-secondary mt-3">Cancel</a>
+</form>
+
+<script>
+function showOptions() {
+    const type = document.getElementById("id_question_type").value;
+    const container = document.getElementById("optionsContainer");
+    if(type === "single" || type === "multiple") {
+        container.style.display = "block";
+    } else {
+        container.style.display = "none";
+    }
+}
+
+document.getElementById("id_question_type").addEventListener("change", showOptions);
+window.addEventListener("load", showOptions);
+
+// Add new option
+document.getElementById("addOption").addEventListener("click", () => {
+    const div = document.createElement("div");
+    div.classList.add("mb-2", "option-row");
+    div.innerHTML = `
+        <input type="text" name="options[]" class="form-control d-inline-block" style="width:70%;">
+        <input type="checkbox" name="correct_answer[]"> Correct
+        <button type="button" class="btn btn-sm btn-danger remove-option">X</button>
+    `;
+    document.getElementById("optionList").appendChild(div);
+});
+
+// Remove option
+document.getElementById("optionList").addEventListener("click", function(e){
+    if(e.target.classList.contains("remove-option")){
+        e.target.parentElement.remove();
+    }
+});
+</script>
+{% endblock %}
