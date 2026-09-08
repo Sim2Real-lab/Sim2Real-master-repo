@@ -329,11 +329,12 @@ h1 {
     cursor: pointer;
 }
 /* Ensure the text within the file input is readable */
-.form-group input[type="file"]::-webkit-file-upload-button {
+.form-group input[type="file"] {
     background: linear-gradient(90deg, var(--accent-purple), var(--light-purple));
     border: none;
     color: white;
     padding: 8px 15px;
+    padding-bottom: 10px;
     border-radius: 5px;
     font-weight: 600;
     cursor: pointer;

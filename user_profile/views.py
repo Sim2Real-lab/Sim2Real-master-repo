@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile as up
 from django.contrib import messages
+from datetime import date
 
 # Create your views here.
 @login_required
@@ -14,16 +15,22 @@ def userprofile_view(request):
     #return render(request,'user_profile/profile.html',context)
     user_role = getattr(request.user, 'userrole', None)
     try:
-        profile=up.objects.get(user=user)
+        profile = up.objects.get(user=user)
     except up.DoesNotExist:
-        profile=None
+        profile = None
 
+    # NITK check
     is_nitk = user.email.endswith("@nitk.edu.in")
+
+    # Age limit: 18 to 30 years
+    today = date.today()
+    max_dob = today.replace(year=today.year - 18)
+    min_dob = today.replace(year=today.year - 30)
+
     if is_nitk:
-        college_value = "National Institute of Technology Karnataka" 
+        college_value = "National Institute of Technology Karnataka"
     else:
         college_value = profile.college if profile else ""
-
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -72,9 +79,11 @@ def userprofile_view(request):
                 return redirect('home')
 
     return render(request, 'user_profile/profile.html', {
-        'user_email': user.email,
-        'profile': profile,
-        'user_role':user_role,
-        'is_nitk': is_nitk,
-    'college_value': college_value
-    })
+    'user_email': user.email,
+    'profile': profile,
+    'user_role': user_role,
+    'is_nitk': is_nitk,
+    'college_value': college_value,
+    'min_dob': min_dob,
+    'max_dob': max_dob
+})
