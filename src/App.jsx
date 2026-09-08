@@ -49,12 +49,12 @@ function App() {
               <a href="#queries" className="hover:text-primary transition-colors">Queries</a>
             </div>
             <div className="flex gap-4 items-center">
-              <button className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
+              <a href="/accounts/login/" className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
                 Sign In
-              </button>
-              <button className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
+              </a>
+              <a href="/accounts/signup/" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
                 Sign Up
-              </button>
+              </a>
             </div>
           </div>
         </nav>

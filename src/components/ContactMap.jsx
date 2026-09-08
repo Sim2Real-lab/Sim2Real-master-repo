@@ -1,4 +1,61 @@
+import { useState } from 'react';
+
+// Utility to get CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
+}
+
 export const ContactMap = () => {
+  const [formData, setFormData] = useState({ name: '', contact_email: '', institution_name: '', message: '' });
+  const [statusMsg, setStatusMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setStatusMsg('');
+
+    const csrftoken = getCookie('csrftoken');
+    const formPayload = new FormData();
+    for (const key in formData) {
+      formPayload.append(key, formData[key]);
+    }
+    formPayload.append('g-recaptcha-response', 'mock-token-for-now'); // Note: Real reCAPTCHA required
+
+    try {
+      const res = await fetch('/queries/submit/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formPayload
+      });
+      const data = await res.json();
+      setStatusMsg(data.message);
+      if (data.success) {
+        setFormData({ name: '', contact_email: '', institution_name: '', message: '' });
+      }
+    } catch (err) {
+      setStatusMsg('An error occurred while submitting.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="queries" className="relative py-32 bg-[#f4f5f7] flex flex-col pt-32 pb-0 overflow-hidden">
       
@@ -11,13 +68,17 @@ export const ContactMap = () => {
         </h2>
         
         <div className="bg-white/60 backdrop-blur-xl border border-white/40 p-8 md:p-12 rounded-3xl shadow-xl shadow-blue-900/5">
-          <form className="flex flex-col gap-8" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="flex flex-col gap-3">
                 <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Name</label>
                 <input 
                   type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                   className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
                   placeholder="Jane Doe" 
                 />
@@ -26,6 +87,10 @@ export const ContactMap = () => {
                 <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Email</label>
                 <input 
                   type="email" 
+                  name="contact_email"
+                  value={formData.contact_email}
+                  onChange={handleChange}
+                  required
                   className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
                   placeholder="jane@example.com" 
                 />
@@ -36,6 +101,9 @@ export const ContactMap = () => {
               <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Institution</label>
               <input 
                 type="text" 
+                name="institution_name"
+                value={formData.institution_name}
+                onChange={handleChange}
                 className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
                 placeholder="NITK Surathkal" 
               />
@@ -44,10 +112,16 @@ export const ContactMap = () => {
             <div className="flex flex-col gap-3">
               <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Message</label>
               <textarea 
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
                 className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner resize-none min-h-[140px]" 
                 placeholder="How can we help?" 
               />
             </div>
+
+            {statusMsg && <div className="text-sm font-semibold text-[#0066FF] p-3 bg-blue-50 rounded-lg">{statusMsg}</div>}
 
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mt-2">
               
@@ -73,8 +147,8 @@ export const ContactMap = () => {
                 </div>
               </div>
 
-              <button type="submit" className="px-10 py-4 bg-zinc-900 text-white font-sans font-bold tracking-tight text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300 shadow-none">
-                SUBMIT QUERY
+              <button disabled={isSubmitting} type="submit" className="px-10 py-4 bg-zinc-900 text-white font-sans font-bold tracking-tight text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300 shadow-none disabled:opacity-50">
+                {isSubmitting ? 'SUBMITTING...' : 'SUBMIT QUERY'}
               </button>
             </div>
           </form>
@@ -83,3 +157,4 @@ export const ContactMap = () => {
     </section>
   );
 };
+

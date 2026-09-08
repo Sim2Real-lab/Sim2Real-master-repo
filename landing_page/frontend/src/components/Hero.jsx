@@ -61,12 +61,12 @@ export const Hero = () => {
             {sequenceStep >= 1 && (
               <>
                 <FadeIn delay={0.4} className="flex flex-wrap gap-4">
-                  <button className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary">
+                  <a href="#timeline" className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block">
                     EXPLORE MORE
-                  </button>
-                  <button className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors">
+                  </a>
+                  <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
                     SIGN IN
-                  </button>
+                  </a>
                 </FadeIn>
 
                 <FadeIn delay={0.6}>

@@ -66,10 +66,7 @@ export const Footer = () => {
         {/* BOTTOM LEGAL TEXT */}
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 pb-0 border-t border-black/10 w-full pt-8 mt-12">
            <p className="font-sans text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-black/80">
-              © 2025 Sim2Real. All Rights Reserved.
-           </p>
-           <p className="font-sans text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] text-black/80">
-              Made with ❤️ for innovators in Robotics and Automation 🤖
+              © 2026 Sim2Real. All Rights Reserved.
            </p>
         </div>
 
