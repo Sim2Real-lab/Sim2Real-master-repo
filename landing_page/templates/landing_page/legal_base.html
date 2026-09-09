@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <title>{% block title %}{% endblock %} | Sim2Real</title>
+    <link rel="stylesheet" href="{% static 'landing_page/legal.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'landing_page/sim2real_logo.png' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{% url 'landing_page:main_landing_page' %}" aria-label="Sim2Real home">Sim2Real</a>
+        <nav aria-label="Legal pages">
+            <a href="{% url 'landing_page:privacy_policy' %}"{% if request.resolver_match.url_name == 'privacy_policy' %} aria-current="page"{% endif %}>Privacy Policy</a>
+            <a href="{% url 'landing_page:terms_and_conditions' %}"{% if request.resolver_match.url_name == 'terms_and_conditions' %} aria-current="page"{% endif %}>Terms &amp; Conditions</a>
+        </nav>
+    </header>
+
+    <main>
+        <article class="legal-document">
+            <a class="back-link" href="{% url 'landing_page:main_landing_page' %}">&larr; Back to Sim2Real</a>
+            <header class="document-header">
+                <p class="eyebrow">Sim2Real Robotics Competition</p>
+                <h1>{% block heading %}{% endblock %}</h1>
+                <p class="updated">Last updated: 9 September 2026</p>
+                <p class="summary">{% block summary %}{% endblock %}</p>
+            </header>
+
+            {% block content %}{% endblock %}
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sim2Real Robotics Competition. All rights reserved.</p>
+        <p>RoboTech, National Institute of Technology Karnataka, Surathkal</p>
+    </footer>
+</body>
+</html>

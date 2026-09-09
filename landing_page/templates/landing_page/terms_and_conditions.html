@@ -1,0 +1,84 @@
+{% extends 'landing_page/legal_base.html' %}
+
+{% block title %}Terms &amp; Conditions{% endblock %}
+{% block meta_description %}Read the terms governing use of the Sim2Real website and participation in the Sim2Real Robotics Competition.{% endblock %}
+{% block heading %}Terms &amp; Conditions{% endblock %}
+{% block summary %}These terms govern your use of the Sim2Real website and your participation in the competition. Please read them before creating an account or registering a team.{% endblock %}
+
+{% block content %}
+<nav class="contents" aria-label="On this page">
+    <h2>On this page</h2>
+    <ol>
+        <li><a href="#acceptance">Acceptance</a></li>
+        <li><a href="#accounts">Accounts</a></li>
+        <li><a href="#participation">Competition participation</a></li>
+        <li><a href="#submissions">Submissions</a></li>
+        <li><a href="#conduct">Acceptable conduct</a></li>
+        <li><a href="#liability">Disclaimers and liability</a></li>
+        <li><a href="#contact">Contact us</a></li>
+    </ol>
+</nav>
+
+<section id="acceptance">
+    <h2>1. Acceptance of these terms</h2>
+    <p>By accessing the website, creating an account, or participating in Sim2Real, you agree to these Terms &amp; Conditions and the <a href="{% url 'landing_page:privacy_policy' %}">Privacy Policy</a>. If you do not agree, do not use the website or register for the competition.</p>
+</section>
+
+<section id="accounts">
+    <h2>2. Accounts</h2>
+    <p>You must provide accurate, current information and keep your login credentials confidential. You are responsible for activity performed through your account and must notify the organisers promptly if you suspect unauthorised access. We may suspend accounts that contain false information, compromise the service, or breach these terms.</p>
+</section>
+
+<section id="participation">
+    <h2>3. Competition participation</h2>
+    <ul>
+        <li>You must satisfy the eligibility, team-size, registration, payment, and deadline requirements announced for the applicable edition of the competition.</li>
+        <li>Organisers may request reasonable evidence to verify eligibility, identity, team membership, or payment.</li>
+        <li>Schedule, format, judging criteria, prizes, and access to resources may be changed when operational, safety, fairness, or circumstances beyond the organisers' control require it.</li>
+        <li>Judging and eligibility decisions made under the published competition rules are final, subject to any review process announced by the organisers.</li>
+        <li>Participants are responsible for their equipment, travel, personal safety, and compliance with venue and NITK rules.</li>
+    </ul>
+</section>
+
+<section id="fees">
+    <h2>4. Fees and cancellations</h2>
+    <p>Any applicable registration fee and payment deadline will be displayed during registration or in official competition communications. Refund, cancellation, and transfer conditions announced for the relevant competition edition form part of these terms. Contact the organisers before paying if those conditions are unclear.</p>
+</section>
+
+<section id="submissions">
+    <h2>5. Submissions and intellectual property</h2>
+    <p>You retain ownership of original work you submit. You confirm that you have the rights and permissions needed to submit it and that it does not unlawfully use another person's intellectual property, confidential information, or personal data.</p>
+    <p>You grant the organisers a non-exclusive, royalty-free permission to access, reproduce, and display your submission as reasonably necessary to administer, judge, document, and promote the competition. This permission does not transfer ownership of your work. If a challenge sponsor publishes additional intellectual-property conditions, those conditions must be clearly disclosed for the relevant challenge.</p>
+</section>
+
+<section id="conduct">
+    <h2>6. Acceptable conduct</h2>
+    <p>You must not cheat, plagiarise, harass others, disrupt the website or competition, attempt unauthorised access, introduce malicious code, or use the service for unlawful purposes. Organisers may remove content, restrict access, disqualify a participant or team, or refer serious conduct to NITK or relevant authorities.</p>
+</section>
+
+<section id="content">
+    <h2>7. Website content and availability</h2>
+    <p>Competition information is provided in good faith and may be corrected or updated. We do not guarantee that the website will always be uninterrupted or error-free. Links to external services are provided for convenience and do not imply responsibility for their content or availability.</p>
+</section>
+
+<section id="liability">
+    <h2>8. Disclaimers and liability</h2>
+    <p>To the extent permitted by applicable law, the website and competition materials are provided on an “as available” basis. Sim2Real, RoboTech, and NITK are not liable for indirect or consequential loss arising from use of the website or participation in the competition. Nothing in these terms excludes liability or rights that cannot lawfully be excluded.</p>
+</section>
+
+<section id="changes">
+    <h2>9. Changes and termination</h2>
+    <p>We may update these terms to reflect changes to the competition, website, or applicable requirements. The revision date appears at the top of this page. Continued use after an update means you accept the revised terms. You may stop using the service at any time.</p>
+</section>
+
+<section id="law">
+    <h2>10. Applicable law</h2>
+    <p>These terms are governed by the laws of India. Subject to any mandatory legal rights, disputes are subject to the jurisdiction of the courts applicable to Mangaluru, Karnataka.</p>
+</section>
+
+<section id="contact">
+    <h2>11. Contact us</h2>
+    <p>Questions about these terms can be sent to <a href="mailto:sim2real.robotechnitk@nitk.edu.in">sim2real.robotechnitk@nitk.edu.in</a>.</p>
+    <address>RoboTech, National Institute of Technology Karnataka, Surathkal, Srinivasnagar, Mangaluru, Karnataka 575025, India</address>
+</section>
+{% endblock %}

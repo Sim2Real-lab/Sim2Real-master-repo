@@ -8,10 +8,11 @@ app_name = 'landing_page' # This defines the namespace for your app
 urlpatterns = [
     # Main Landing Page
     path('', views.main_landing_page_view, name='main_landing_page'),
+    path('privacy-policy/', views.privacy_policy_view, name='privacy_policy'),
+    path('terms-and-conditions/', views.terms_and_conditions_view, name='terms_and_conditions'),
     path('queries/submit/', views.general_query_submit_view, name='general_query_submit'),
 
     # Dedicated Sponsor Page
     path('sponsor/', views.landing_page_sponsor_view, name='sponsor_page'),
     path('sponsor/contact-submit/', views.sponsor_contact_submit_view, name='sponsor_contact_submit'),
 ]
-

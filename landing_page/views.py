@@ -18,6 +18,16 @@ def main_landing_page_view(request):
     # No specific data needed for the main landing page, but you can add it if sections become dynamic.
     return render(request, 'landing_page/index.html')
 
+
+def privacy_policy_view(request):
+    """Render the public privacy policy."""
+    return render(request, 'landing_page/privacy_policy.html')
+
+
+def terms_and_conditions_view(request):
+    """Render the public terms and conditions."""
+    return render(request, 'landing_page/terms_and_conditions.html')
+
 def landing_page_sponsor_view(request):
     """
     Renders the dedicated sponsor page (sponsor.html), fetching sponsors.
@@ -127,6 +137,5 @@ Allow: /
 Sitemap: https://sim2real.nitk.ac.in/sitemap.xml
 """
     return HttpResponse(content, content_type="text/plain")
-
 
 
