@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Email OTP | SIM2REAL</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
+  <link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-blue: #007bff;
+      --accent-blue: #1769d5;
+      --dark-bg-color-1: #0d0d21;
+      --dark-bg-color-2: #1a1538;
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --border-color: rgba(0, 0, 0, 0.12);
+      --text-color: #173f73;
+      --text-light: #4a5568;
+      --success-color: #28a745;
+      --error-color: #dc3545;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-image:
+        linear-gradient(rgba(244, 248, 255, 0.95), rgba(244, 248, 255, 0.95)),
+        url("{% static 'assets/NITK.webp' %}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-color: #f4f8ff;
+      color: var(--text-color);
+    }
+
+    .verify-container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 25px rgba(39, 64, 176, 0.15);
+      padding: 40px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .logo-container {
+      margin-bottom: 20px;
+    }
+
+    .logo-container img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    h2 {
+      color: #173f73;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    p.subtitle {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    ul.messages {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+    }
+
+    ul.messages li {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: 500;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    ul.messages li.success {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    ul.messages li.error {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    ul.messages li.info {
+      background-color: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      color: #173f73;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #cbd9e9;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #173f73;
+      font-size: 1.05rem;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      border-color: #2476d8;
+      box-shadow: 0 0 0 3px rgba(36, 118, 216, 0.15);
+    }
+
+    .form-group input.otp-input {
+      letter-spacing: 6px;
+      font-size: 1.4rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .btn-verify {
+      width: 100%;
+      background: #1769d5;
+      color: #ffffff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 5px 14px rgba(36, 118, 216, 0.25);
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn-verify:hover {
+      background: #125bb8;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 18px rgba(36, 118, 216, 0.35);
+    }
+
+    .resend-section {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .resend-form {
+      display: inline-block;
+      margin: 0;
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: #1769d5;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      font-size: 0.9rem;
+    }
+
+    .btn-link:hover {
+      color: #125bb8;
+    }
+
+    .back-links {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 0.9rem;
+    }
+
+    .back-links a {
+      color: #1769d5;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .back-links a:hover {
+      color: #125bb8;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .verify-container {
+        padding: 25px 20px;
+      }
+      h2 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="verify-container">
+    <div class="logo-container">
+      <img src="{% static 'assets/sim2real_logo.png' %}" alt="SIM2REAL Logo">
+    </div>
+
+    <h2>Verify Your Email</h2>
+    <p class="subtitle">
+      {% if email %}
+        We sent a 6-digit OTP to <strong>{{ email }}</strong>.<br>
+      {% endif %}
+      Please enter the code below to activate your account. The code expires in 5 minutes.
+    </p>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post" action="{% url 'verify_signup_otp' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="id_email">Email Address</label>
+        <input type="email" name="email" id="id_email" value="{{ email }}" readonly required>
+      </div>
+
+      <div class="form-group">
+        <label for="id_otp">Verification OTP</label>
+        <input type="text" name="otp" id="id_otp" class="otp-input" maxlength="6" pattern="[0-9]{6}" placeholder="______" required autofocus autocomplete="one-time-code">
+      </div>
+
+      <button type="submit" class="btn-verify">
+        <i class="fa fa-check-circle me-1"></i> Verify & Activate
+      </button>
+    </form>
+
+    <div class="resend-section">
+      <span>Didn't receive the OTP? </span>
+      <form class="resend-form" method="post" action="{% url 'resend_signup_otp' %}">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{ email }}">
+        <button type="submit" class="btn-link">Resend OTP</button>
+      </form>
+    </div>
+
+    <div class="back-links">
+      <a href="{% url 'login' %}"><i class="fa fa-arrow-left"></i> Back to Login</a>
+      <span>•</span>
+      <a href="{% url 'signup' %}">Sign Up Again</a>
+    </div>
+  </div>
+
+</body>
+</html>
