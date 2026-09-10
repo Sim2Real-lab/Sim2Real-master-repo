@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import fs from 'fs';
 import path from 'path';
 
-// Plugin to move index.html into Django's template directory
 function moveIndexHtml() {
   return {
     name: 'move-index-html',
@@ -12,40 +11,52 @@ function moveIndexHtml() {
       const src = path.resolve(__dirname, 'landing_page/static/landing_page/react/index.html');
       const dest = path.resolve(__dirname, 'landing_page/templates/landing_page/index.html');
       
-      // Ensure destination directory exists
-      if (!fs.existsSync(path.dirname(dest))) {
-        fs.mkdirSync(path.dirname(dest), { recursive: true });
+      if (fs.existsSync(src)) {
+        if (!fs.existsSync(path.dirname(dest))) {
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+        }
+        fs.copyFileSync(src, dest);
+        fs.unlinkSync(src);
       }
-      
-      fs.copyFileSync(src, dest);
-      fs.unlinkSync(src);
     }
   }
 }
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), moveIndexHtml()],
-  base: '/static/landing_page/react/', // Point to Django's static URL
-  build: {
-    outDir: 'landing_page/static/landing_page/react', // Output directly to Django static
-    emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('three') || id.includes('@react-three') || id.includes('@splinetool')) {
-              return '3d-engine';
+export default defineConfig(({ command }) => {
+  const isBuild = command === 'build';
+  return {
+    plugins: [react(), tailwindcss(), moveIndexHtml()],
+    base: isBuild ? '/static/landing_page/react/' : '/',
+    server: {
+      proxy: {
+        '/accounts': 'http://127.0.0.1:8000',
+        '/user': 'http://127.0.0.1:8000',
+        '/queries': 'http://127.0.0.1:8000',
+        '/sponsor': 'http://127.0.0.1:8000',
+        '/staff': 'http://127.0.0.1:8000',
+      }
+    },
+    build: {
+      outDir: 'landing_page/static/landing_page/react',
+      emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('three') || id.includes('@react-three') || id.includes('@splinetool')) {
+                return '3d-engine';
+              }
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-core';
+              }
+              if (id.includes('gsap')) {
+                return 'animations';
+              }
+              return 'vendor';
             }
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-core';
-            }
-            if (id.includes('gsap')) {
-              return 'animations';
-            }
-            return 'vendor';
           }
         }
       }
     }
-  }
+  };
 });
