@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-default-key")
 
 DEBUG = "true"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "sim2real.nitk.ac.in").split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 
 
@@ -79,6 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'queries.context_processors.sidebar_queries',
             ],
         },
     },
