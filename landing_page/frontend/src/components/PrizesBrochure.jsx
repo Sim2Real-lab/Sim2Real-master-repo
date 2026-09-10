@@ -54,6 +54,25 @@ export const PrizesBrochure = () => {
       {/* 1. THE CENTERED PRIZES CONTAINER */}
       <div className="max-w-6xl mx-auto px-6 flex flex-col items-center" ref={containerRef}>
         
+        {/* OUR COLLABORATORS SECTION */}
+        <div className="text-center mb-24 z-20 relative">
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-8 tracking-tight text-foreground">
+            Our Collaborators
+          </h2>
+          <div className="flex justify-center items-center">
+            <div className="p-6 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200/50 flex flex-col items-center gap-3 hover:scale-105 transition-transform duration-300">
+              <img 
+                src="/static/landing_page/logo.jpeg" 
+                alt="Engineer NITK Logo" 
+                className="h-20 md:h-28 w-auto object-contain rounded-xl"
+              />
+              <span className="font-display font-bold text-lg md:text-xl tracking-widest text-zinc-900 uppercase">
+                ENGINEER
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-50 pointer-events-none">
             Exciting Prizes Await!

@@ -37,9 +37,9 @@ function App() {
           )}
         >
           <div className="flex justify-between items-center max-w-7xl mx-auto">
-            <div className="font-display font-bold text-2xl tracking-tighter">
+            <a href="/" className="font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity">
               SIM2REAL
-            </div>
+            </a>
             <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
               <a href="#timeline" className="hover:text-primary transition-colors">Time Line</a>
               <a href="#prizes" className="hover:text-primary transition-colors">Prizes</a>
