@@ -32,7 +32,11 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-default-key")
 
 DEBUG = "true"
 
+<<<<<<< HEAD
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1").split(",")
+=======
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", ["localhost", "127.0.0.1"])
+>>>>>>> 5abb758909d647e45c99f14a4a04df8784441bde
 
 
 
@@ -79,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'queries.context_processors.sidebar_queries',
             ],
         },
     },
