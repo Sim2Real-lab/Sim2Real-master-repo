@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib import messages
 from .models import Sponsor, Query, GeneralQuery
 from staff_home.models import Brochure
-from django.http import HttpResponseForbidden,FileResponse, Http404,HttpResponse
+from django.http import HttpResponseForbidden, FileResponse, Http404, HttpResponse, JsonResponse
 import os
 from django.http import FileResponse, Http404
 from django.conf import settings
@@ -56,6 +56,8 @@ def general_query_submit_view(request):
 
         # Check required fields
         if not all([name, contact_email, message_text]):
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': "Please fill in all required fields (Name, Email, Message)."})
             messages.error(request, "Please fill in all required fields (Name, Email, Message).")
             return redirect(reverse('landing_page:main_landing_page') + '#queries')
 
@@ -70,6 +72,8 @@ def general_query_submit_view(request):
         result = r.json()
 
         if not result.get('success'):
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': "Invalid reCAPTCHA. Please try again."})
             messages.error(request, "Invalid reCAPTCHA. Please try again.")
             return redirect(reverse('landing_page:main_landing_page') + '#queries')
 
@@ -81,9 +85,13 @@ def general_query_submit_view(request):
                 institution_name=institution_name,
                 message=message_text
             )
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': "Your query has been sent successfully! We'll get back to you soon."})
             messages.success(request, "Your query has been sent successfully! We'll get back to you soon.")
             return redirect(reverse('landing_page:main_landing_page') + '#queries')
         except Exception as e:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': f"An error occurred: {e}. Please try again later."})
             messages.error(request, f"An error occurred: {e}. Please try again later.")
             return redirect(reverse('landing_page:main_landing_page') + '#queries')
 
