@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIGN UP | SIM2REAL</title>
-    <link rel="stylesheet" href="{%static 'accounts/style.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
-<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
-<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
-<link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
-
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
+    <link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
 </head>
 <body>
 <div class="overlay"></div>
@@ -19,49 +18,304 @@
     <div class="login-html">
         <strong class="page-type" id="type">Sign Up</strong>
         <div class="login-form">
-            <form class="sign-up-htm" method="post" action="{% url 'signup' %}">
+
+            <!-- Error message container -->
+            <div id="signup-error-box" class="error-message" style="display: none; text-align: center; margin-bottom: 16px; background-color: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; padding: 10px; border-radius: 6px; color: #ff6b6b;"></div>
+
+            <!-- Step 1: Signup Details -->
+            <form id="signup-form" class="sign-up-htm" method="post" action="{% url 'signup' %}">
                 {% csrf_token %}
                 <div class="group">
                     <label for="user" class="label">Email Id</label>
-                    <input name="email" id="user" type="text" class="input">
+                    <input name="email" id="user" type="email" class="input" required autocomplete="email">
                 </div>
                 <div class="group">
                     <label for="password1" class="label">Create Password</label>
                     <div class="password-field">
-                    <input name="password1" id="password1" class="input" type="password" data-type="password">
-                    <span class="toggle-password" data-toggle="#password1"><i class="fa fa-eye"></i></span>
+                        <input name="password1" id="password1" class="input" type="password" data-type="password" required autocomplete="new-password">
+                        <span class="toggle-password" data-toggle="#password1"><i class="fa fa-eye"></i></span>
                     </div>
                 </div>
                 <div class="group">
                     <label for="password2" class="label">Confirm Password</label>
-                <div class="password-field">
-                    <input name="password2" id="password2" class="input" type="password" data-type="password">
-                    <span class="toggle-password" data-toggle="#password2"><i class="fa fa-eye"></i></span>
-                </div>
+                    <div class="password-field">
+                        <input name="password2" id="password2" class="input" type="password" data-type="password" required autocomplete="new-password">
+                        <span class="toggle-password" data-toggle="#password2"><i class="fa fa-eye"></i></span>
+                    </div>
                 </div>
                 <div class="group">
                     <button id="submit" class="button" value="Sign Up" type="submit">SIGN UP</button>
                 </div>
-                <div class="hr"></div>
-                {% if signup_error %}
-                    <div class="error-message">{{ signup_error }}</div>
-                    {% if "already registered" in signup_error|lower %}
-                    <div style="text-align:center; margin-top: 10px;">
-                    <form method="post" action="{% url 'resend_verification' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="email" value="{{ request.POST.email }}">
-                        <button type="submit" class="button-resend" action="{% url 'resend_verification' %}">Resend Verification Email</button>
-                    </form>
-                    </div>
-                    {% endif %}
-                {% endif %}
-                <div class="foot-lnk">
-                    <a href="{% url 'login' %}">Already Registered? </a>
+            </form>
+
+            <!-- Step 2: OTP Verification Field (Shown dynamically after signup) -->
+            <div id="otp-section" style="display: none;">
+                <p id="otp-status-msg" style="color: var(--text-light); font-size: 0.9em; text-align: center; margin-bottom: 18px;">
+                    We sent a 6-digit OTP to <strong id="display-email" style="color: #ffffff;"></strong>
+                </p>
+
+                <div class="group">
+                    <label for="otp-input" class="label">Enter 6-Digit OTP</label>
+                    <input id="otp-input" class="input" type="text" maxlength="6" pattern="[0-9]{6}" placeholder="______" style="text-align: center; font-size: 1.5em; letter-spacing: 6px; font-weight: 700;" autocomplete="one-time-code">
+                </div>
+
+                <div id="timer-box" style="text-align: center; margin-top: 10px; margin-bottom: 20px; font-size: 0.9em; color: var(--text-light);">
+                    OTP expires in: <span id="countdown" style="font-weight: 700; color: var(--light-purple);">05:00</span>
+                </div>
+
+                <div class="group">
+                    <button id="verify-otp-btn" class="button" type="button" style="width: 100%;">VERIFY & ACTIVATE</button>
+                </div>
+
+                <div id="resend-box" style="text-align: center; margin-top: 16px;">
+                    <span id="resend-text" style="color: var(--text-light); font-size: 0.85em;">Didn't receive code? </span>
+                    <button id="resend-btn" class="button-resend" type="button">Resend OTP</button>
+                </div>
+
+                <div style="text-align: center; margin-top: 14px;">
+                    <a href="javascript:void(0)" id="back-to-signup-link" style="color: var(--text-light); font-size: 0.85em; text-decoration: underline;">
+                        <i class="fa fa-arrow-left"></i> Edit Details
+                    </a>
                 </div>
             </div>
+
+            <div class="hr"></div>
+
+            <div class="foot-lnk">
+                <a href="{% url 'login' %}">Already Registered? </a>
+            </div>
+
         </div>
     </div>
 </div>
-<script src="/static/js/script.js"></script>
+
+<script src="{% static 'js/script.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const signupForm = document.getElementById("signup-form");
+    const otpSection = document.getElementById("otp-section");
+    const submitBtn = document.getElementById("submit");
+    const errorBox = document.getElementById("signup-error-box");
+    const pageType = document.getElementById("type");
+    const displayEmail = document.getElementById("display-email");
+    const otpInput = document.getElementById("otp-input");
+    const verifyBtn = document.getElementById("verify-otp-btn");
+    const resendBtn = document.getElementById("resend-btn");
+    const resendText = document.getElementById("resend-text");
+    const timerBox = document.getElementById("timer-box");
+    const countdownEl = document.getElementById("countdown");
+    const backLink = document.getElementById("back-to-signup-link");
+
+    let currentEmail = "";
+    let countdownInterval = null;
+    let timeLeft = 300; // 5 minutes
+
+    function getCsrfToken() {
+        const tokenInput = document.querySelector("[name=csrfmiddlewaretoken]");
+        return tokenInput ? tokenInput.value : "";
+    }
+
+    function startTimer() {
+        clearInterval(countdownInterval);
+        timeLeft = 300;
+        resendText.textContent = "Didn't receive code? ";
+        timerBox.innerHTML = 'OTP expires in: <span id="countdown" style="font-weight: 700; color: var(--light-purple);">05:00</span>';
+
+        function tick() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const span = document.getElementById("countdown");
+            if (span) span.textContent = formatted;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                timerBox.innerHTML = '<span style="color: #ff6b6b; font-weight: 700;">OTP has expired!</span> Please click Resend OTP to get a new code.';
+                resendText.textContent = "Timer expired: ";
+            } else {
+                timeLeft--;
+            }
+        }
+
+        tick();
+        countdownInterval = setInterval(tick, 1000);
+    }
+
+    // Step 1: Submit signup form
+    signupForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        errorBox.style.display = "none";
+
+        const email = document.getElementById("user").value.trim();
+        const p1 = document.getElementById("password1").value;
+        const p2 = document.getElementById("password2").value;
+
+        if (!email || !p1 || !p2) {
+            errorBox.textContent = "Please fill in all fields.";
+            errorBox.style.display = "block";
+            return;
+        }
+
+        if (p1 !== p2) {
+            errorBox.textContent = "Passwords do not match.";
+            errorBox.style.display = "block";
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "SENDING OTP...";
+
+        try {
+            const formData = new FormData();
+            formData.append("email", email);
+            formData.append("password1", p1);
+            formData.append("password2", p2);
+            formData.append("csrfmiddlewaretoken", getCsrfToken());
+            formData.append("ajax", "true");
+
+            const response = await fetch("{% url 'signup' %}", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                currentEmail = email;
+                displayEmail.textContent = email;
+
+                // Switch to OTP field view
+                signupForm.style.display = "none";
+                otpSection.style.display = "block";
+                pageType.textContent = "Verify OTP";
+
+                otpInput.value = "";
+                otpInput.focus();
+                startTimer();
+            } else {
+                errorBox.textContent = data.message || "Signup failed. Please try again.";
+                errorBox.style.display = "block";
+            }
+        } catch (err) {
+            errorBox.textContent = "Unable to connect to server. Please try again.";
+            errorBox.style.display = "block";
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "SIGN UP";
+        }
+    });
+
+    // Step 2: Verify OTP
+    verifyBtn.addEventListener("click", async function () {
+        const otp = otpInput.value.trim();
+
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+            alert("Please enter a valid 6-digit numeric OTP.");
+            otpInput.focus();
+            return;
+        }
+
+        if (timeLeft <= 0) {
+            alert("OTP has expired! Please click Resend OTP to receive a new code.");
+            return;
+        }
+
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "VERIFYING...";
+
+        try {
+            const formData = new FormData();
+            formData.append("email", currentEmail);
+            formData.append("otp", otp);
+            formData.append("csrfmiddlewaretoken", getCsrfToken());
+            formData.append("ajax", "true");
+
+            const response = await fetch("{% url 'verify_signup_otp' %}", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Browser alert when authentication is correct
+                alert("Authentication is correct! Your account has been verified successfully.");
+                window.location.href = data.redirect || "{% url 'login' %}";
+            } else {
+                // If not correct, alert and let user type again
+                alert(data.message || "Incorrect OTP. Please try again.");
+                otpInput.value = "";
+                otpInput.focus();
+            }
+        } catch (err) {
+            alert("An error occurred during verification. Please try again.");
+            otpInput.focus();
+        } finally {
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "VERIFY & ACTIVATE";
+        }
+    });
+
+    // Press Enter inside OTP input to submit
+    otpInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            verifyBtn.click();
+        }
+    });
+
+    // Step 3: Resend OTP
+    resendBtn.addEventListener("click", async function () {
+        resendBtn.disabled = true;
+        resendBtn.textContent = "Resending...";
+
+        try {
+            const formData = new FormData();
+            formData.append("email", currentEmail);
+            formData.append("csrfmiddlewaretoken", getCsrfToken());
+            formData.append("ajax", "true");
+
+            const response = await fetch("{% url 'resend_signup_otp' %}", {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert("A new OTP has been sent! Check your email (or terminal in local environment).");
+                otpInput.value = "";
+                otpInput.focus();
+                startTimer();
+            } else {
+                alert(data.message || "Failed to resend OTP.");
+            }
+        } catch (err) {
+            alert("Network error resending OTP. Please try again.");
+        } finally {
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Resend OTP";
+        }
+    });
+
+    // Step 4: Back / Edit Details
+    backLink.addEventListener("click", function () {
+        clearInterval(countdownInterval);
+        otpSection.style.display = "none";
+        signupForm.style.display = "block";
+        pageType.textContent = "Sign Up";
+        errorBox.style.display = "none";
+    });
+});
+</script>
 </body>
 </html>

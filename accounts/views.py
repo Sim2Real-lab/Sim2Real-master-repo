@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from .tokens import account_activation_token
@@ -10,13 +10,13 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.cache import never_cache
 from django.utils import timezone
-from .models import PasswordResetOTP
-from .forms import OTPRequestForm, OTPVerifyForm
+import secrets
+from .models import PasswordResetOTP, SignupOTP
+from .forms import OTPRequestForm, OTPVerifyForm, SignupOTPVerifyForm
 from django.db import transaction
 import random
 from django.core.mail import EmailMultiAlternatives
@@ -31,8 +31,8 @@ def login_view(request):
         except User.DoesNotExist:
             user_obj = None
         if user_obj and not user_obj.is_active:
-            resend_url = reverse('resend_verification') + f'?email={email}'
-            login_error = f'Your account is not active. Please <a href="{resend_url}" class="resend-link">Click here</a> to resend verification link.'
+            verify_url = reverse('verify_signup_otp') + f'?email={email}'
+            login_error = f'Your account is not active. Please <a href="{verify_url}" class="resend-link">Click here</a> to verify your account with OTP.'
             return render(request, 'accounts/login.html', {
                 'login_error': login_error
             })
@@ -50,28 +50,70 @@ def login_view(request):
 
     return render(request, 'accounts/login.html')
 
+def generate_and_send_otp(user):
+    # 1. Generate secure 6-digit code
+    otp_code = f"{secrets.randbelow(900000) + 100000}"
+
+    # 2. Save/update OTP in database with a 5-minute validity window
+    SignupOTP.objects.update_or_create(
+        user=user,
+        defaults={
+            'otp': otp_code,
+            'created_at': timezone.now()
+        }
+    )
+
+    # 3. Send email (Outputs to terminal in local, sends real email in production)
+    subject = "Your Sim2Real Verification Code"
+    message = f"Hello,\n\nYour OTP code is: {otp_code}\n\nThis code will expire in 5 minutes."
+
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return otp_code
+
 @never_cache
 def signup_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('ajax') == 'true'
+        email = request.POST.get('email', '').strip()
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+
+        if not email or not password1 or not password2:
+            msg = 'Please fill in all fields'
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=400)
+            return render(request, 'accounts/signup.html', {'signup_error': msg})
 
         if password1 != password2:
-            return render(request, 'accounts/signup.html', {'signup_error': 'Passwords do not match'})
+            msg = 'Passwords do not match'
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=400)
+            return render(request, 'accounts/signup.html', {'signup_error': msg})
 
         try:
             validate_password(password1)
         except ValidationError as e:
-            return render(request, 'accounts/signup.html', {'signup_error': e.messages})
+            msg = ' '.join(e.messages) if isinstance(e.messages, list) else str(e)
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=400)
+            return render(request, 'accounts/signup.html', {'signup_error': msg})
 
         # Delete any previous inactive users with this email
         existing_user = User.objects.filter(username=email).first()
         if existing_user:
             if existing_user.is_active:
+                msg = 'Email already registered and verified'
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': msg}, status=400)
                 return render(request, 'accounts/signup.html', {
-            'signup_error': 'Email already registered and verified'
-        })
+                    'signup_error': msg
+                })
             else:
                 # Remove stale inactive user
                 existing_user.delete()
@@ -82,66 +124,19 @@ def signup_view(request):
                 user.is_active = False
                 user.save()
 
-        # Prepare email
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                token = account_activation_token.make_token(user)
-                verification_link = request.build_absolute_uri(
-                reverse('activate', kwargs={'uidb64': uid, 'token': token})
-            )
-
-                subject = 'Verify your SIM2REAL account'
-                from_email = settings.DEFAULT_FROM_EMAIL
-                recipient_list = [email]
-
-
-                # Send email
-                
-
-# ... after generating `verification_link`
-
-                html_content = f"""
-<html>
-<head>
-<style>
-.btn {{
-    display: inline-block;
-    padding: 12px 24px;
-    font-size: 16px;
-    color: white;
-    background-color: #007BFF;
-    text-decoration: none;
-    border-radius: 5px;
-}}
-.container {{
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #333;
-}}
-</style>
-</head>
-<body>
-<div class="container">
-<h2>Welcome to SIM2REAL!</h2>
-<p>Thank you for signing up. Please verify your email to activate your account.</p>
-<p><a href="{verification_link}" class="btn">Verify Email</a></p>
-<p>If the button doesn’t work, copy and paste this link into your browser:</p>
-<p>{verification_link}</p>
-<p>Regards,<br>SIM2REAL Team</p>
-</div>
-</body>
-</html>
-"""
-
-                email_message = EmailMultiAlternatives(subject, "Please view this email in HTML", from_email, recipient_list)
-                email_message.attach_alternative(html_content, "text/html")
-                email_message.send(fail_silently=False)
+                generate_and_send_otp(user)
 
         except Exception as e:
-            # If email fails, rollback user creation automatically
-            return render(request, 'accounts/signup.html', {'signup_error': f"Error sending email: Plese check your email or contact organisers"})
+            msg = "Error sending OTP email: Please check your email or contact organisers."
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=500)
+            return render(request, 'accounts/signup.html', {'signup_error': msg})
 
-        messages.success(request, "Signup successful! Check your email to activate your account. If mail not found in Inbox please check Spam")
-        return redirect('login')
+        if is_ajax:
+            return JsonResponse({'success': True, 'email': email, 'message': 'Signup successful! OTP has been sent.'})
+
+        messages.success(request, "Signup successful! We sent a 6-digit OTP to your email. Enter it below to activate your account.")
+        return redirect(f"{reverse('verify_signup_otp')}?email={email}")
 
     return render(request, 'accounts/signup.html')
 
@@ -164,37 +159,107 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse('Activation link is invalid or has expired.')
 
-def resend_verification_view(request):
-    email = request.GET.get('email') or request.POST.get('email')
-    user_model = get_user_model()
+@never_cache
+def verify_signup_otp_view(request):
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('ajax') == 'true'
+    initial_email = request.GET.get('email', '') or request.POST.get('email', '')
+    if request.method == "POST":
+        email = request.POST.get('email', '').strip()
+        otp = request.POST.get('otp', '').strip()
 
-    if not email:
-        messages.error(request, "No email provided.")
+        if not email or not otp:
+            msg = "Please provide both email and OTP."
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=400)
+            messages.error(request, msg)
+            return render(request, 'accounts/verify_signup_otp.html', {'form': SignupOTPVerifyForm(), 'email': email})
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            msg = "Invalid email or user does not exist."
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=400)
+            messages.error(request, msg)
+            return render(request, 'accounts/verify_signup_otp.html', {'form': SignupOTPVerifyForm(), 'email': email})
+
+        if user.is_active:
+            msg = "Account is already active. You can log in."
+            if is_ajax:
+                return JsonResponse({'success': True, 'message': msg, 'redirect': reverse('login')})
+            messages.info(request, msg)
+            return redirect('login')
+
+        otp_records = SignupOTP.objects.filter(user=user, otp=otp).order_by('-created_at')
+        if not otp_records.exists():
+            msg = "Invalid OTP. Please check and try again."
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=400)
+            messages.error(request, msg)
+            return render(request, 'accounts/verify_signup_otp.html', {'form': SignupOTPVerifyForm(), 'email': email})
+
+        otp_record = otp_records.first()
+        if otp_record.is_expired():
+            msg = "OTP has expired. Please request a new OTP."
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg, 'expired': True}, status=400)
+            messages.error(request, msg)
+            return render(request, 'accounts/verify_signup_otp.html', {'form': SignupOTPVerifyForm(), 'email': email})
+
+        # Activate user
+        user.is_active = True
+        user.save()
+
+        # Delete used OTP
+        SignupOTP.objects.filter(user=user).delete()
+
+        msg = "Your email has been verified successfully! You can now log in."
+        if is_ajax:
+            return JsonResponse({'success': True, 'message': msg, 'redirect': reverse('login')})
+
+        messages.success(request, msg)
         return redirect('login')
+    else:
+        form = SignupOTPVerifyForm(initial={'email': initial_email})
 
+    return render(request, 'accounts/verify_signup_otp.html', {'form': form, 'email': initial_email})
+
+def resend_signup_otp_view(request):
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('ajax') == 'true'
+    email = request.GET.get('email') or request.POST.get('email')
+    if not email:
+        msg = "No email provided."
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': msg}, status=400)
+        messages.error(request, msg)
+        return redirect('signup')
+
+    user_model = get_user_model()
     try:
         user = user_model.objects.get(email=email)
         if user.is_active:
-            messages.info(request, 'Your account is already active. You can log in.')
+            msg = "Your account is already active. You can log in."
+            if is_ajax:
+                return JsonResponse({'success': True, 'message': msg, 'redirect': reverse('login')})
+            messages.info(request, msg)
             return redirect('login')
 
-        # Resend verification email
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = account_activation_token.make_token(user)
-        verification_link = request.build_absolute_uri(
-            reverse('activate', kwargs={'uidb64': uid, 'token': token})
-        )
-
-        subject = 'Resend - Verify your SIM2REAL account'
-        message = f'Hi again! Click below to verify your account:\n\n{verification_link}'
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
-
-        messages.success(request, 'Verification email resent. Please check your inbox.')
-        return redirect('login')
+        generate_and_send_otp(user)
+        msg = "A new OTP has been sent. Please check your email (or terminal in local environment)."
+        if is_ajax:
+            return JsonResponse({'success': True, 'message': msg})
+        messages.success(request, msg)
+        return redirect(f"{reverse('verify_signup_otp')}?email={email}")
 
     except user_model.DoesNotExist:
-        messages.error(request, 'No account found with that email.')
-        return render(request, 'accounts/signup.html')
+        msg = "No account found with that email."
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': msg}, status=404)
+        messages.error(request, msg)
+        return redirect('signup')
+
+def resend_verification_view(request):
+    return resend_signup_otp_view(request)
 
 def request_otp_view(request):
     if request.method == "POST":
@@ -208,8 +273,14 @@ def request_otp_view(request):
                 return render(request, 'accounts/request_otp.html', {'form': form})
 
             # Generate OTP
-            otp = f"{random.randint(100000, 999999)}"
-            PasswordResetOTP.objects.create(user=user, otp=otp)
+            otp = f"{secrets.randbelow(900000) + 100000}"
+            PasswordResetOTP.objects.update_or_create(
+                user=user,
+                defaults={
+                    'otp': otp,
+                    'created_at': timezone.now()
+                }
+            )
 
             # Send Email
             subject = "Your SIM2REAL Password Reset OTP"
