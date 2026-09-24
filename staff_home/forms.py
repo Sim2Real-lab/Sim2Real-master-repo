@@ -1,8 +1,8 @@
 from django import forms
-from .models import Announcments,Resource,Question,Test
 from django.forms import DateTimeInput
 import datetime
-from .models import ProblemStatementConfig, ProblemStatementSection,Brochure, Submission, SubmissionWindow
+from .models import Track, ProblemStatementConfig, ProblemStatementSection, Brochure, Submission, SubmissionWindow, Announcments, Resource, Question, Test
+
 class AnnouncmentForm(forms.ModelForm):
     class Meta:
         model = Announcments
@@ -16,17 +16,23 @@ class AnnouncmentForm(forms.ModelForm):
         ]
 
         widgets = {
+<<<<<<< HEAD
             'schedule_for_later': forms.DateInput(
                 attrs={'type': 'date'}
             ),
             'valid_till': forms.DateInput(
                 attrs={'type': 'date'}
             ),
+=======
+            'schedule_for_later': forms.DateInput(attrs={'type': 'date'}),
+            'valid_till': forms.DateInput(attrs={'type': 'date'}),
+>>>>>>> Fix/00005
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+<<<<<<< HEAD
         today = datetime.date.today()
 
         # Maximum date = exactly 10 years from today
@@ -68,6 +74,41 @@ class AnnouncmentForm(forms.ModelForm):
 
         return cleaned_data
         
+=======
+            if schedule_date and schedule_date < today:
+                self.add_error('schedule_for_later', 'Scheduled date cannot be in the past.')
+
+            if valid_till and schedule_date and valid_till < schedule_date:
+                self.add_error('valid_till', 'Valid till date must be after the scheduled date.')
+
+            return cleaned_data
+
+class TrackForm(forms.ModelForm):
+    class Meta:
+        model = Track
+        fields = ["name", "description", "enabled", "file", "qualifying_status", "order"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "enabled": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "file": forms.FileInput(attrs={"class": "form-control", "accept": ".pdf,.doc,.docx"}),
+            "qualifying_status": forms.Select(attrs={"class": "form-select"}),
+            "order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and not self.initial.get("qualifying_status"):
+            self.initial["qualifying_status"] = "pending"
+
+    def clean_file(self):
+        file = self.cleaned_data.get("file")
+        if file and hasattr(file, "name"):
+            ext = file.name.split(".")[-1].lower()
+            if ext not in ["pdf", "doc", "docx"]:
+                raise forms.ValidationError("Only PDF and Word documents (.pdf, .doc, .docx) are allowed.")
+        return file
+>>>>>>> Fix/00005
 
 class ProblemStatementConfigForm(forms.ModelForm):
     class Meta:
@@ -77,12 +118,34 @@ class ProblemStatementConfigForm(forms.ModelForm):
 class ProblemStatementSectionForm(forms.ModelForm):
     class Meta:
         model = ProblemStatementSection
-        fields = ["title", "content", "order"]
+        fields = ["track", "title", "content", "order"]
+        widgets = {
+            "track": forms.Select(attrs={"class": "form-select"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "content": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+        }
 
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ["title", "file", "link"]
+        fields = ["track", "title", "description", "file", "link"]
+        widgets = {
+            "track": forms.Select(attrs={"class": "form-select"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
+            "file": forms.FileInput(attrs={"class": "form-control"}),
+            "link": forms.URLInput(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "track" in self.fields:
+            self.fields["track"].empty_label = None
+            if not self.instance.pk and not self.initial.get("track"):
+                first_track = Track.objects.first()
+                if first_track:
+                    self.initial["track"] = first_track.id
 
 class BrochureForm(forms.ModelForm):
     class Meta:

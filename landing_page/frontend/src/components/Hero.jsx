@@ -101,7 +101,6 @@ export const Hero = () => {
     </FadeIn>
   )}
 </div>
-
       </div>
     </section>
   );
