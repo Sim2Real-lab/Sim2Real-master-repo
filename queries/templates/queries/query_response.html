@@ -103,9 +103,13 @@ Your Submitted Queries
         }
     }
 </style>
+
+<!-- Note: the "previous queries" sidebar itself is rendered once, site-wide,
+     by home/index.html - it isn't duplicated here anymore. This page is the
+     detailed, full-history view of every query the user has submitted. -->
 <div class="query-response-card">
     <h2>Your Submitted Queries</h2>
-    
+
 {% if queries %}
 
 <table border="1" cellspacing="0" cellpadding="10">
@@ -136,60 +140,24 @@ Your Submitted Queries
     {% endfor %}
   </tbody>
 </table>
-<a class="submit-queries" href="{%url 'user_query'%}">Have Queries? Ask now!</a>
+
+{% if ask_query_form %}
+<button type="button" class="submit-queries" data-bs-toggle="modal" data-bs-target="#askQueryModal">Have Queries? Ask now!</button>
 {% else %}
-  <p>You have not submitted any queries yet.</p>
-  <a class="submit-queries" href="{%url 'user_query'%}">Have Queries? Ask now!</a>
-</div>
+<a class="submit-queries" href="{%url 'user_query'%}">Have Queries? Ask now!</a>
 {% endif %}
-<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark text-white">
-      <div class="modal-header">
-        <h5 class="modal-title" id="responseModalLabel">Query Response</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p id="responseText">Loading...</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
+
+{% else %}
+
+  <p style="text-align:center;">You have not submitted any queries yet.</p>
+
+  {% if ask_query_form %}
+  <button type="button" class="submit-queries" data-bs-toggle="modal" data-bs-target="#askQueryModal">Have Queries? Ask now!</button>
+  {% else %}
+  <a class="submit-queries" href="{%url 'user_query'%}">Have Queries? Ask now!</a>
+  {% endif %}
+
+{% endif %}
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
-  const responseTextElement = document.getElementById('responseText');
 
-  document.querySelectorAll('.view-response').forEach(link => {
-    link.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      const url = this.getAttribute('data-url');
-
-      // Set loading state
-      responseTextElement.textContent = "Loading...";
-
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            responseTextElement.textContent = "Error: " + data.error;
-          } else {
-            responseTextElement.textContent = data.response || "No response provided.";
-          }
-          responseModal.show(); // Show modal after fetching
-        })
-        .catch(err => {
-          console.error(err);
-          responseTextElement.textContent = "Something went wrong.";
-          responseModal.show();
-        });
-    });
-  });
-});
-</script>
-
-{%endblock%}
+{% endblock %}

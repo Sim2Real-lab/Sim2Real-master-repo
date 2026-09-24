@@ -10,6 +10,12 @@ class UserQueryForm(forms.ModelForm):
         user = kwargs.pop('user',None)
         super(UserQueryForm,self).__init__(*args,**kwargs)
 
+        for field in self.fields.values():
+            css = 'form-control'
+            if field.widget.attrs.get('class'):
+                css = field.widget.attrs['class'] + ' ' + css
+            field.widget.attrs['class'] = css
+
         if user:
             profile = user.userprofile
             full_name = f'{profile.first_name} {profile.last_name}'

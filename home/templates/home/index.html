@@ -17,12 +17,11 @@
 <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
 <link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
 </head>
-<body>
+<body class="{% if show_query_page %}query-page{% endif %}">
 {% if show_welcome %}
 <div id="welcome-overlay">
     Welcome to <strong style="margin-left: 10px;">Sim2Real</strong>
 </div>
-<div class="gear"></div>
 {% endif %}
 
 <!-- Main dashboard content here -->
@@ -86,7 +85,94 @@
     </div>
   </div>
 </nav>
+<!-- QUERY SIDEBAR -->
+{% if show_query_page %}
+<div class="query-sidebar query-sidebar-centered">
 
+    <div class="query-sidebar-header">
+        <i class="fas fa-comments"></i>
+        <span>Queries</span>
+    </div>
+
+    {% if queries %}
+
+        <div class="query-sidebar-title">
+            Previous Queries
+        </div>
+
+        {% for query in queries %}
+
+            <div class="sidebar-query">
+
+                <div class="sidebar-ticket">
+                    Ticket: {{ query.ticket }}
+                </div>
+
+                <div class="sidebar-message">
+                    {{ query.message|truncatechars:45 }}
+                </div>
+
+                {% if query.resolved %}
+
+                    <div class="sidebar-status resolved">
+                        <i class="fas fa-check-circle"></i>
+                        Resolved
+                    </div>
+
+                    <a
+                        href="#"
+                        class="sidebar-view-response"
+                        data-url="{% url 'fetch_response' ticket=query.ticket %}">
+                        View Response
+                    </a>
+
+                {% else %}
+
+                    <div class="sidebar-status pending">
+                        <i class="fas fa-clock"></i>
+                        Pending
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="no-queries">
+            <i class="fas fa-circle-question"></i>
+
+            <p>
+                Any queries? Ask us now, or check our FAQs below.
+            </p>
+        </div>
+
+    {% endif %}
+
+
+    {% if ask_query_form %}
+    <button type="button" class="query-sidebar-button" data-bs-toggle="modal" data-bs-target="#askQueryModal">
+        <i class="fas fa-plus"></i>
+        Ask a Query
+    </button>
+    {% else %}
+    <a href="{% url 'user_query' %}" class="query-sidebar-button">
+        <i class="fas fa-plus"></i>
+        Ask a Query
+    </a>
+    {% endif %}
+
+
+    <a href="{% url 'faq_1' %}" class="query-sidebar-button faq-button">
+    <i class="fas fa-book"></i>
+    Check FAQs
+</a>
+
+</div>
+{% endif %}
+<!-- END QUERY SIDEBAR -->
 <div class="top-panel">
 <header class="d-flex justify-content-between align-items-center px-4 py-3">
   <div class="site-branding">
@@ -256,6 +342,147 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('resize', moveProfileForMobile);
     window.addEventListener('DOMContentLoaded', moveProfileForMobile);
+</script>
+
+<!-- Ask a Query Modal: lets the user ask a query from anywhere on the site
+     without navigating away from the page they're on -->
+{% if ask_query_form %}
+<div class="modal fade" id="askQueryModal" tabindex="-1" aria-labelledby="askQueryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="askQueryModalLabel"><i class="fas fa-circle-question"></i> Ask a Query</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="askQueryForm" method="post" action="{% url 'user_query' %}" novalidate>
+        <div class="modal-body">
+          {% csrf_token %}
+          {% for field in ask_query_form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <div id="askQueryFormError" class="text-danger small mb-2" style="display:none;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="askQuerySubmitBtn">Submit Query</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Query Response Modal: shared by the sidebar and any per-page query table -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title" id="responseModalLabel">Query Response</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="responseText">Loading...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // ---- "View Response" (sidebar + any page-level query table) ----
+  var responseModalEl = document.getElementById('responseModal');
+  var responseTextElement = document.getElementById('responseText');
+
+  if (responseModalEl) {
+    var responseModal = new bootstrap.Modal(responseModalEl);
+
+    document.querySelectorAll('.sidebar-view-response, .view-response').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var url = this.getAttribute('data-url');
+        responseTextElement.textContent = 'Loading...';
+        responseModal.show();
+
+        fetch(url)
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            responseTextElement.textContent = data.error
+              ? ('Error: ' + data.error)
+              : (data.response || 'No response provided.');
+          })
+          .catch(function () {
+            responseTextElement.textContent = 'Something went wrong. Please try again.';
+          });
+      });
+    });
+  }
+
+  // ---- "Ask a Query" modal: submits in place, no page navigation ----
+  var askQueryForm = document.getElementById('askQueryForm');
+  if (askQueryForm) {
+    var askQueryModal = new bootstrap.Modal(document.getElementById('askQueryModal'));
+    var errorBox = document.getElementById('askQueryFormError');
+    var submitBtn = document.getElementById('askQuerySubmitBtn');
+
+    askQueryForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      fetch(askQueryForm.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: new FormData(askQueryForm),
+      })
+        .then(function (res) {
+          var contentType = res.headers.get('content-type') || '';
+          if (contentType.indexOf('application/json') === -1) {
+            // Most likely redirected to the profile page because the
+            // user's profile isn't complete yet.
+            throw new Error('not-json');
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Query';
+
+          if (data.success) {
+            askQueryModal.hide();
+            askQueryForm.reset();
+            window.location.reload();
+            return;
+          }
+
+          var errors = data.errors || {};
+          var messagesArr = [];
+          Object.keys(errors).forEach(function (key) {
+            messagesArr = messagesArr.concat(errors[key]);
+          });
+          errorBox.textContent = messagesArr.length
+            ? messagesArr.join(' ')
+            : 'Could not submit your query. Please try again.';
+          errorBox.style.display = 'block';
+        })
+        .catch(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Query';
+          errorBox.textContent = 'Please make sure your profile is complete, then try again.';
+          errorBox.style.display = 'block';
+        });
+    });
+  }
+});
 </script>
 </body>
 </html>

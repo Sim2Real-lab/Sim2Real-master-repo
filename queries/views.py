@@ -1,9 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import JsonResponse
 from .forms import UserQueryForm
 from .models import Query
-from .decorator import user_view,profile_updated
-from django.http import JsonResponse
+from .decorator import user_view, profile_updated
+
+
+def _is_ajax(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
 
 @login_required
 @user_view
@@ -11,37 +17,48 @@ from django.http import JsonResponse
 def user_query_view(request):
     if request.method == 'POST':
         form = UserQueryForm(request.POST, user=request.user)
-        try:
-            if form.is_valid():
-                query = form.save(commit=False)
-                query.sender = request.user
-                query.query_type = 'user'
 
+        if form.is_valid():
+            query = form.save(commit=False)
+            query.sender = request.user
+            query.query_type = 'user'
+            query.email = request.user.email
+
+            try:
                 profile = request.user.userprofile
-                query.name = f"{profile.first_name} {profile.last_name}"
+                full_name = f"{profile.first_name} {profile.last_name}".strip()
+                query.name = full_name or request.user.username
                 query.contact = profile.contact
-                query.email = request.user.email
-
-                query.save()    
-                return redirect('query_response')
-        except Exception:
+            except Exception:
                 query.name = request.user.username
-                query.email = request.user.email
                 query.contact = ''
 
-        query.save()
-        return redirect('query_response')
+            query.save()
+
+            if _is_ajax(request):
+                return JsonResponse({'success': True, 'ticket': str(query.ticket)})
+
+            messages.success(request, "Your query has been submitted. We'll get back to you soon!")
+            return redirect('query_response')
+
+        # Invalid form: fall through and re-render with the errors attached,
+        # instead of crashing (previously this referenced an undefined
+        # 'query' variable when validation failed).
+        if _is_ajax(request):
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     else:
         form = UserQueryForm(user=request.user)
 
-    return render(request, 'queries/query_form.html', {'form': form})
+    return render(request, 'queries/query_hub.html', {'form': form, 'show_query_page': True})
+
 
 @login_required
 @user_view
 @profile_updated
 def query_response(request):
     queries = Query.objects.filter(sender=request.user).order_by('-created_at')
-    return render(request,'queries/query_response.html',{'queries':queries})
+    return render(request, 'queries/query_response.html', {'queries': queries})
+
 
 @login_required
 @user_view
