@@ -167,11 +167,13 @@ from staff_home.decorators import organiser_only, profile_updated
 @organiser_only
 def all_users_view(request):
     query = request.GET.get("q", "")
-    filter_year = request.GET.get("event_year")
-    filter_college = request.GET.get("college")
-    filter_branch = request.GET.get("branch")
-    filter_role = request.GET.get("role")  # "organiser" or "participant"
-    filter_team = request.GET.get("team")
+    filter_year = request.GET.get("event_year", "")
+    filter_college = request.GET.get("college", "")
+    filter_branch = request.GET.get("branch", "")
+    filter_role = request.GET.get("role")  # "organiser", "participant", or "all"
+    if filter_role is None:
+        filter_role = "participant"
+    filter_team = request.GET.get("team", "")
     download_csv = request.GET.get("download") == "csv"
 
     users = User.objects.select_related("userprofile", "userrole").all()
@@ -181,7 +183,9 @@ def all_users_view(request):
         users = users.filter(
             Q(userprofile__first_name__icontains=query) |
             Q(userprofile__last_name__icontains=query) |
-            Q(email__icontains=query)
+            Q(email__icontains=query) |
+            Q(username__icontains=query) |
+            Q(team__name__icontains=query)
         )
 
     # --- Filters ---
@@ -191,9 +195,10 @@ def all_users_view(request):
         users = users.filter(userprofile__college__icontains=filter_college)
     if filter_branch:
         users = users.filter(userprofile__branch__icontains=filter_branch)
-    if filter_role in ["organiser", "participant"]:
-        is_organiser = (filter_role == "organiser")
-        users = users.filter(userrole__is_organiser=is_organiser)
+    if filter_role == "participant":
+        users = users.filter(Q(userrole__is_organiser=False) | Q(userrole__isnull=True))
+    elif filter_role == "organiser":
+        users = users.filter(userrole__is_organiser=True)
     if filter_team:
         users = users.filter(team__name__icontains=filter_team)
 
@@ -208,8 +213,8 @@ def all_users_view(request):
         for u in users:
             profile = getattr(u, "userprofile", None)
             team = getattr(u, "team", None)
-            team_name = team.first().name if team.exists() else "Nil"
-            role = "Organiser" if getattr(u.userrole, "is_organiser", False) else "Participant"
+            team_name = team.first().name if team and team.exists() else ""
+            role = "Organiser" if getattr(u, "userrole", None) and getattr(u.userrole, "is_organiser", False) else "Participant"
             writer.writerow([
                 f"{profile.first_name} {profile.last_name}" if profile else u.get_full_name(),
                 u.email,
@@ -228,7 +233,12 @@ def all_users_view(request):
     page_obj = paginator.get_page(page_number)
 
     # --- For filter dropdowns ---
-    available_years = UserProfile.objects.values_list("event_year", flat=True).distinct().order_by("event_year")
+    available_years_qs = list(UserProfile.objects.values_list("event_year", flat=True).distinct().order_by("event_year"))
+    available_years = [str(y) for y in available_years_qs if y is not None]
+    if "2026" not in available_years:
+        available_years.append("2026")
+        available_years.sort()
+
     available_colleges = UserProfile.objects.values_list("college", flat=True).distinct().order_by("college")
     available_branches = UserProfile.objects.values_list("branch", flat=True).distinct().order_by("branch")
 
@@ -263,7 +273,7 @@ def checkregistration(request):
     filter_paid = request.GET.get("paid")
     filter_verified = request.GET.get("verified")
     filter_outsider = request.GET.get("outsider")
-    filter_year = request.GET.get("event_year")
+    filter_year = request.GET.get("event_year", "")
     download_csv = request.GET.get("download") == "csv"
 
     # Get all teams with prefetch of members and related profiles
@@ -340,8 +350,12 @@ def checkregistration(request):
     page_obj = paginator.get_page(page_number)
 
     # Event years for filter dropdown
-    available_years = list(User.objects.filter(userprofile__isnull=False)
+    available_years_qs = list(User.objects.filter(userprofile__isnull=False)
                            .values_list("userprofile__event_year", flat=True).distinct().order_by("userprofile__event_year"))
+    available_years = [str(y) for y in available_years_qs if y is not None]
+    if "2026" not in available_years:
+        available_years.append("2026")
+        available_years.sort()
 
     context = {
         "teams": page_obj,
