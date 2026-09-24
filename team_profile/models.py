@@ -12,6 +12,7 @@ class Team(models.Model):
     is_verified = models.BooleanField(default=False)
     payment_screenshot = models.ImageField(upload_to="payments/", blank=True, null=True)
     payment_ref = models.CharField(max_length=50, blank=True, null=True)
+    track = models.ForeignKey('staff_home.Track', on_delete=models.SET_NULL, null=True, blank=True, related_name="teams")
     event_year = models.IntegerField(default=2025)
 
     def is_registered(self):

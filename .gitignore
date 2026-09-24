@@ -91,6 +91,10 @@ Testing / Coverage
 htmlcov/
 .tox/
 .nox/
+.coverage.*
+htmlcov/
+.tox/
+.nox/
 coverage.xml
 *.cover
 .hypothesis/

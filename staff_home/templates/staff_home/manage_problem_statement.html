@@ -3,42 +3,143 @@
 <div class="container py-4">
   <div class="card shadow-sm border-0 rounded-3">
     <div class="card-body">
-      <h2 class="mb-4 text-center">📄 Manage Problem Statement</h2>
-
-      <!-- Config Form -->
-      <form method="post" enctype="multipart/form-data" class="mb-4">
-        {% csrf_token %}
-        <div class="mb-3">
-          {{ form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-primary">💾 Save Config</button>
-      </form>
-
-      <hr>
-
-      <!-- Sections -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">📝 Sections</h3>
-        <a href="{% url 'add_section' %}" class="btn btn-success">+ Add Section</a>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Manage Problem Statements & Tracks</h2>
+        <a href="{% url 'add_track' %}" class="btn btn-primary">+ Add New Track</a>
       </div>
 
-      <div class="list-group">
-        {% for section in sections %}
-          <div class="list-group-item list-group-item-action mb-2 rounded-3">
-            <h5 class="fw-bold">{{ section.title }}</h5>
-            <small class="text-muted">Order: {{ section.order }}</small>
-            <p class="mt-2">{{ section.content|truncatechars:150 }}</p>
-            <div class="mt-2">
-              <a href="{% url 'edit_section' section.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
-              <a href="{% url 'delete_section' section.id %}" 
-                 class="btn btn-danger btn-sm"
-                 onclick="return confirm('Delete this section?')">🗑️ Delete</a>
+      <!-- Track Navigation Tabs -->
+      {% if tracks %}
+        <ul class="nav nav-tabs mb-4">
+          {% for t in tracks %}
+            <li class="nav-item">
+              <a class="nav-link {% if t.id == selected_track.id %}active fw-bold{% endif %}"
+                 href="{% url 'manage_problem_statement' %}?track_id={{ t.id }}">
+                {{ t.name }}
+                {% if t.enabled %}
+                  <span class="badge bg-success ms-1">Active</span>
+                {% else %}
+                  <span class="badge bg-secondary ms-1">Disabled</span>
+                {% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if selected_track %}
+        <!-- Selected Track Header & Action Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded">
+          <div>
+            <h4 class="mb-1 fw-bold">Track: {{ selected_track.name }}</h4>
+            <p class="text-muted mb-0">{{ selected_track.description|default:"No description provided." }}</p>
+          </div>
+          <div>
+            <a href="{% url 'edit_track' selected_track.id %}" class="btn btn-outline-warning btn-sm me-1">Edit Track Details</a>
+            {% if tracks|length > 1 %}
+              <a href="{% url 'delete_track' selected_track.id %}"
+                 class="btn btn-outline-danger btn-sm"
+                 onclick="return confirm('Are you sure you want to delete this track?')">Delete Track</a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Track Configuration Form -->
+        <form method="post" enctype="multipart/form-data" class="mb-4 p-3 border rounded-3 bg-white shadow-sm">
+          {% csrf_token %}
+          <input type="hidden" name="save_track" value="1">
+          <h5 class="fw-bold mb-3">Track Settings for "{{ selected_track.name }}"</h5>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Track Name</label>
+              {{ track_form.name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Qualifying Status / Announcement</label>
+              {{ track_form.qualifying_status }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Track Description</label>
+              {{ track_form.description }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Problem Statement File (PDF/Doc)</label>
+              {{ track_form.file }}
+              {% if selected_track.file %}
+                <div class="form-text">Current file: <a href="{{ selected_track.file.url }}" target="_blank">{{ selected_track.file.name }}</a></div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="form-check mt-4">
+                {{ track_form.enabled }}
+                <label class="form-check-label fw-bold ms-2" for="{{ track_form.enabled.id_for_label }}">
+                  Visible to Participants
+                </label>
+              </div>
             </div>
           </div>
-        {% empty %}
-          <div class="alert alert-info">No sections added yet.</div>
-        {% endfor %}
-      </div>
+          <button type="submit" class="btn btn-primary mt-3">Save Track Settings</button>
+        </form>
+
+        <hr class="my-4">
+
+        <!-- Track Sections -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Sections for {{ selected_track.name }}</h4>
+          <a href="{% url 'add_section' %}?track_id={{ selected_track.id }}" class="btn btn-success btn-sm">+ Add Section</a>
+        </div>
+
+        <div class="list-group mb-4">
+          {% for section in sections %}
+            <div class="list-group-item list-group-item-action mb-2 rounded-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="fw-bold mb-1">{{ section.title }}</h5>
+                <span class="badge bg-info text-dark">Order: {{ section.order }}</span>
+              </div>
+              <p class="mt-2 text-secondary">{{ section.content|truncatechars:200|linebreaks }}</p>
+              <div>
+                <a href="{% url 'edit_section' section.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'delete_section' section.id %}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Delete this section?')">Delete</a>
+              </div>
+            </div>
+          {% empty %}
+            <div class="alert alert-info">No sections added for this track yet.</div>
+          {% endfor %}
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Track Materials / Resources -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Materials & Resources for {{ selected_track.name }}</h4>
+          <a href="{% url 'manage_resources' %}" class="btn btn-outline-primary btn-sm">Manage All Resources</a>
+        </div>
+
+        <div class="list-group">
+          {% for resource in resources %}
+            <div class="list-group-item mb-2 rounded-3 d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold mb-1">{{ resource.title }}</h6>
+                {% if resource.description %}<small class="text-muted d-block">{{ resource.description }}</small>{% endif %}
+                {% if resource.link %}
+                  <a href="{{ resource.link }}" target="_blank" class="btn btn-sm btn-link p-0 me-2">External Link</a>
+                {% endif %}
+                {% if resource.file %}
+                  <a href="{{ resource.file.url }}" download class="btn btn-sm btn-link p-0">Download File</a>
+                {% endif %}
+              </div>
+            </div>
+          {% empty %}
+            <div class="alert alert-light border">No track-specific materials uploaded yet. Use "Manage All Resources" to assign materials to this track.</div>
+          {% endfor %}
+        </div>
+
+      {% else %}
+        <div class="alert alert-warning">No tracks available. Click "+ Add New Track" to get started.</div>
+      {% endif %}
     </div>
   </div>
 </div>
