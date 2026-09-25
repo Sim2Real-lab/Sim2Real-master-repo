@@ -1,7 +1,7 @@
 {% extends 'staff_home/base.html' %}
 
-{% block content %}
-{%block extra_styles%}
+{% block title %}Edit Announcement{% endblock %}
+{% block extra_styles %}
 <style>
     /* staff_home/style.css - Themed for Sim2Real Staff Home Page */
 
@@ -319,44 +319,37 @@
     /* Main Content Area */
     .main-content-area {
         flex-grow: 1;
-        /* Allows content to take available vertical space */
-        padding: 40px 20px;
-        /* Generous padding */
+        padding: 15px 15px;
         max-width: 1200px;
-        /* Adjusted max width for dashboard layout */
-        margin: 30px auto;
-        /* Center the content card */
+        margin: 10px auto;
         position: relative;
         z-index: 1;
-        min-height: calc(100vh - 150px);
-        /* Adjust based on header/footer height */
         box-sizing: border-box;
-        /* Include padding in width calculation */
-    }
-
-    /* Dashboard Section (main card container) */
-    .dashboard-section {
-        background: var(--card-bg);
-        /* Dark, slightly transparent card background */
-        border-radius: 16px;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--border-color);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(13, 110, 253, 0.3);
-        padding: 40px;
-        /* Generous padding inside the main section */
-        margin-bottom: 30px;
-        /* Space below if other content follows */
     }
 
     h2 {
-        color: var(--text-color);
-        font-size: 2.8rem;
+        color: #1769E0;
+        font-size: 2.2rem;
         font-weight: 700;
         text-align: center;
-        margin-bottom: 35px;
+        margin-bottom: 20px;
         letter-spacing: 1.5px;
-        text-shadow: 0 0 12px rgba(13, 110, 253, 0.4);
+    }
+
+    form p {
+        text-align: left;
+        margin-bottom: 14px;
+    }
+
+    form p label,
+    form label,
+    .form-label {
+        display: block;
+        text-align: left;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #000000 !important;
     }
 
     /* Feature Card Styling */
@@ -454,20 +447,20 @@
 
     /* Styles for forms like "Create Announcement" */
     /* Main container for the form (class="container mt-5" from template) */
-    .container.mt-5 {
+    .container,
+    .container.mt-5,
+    .container.my-2 {
         background: var(--card-bg);
         border-radius: 16px;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        /*border: 1px solid var(--border-color); /* Kept border for definition */
-        /* box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 25px rgba(13, 110, 253, 0.3);*/
-        /*padding: 40px;*/
-        max-width: 700px;
-        width: 90%;
+        border: 1px solid rgba(23, 105, 224, 0.2);
+        padding: 16px 28px;
+        max-width: 720px;
+        width: 92%;
         text-align: center;
         z-index: 1;
-        margin: 50px auto;
-        /* Margin to vertically center on a laptop screen */
+        margin: 5px auto !important;
         box-sizing: border-box;
     }
 
@@ -489,40 +482,47 @@
     input[type="date"],
     input[type="time"],
     select,
-    /* Added select for the category dropdown */
     textarea,
     .form-control {
         width: 100%;
-        padding: 12px 15px;
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
+        padding: 8px 12px;
+        border: 1px solid #000000;
+        border-radius: 8px;
         background-color: var(--input-bg);
-        color: var(--text-color);
-        font-size: 1rem;
+        color: #000000;
+        font-size: 0.95rem;
         font-weight: 500;
         outline: none;
         transition: all 0.3s ease;
-        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.25);
+        box-shadow: none;
         box-sizing: border-box;
     }
 
+    input[type="text"]:hover,
+    input[type="email"]:hover,
+    input[type="number"]:hover,
+    input[type="date"]:hover,
+    input[type="time"]:hover,
+    select:hover,
+    textarea:hover,
+    .form-control:hover,
     input[type="text"]:focus,
     input[type="email"]:focus,
     input[type="number"]:focus,
     input[type="date"]:focus,
     input[type="time"]:focus,
     select:focus,
-    /* Added select:focus */
     textarea:focus,
     .form-control:focus {
-        border-color: var(--light-purple);
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.4), inset 0 1px 5px rgba(0, 0, 0, 0.3);
+        border-color: #1769E0;
+        box-shadow: none;
+        outline: none;
         background-color: var(--input-focus-bg);
     }
 
     /* Textarea specific height */
     textarea#id_message {
-        min-height: 120px;
+        min-height: 65px;
         resize: vertical;
     }
 
@@ -582,16 +582,15 @@
 
     /* Submit Button - Reusing btn-glow style */
     .btn-primary {
-        background: linear-gradient(90deg, var(--accent-purple), var(--light-purple));
+        background: #1769E0;
         border: none;
-        color: #123b78;
+        color: white;
         padding: 14px 30px;
         border-radius: 50px;
         font-weight: bold;
         text-transform: uppercase;
-        box-shadow: 0 0 15px rgba(13, 110, 253, 0.7), 0 0 30px rgba(10, 88, 202, 0.5);
-        transition: all 0.4s ease;
-        background-size: 200% auto;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
         letter-spacing: 1.5px;
         cursor: pointer;
         display: block;
@@ -601,10 +600,10 @@
     }
 
     .btn-primary:hover {
-        background-position: right center;
-        box-shadow: 0 0 30px rgba(13, 110, 253, 1), 0 0 60px rgba(10, 88, 202, 0.8);
-        transform: translateY(-5px);
-        color: #123b78;
+        background-color: #123b78;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        color: white;
     }
 
     .btn-primary:focus-visible {
@@ -1061,13 +1060,42 @@
         }
     }
 </style>
-{%endblock%}
-<h2>Edit Announcement</h2>
+{% endblock %}
+{% block content %}
+<div class="container my-1">
+    <h2 class="mb-3">Edit Announcement</h2>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a href="{% url 'announcement_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="row g-2 text-start">
+            <div class="col-12">
+                <label for="{{ form.message.id_for_label }}" class="form-label mb-1">Message</label>
+                {{ form.message }}
+                {{ form.message.errors }}
+            </div>
+            <div class="col-md-6 col-12">
+                <label for="{{ form.category.id_for_label }}" class="form-label mb-1">Category</label>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+            <div class="col-md-6 col-12">
+                <label for="{{ form.schedule_for_later.id_for_label }}" class="form-label mb-1">Schedule For</label>
+                {{ form.schedule_for_later }}
+                {{ form.schedule_for_later.errors }}
+            </div>
+            <div class="col-12">
+                <label for="{{ form.valid_till.id_for_label }}" class="form-label mb-1">Valid Till</label>
+                {{ form.valid_till }}
+                {{ form.valid_till.errors }}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-3 flex-wrap">
+            <button type="submit" class="btn btn-primary m-0">Save Changes</button>
+            <a href="{% url 'announcement_list' %}" class="btn btn-info m-0">Cancel</a>
+        </div>
+    </form>
+</div>
 {% endblock %}
