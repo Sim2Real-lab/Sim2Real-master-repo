@@ -90,8 +90,7 @@
         color: #123b78;
         margin-bottom: 5px;
         letter-spacing: 2px;
-        text-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
-        /* Consistent glow */
+        text-shadow: none;
     }
 
     .site-branding strong {
@@ -350,12 +349,12 @@
 
     h2 {
         color: #1769E0;
-        font-size: 2.8rem;
+        font-size: 2.2rem;
         font-weight: 700;
         text-align: center;
-        margin-bottom: 35px;
-        letter-spacing: 1.5px;
-        text-shadow: 0 0 12px rgba(13, 110, 253, 0.4);
+        margin-bottom: 25px;
+        letter-spacing: 1px;
+        text-shadow: none;
     }
 
     /* Feature Card Styling */
@@ -488,40 +487,47 @@
     input[type="date"],
     input[type="time"],
     select,
-    /* Added select for the category dropdown */
     textarea,
     .form-control {
         width: 100%;
-        padding: 12px 15px;
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
+        padding: 8px 12px;
+        border: 1px solid #000000;
+        border-radius: 8px;
         background-color: var(--input-bg);
-        color: var(--text-color);
-        font-size: 1rem;
+        color: #000000;
+        font-size: 0.95rem;
         font-weight: 500;
         outline: none;
         transition: all 0.3s ease;
-        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.25);
+        box-shadow: none;
         box-sizing: border-box;
     }
 
+    input[type="text"]:hover,
+    input[type="email"]:hover,
+    input[type="number"]:hover,
+    input[type="date"]:hover,
+    input[type="time"]:hover,
+    select:hover,
+    textarea:hover,
+    .form-control:hover,
     input[type="text"]:focus,
     input[type="email"]:focus,
     input[type="number"]:focus,
     input[type="date"]:focus,
     input[type="time"]:focus,
     select:focus,
-    /* Added select:focus */
     textarea:focus,
     .form-control:focus {
-        border-color: var(--light-purple);
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.4), inset 0 1px 5px rgba(0, 0, 0, 0.3);
+        border-color: #1769E0;
+        box-shadow: none;
+        outline: none;
         background-color: var(--input-focus-bg);
     }
 
     /* Textarea specific height */
     textarea#id_message {
-        min-height: 120px;
+        min-height: 65px;
         resize: vertical;
     }
 
@@ -579,31 +585,29 @@
         opacity: 0.98;
     }
 
-    /* Submit Button - Reusing btn-glow style */
+    /* Submit Button */
     .btn-primary {
         background: #1769E0;
         border: none;
         color: white;
-        padding: 14px 30px;
+        padding: 10px 24px;
         border-radius: 50px;
         font-weight: bold;
         text-transform: uppercase;
-        box-shadow: 0 0 15px rgba(13, 110, 253, 0.7), 0 0 30px rgba(10, 88, 202, 0.5);
-        transition: all 0.4s ease;
-        background-size: 200% auto;
-        letter-spacing: 1.5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        letter-spacing: 1px;
         cursor: pointer;
-        display: block;
-        margin: 30px auto 0 auto;
-        max-width: 250px;
+        display: inline-block;
+        margin: 0;
         outline: none;
     }
 
     .btn-primary:hover {
-        background-position: right center;
-        box-shadow: 0 0 30px rgba(13, 110, 253, 1), 0 0 60px rgba(10, 88, 202, 0.8);
-        transform: translateY(-5px);
-        color: ;
+        background: #123b78;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
     }
 
     .btn-primary:focus-visible {
@@ -1085,49 +1089,40 @@
 </style>
 {%endblock%}
 {% block content %}
-<div class="container mt-5">
-    <h2>Create Announcement</h2>
+<div class="container my-1">
+    <h2 class="mb-3">Create Announcement</h2>
 
     <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
 
-        <div class="mb-3">
-            <label for="id_message" class="form-label">Message</label>
-            {{ form.message }}
-            {{ form.message.errors }}
-        </div>
-        <div class="mb-3">
-            <label for="id_category" class="form-label">Category</label>
-            {{ form.category }}
-            {{ form.category.errors }}
-        </div>
-        <div class="mb-3">
-            <label for="id_schedule_for_later" class="form-label">Schedule For</label>
-            {{ form.schedule_for_later }}
-            {{ form.schedule_for_later.errors }}
+        <div class="row g-2 text-start">
+            <div class="col-12">
+                <label for="id_message" class="form-label mb-1">Message</label>
+                {{ form.message }}
+                {{ form.message.errors }}
+            </div>
+            <div class="col-md-6 col-12">
+                <label for="id_category" class="form-label mb-1">Category</label>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+            <div class="col-md-6 col-12">
+                <label for="id_schedule_for_later" class="form-label mb-1">Schedule For</label>
+                {{ form.schedule_for_later }}
+                {{ form.schedule_for_later.errors }}
+            </div>
+            <div class="col-12">
+                <label for="id_valid_till" class="form-label mb-1">Valid Till</label>
+                {{ form.valid_till }}
+                {{ form.valid_till.errors }}
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label for="id_valid_till" class="form-label">Valid Till</label>
-            {{ form.valid_till }}
-            {{ form.valid_till.errors }}
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-3 flex-wrap">
+            <button type="submit" class="btn btn-primary m-0">Submit</button>
+            <a href="{% url 'announcement_list' %}" class="btn btn-info m-0">Modify Previous Announcements</a>
         </div>
-        <!--
-      <div class="form-check mb-3">
-        {{ form.manual_visibility }}
-        <label for="id_manual_visibility" class="form-check-label">Override Visibility</label>
-        {{ form.manual_visibility.errors }}
-      </div>
-
-      <div class="form-check mb-3">
-        {{ form.manual_validity }}
-        <label for="id_manual_validity" class="form-check-label">Override Validity</label>
-        {{ form.manual_validity.errors }}
-      </div>
-    -->
-        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
-<a href="{% url 'announcement_list' %}" class="btn btn-info">Modify Previous Announcements</a>
 {% endblock %}
