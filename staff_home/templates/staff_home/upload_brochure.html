@@ -1,9 +1,9 @@
 {% extends "staff_home/base.html" %}
 {% block content %}
 <div class="container mt-4 text-white">
-  <h2 class="mb-4">Upload Brochure</h2>
+  <h2 class="mb-4" style="color: black;">Upload Brochure</h2>
 
-  <form method="post" enctype="multipart/form-data" class="mb-4 bg-dark p-3 rounded shadow">
+  <form method="post" enctype="multipart/form-data" class="mb-4 bg-white text-dark p-3 rounded shadow">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary">Upload</button>
@@ -11,7 +11,7 @@
 
   {% if brochure %}
     <hr class="border-light">
-    <h3 class="mb-3">Current Brochure</h3>
+    <h3 class="mb-3" style="color: black;">Current Brochure</h3>
     <p>
       <a href="{{ brochure.file.url }}" target="_blank" class="btn btn-info">
         📄 View Brochure

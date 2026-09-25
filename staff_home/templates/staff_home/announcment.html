@@ -1085,7 +1085,7 @@
 </style>
 {%endblock%}
 {% block content %}
-<div class="container mt-5">
+
     <h2>Create Announcement</h2>
 
     <form method="post">
@@ -1128,6 +1128,6 @@
     -->
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-</div>
-<a href="{% url 'announcement_list' %}" class="btn btn-info">Modify Previous Announcements</a>
+
+<a href="{% url 'announcement_list' %}" class="btn btn-info mt-4">Modify Previous Announcements</a>
 {% endblock %}
