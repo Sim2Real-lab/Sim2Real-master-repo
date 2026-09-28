@@ -1,26 +1,5 @@
 import { useState, useEffect } from 'react';
 
-<<<<<<< HEAD
-// Hardcoded target date for registration end (e.g., Sept 12, 2025)
-const TARGET_DATE = new Date('2025-09-12T09:00:00+05:30').getTime();
-
-export const Countdown = () => {
-  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft());
-
-  function calculateTimeLeft() {
-    const now = new Date().getTime();
-    const difference = TARGET_DATE - now;
-
-    if (difference <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-    }
-
-    return {
-      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-      minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-      seconds: Math.floor((difference % (1000 * 60)) / 1000),
-=======
 // Targets
 const START_DATE = new Date('2026-09-12T00:00:00+05:30').getTime();
 const END_DATE = new Date('2026-09-20T11:00:00+05:30').getTime();
@@ -53,17 +32,12 @@ export const Countdown = () => {
         minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((difference % (1000 * 60)) / 1000),
       }
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
     };
   }
 
   useEffect(() => {
     const timer = setInterval(() => {
-<<<<<<< HEAD
-      setTimeLeft(calculateTimeLeft());
-=======
       setTimeData(calculateTimeLeft());
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -73,17 +47,10 @@ export const Countdown = () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="text-sm font-medium tracking-tight text-foreground/60 uppercase">
-<<<<<<< HEAD
-        Registration Ends In:
-      </div>
-      <div className="flex gap-4 md:gap-8 items-end">
-        {Object.entries(timeLeft).map(([unit, value]) => (
-=======
         {timeData.label}
       </div>
       <div className="flex gap-4 md:gap-8 items-end">
         {Object.entries(timeData.timeLeft).map(([unit, value]) => (
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
           <div key={unit} className="flex flex-col items-start gap-1">
             <div className="font-display font-bold text-4xl md:text-5xl leading-none">
               {format(value)}

@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-export const ContactMap = () => {
-=======
 import { useState } from 'react';
 
 // Utility to get CSRF token from cookies
@@ -59,7 +56,6 @@ export const ContactMap = () => {
     }
   };
 
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
   return (
     <section id="queries" className="relative py-32 bg-[#f4f5f7] flex flex-col pt-32 pb-0 overflow-hidden">
       
@@ -72,24 +68,17 @@ export const ContactMap = () => {
         </h2>
         
         <div className="bg-white/60 backdrop-blur-xl border border-white/40 p-8 md:p-12 rounded-3xl shadow-xl shadow-blue-900/5">
-<<<<<<< HEAD
-          <form className="flex flex-col gap-8" onSubmit={(e) => e.preventDefault()}>
-=======
           <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="flex flex-col gap-3">
                 <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Name</label>
                 <input 
                   type="text" 
-<<<<<<< HEAD
-=======
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
                   className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
                   placeholder="Jane Doe" 
                 />
@@ -98,13 +87,10 @@ export const ContactMap = () => {
                 <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Email</label>
                 <input 
                   type="email" 
-<<<<<<< HEAD
-=======
                   name="contact_email"
                   value={formData.contact_email}
                   onChange={handleChange}
                   required
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
                   className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
                   placeholder="jane@example.com" 
                 />
@@ -115,12 +101,9 @@ export const ContactMap = () => {
               <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Institution</label>
               <input 
                 type="text" 
-<<<<<<< HEAD
-=======
                 name="institution_name"
                 value={formData.institution_name}
                 onChange={handleChange}
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
                 className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
                 placeholder="NITK Surathkal" 
               />
@@ -129,23 +112,17 @@ export const ContactMap = () => {
             <div className="flex flex-col gap-3">
               <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Message</label>
               <textarea 
-<<<<<<< HEAD
-=======
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 required
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
                 className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner resize-none min-h-[140px]" 
                 placeholder="How can we help?" 
               />
             </div>
 
-<<<<<<< HEAD
-=======
             {statusMsg && <div className="text-sm font-semibold text-[#0066FF] p-3 bg-blue-50 rounded-lg">{statusMsg}</div>}
 
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mt-2">
               
               {/* CSS Only ReCaptcha Mockup */}
@@ -170,13 +147,8 @@ export const ContactMap = () => {
                 </div>
               </div>
 
-<<<<<<< HEAD
-              <button type="submit" className="px-10 py-4 bg-zinc-900 text-white font-sans font-bold tracking-tight text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300 shadow-none">
-                SUBMIT QUERY
-=======
               <button disabled={isSubmitting} type="submit" className="px-10 py-4 bg-zinc-900 text-white font-sans font-bold tracking-tight text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300 shadow-none disabled:opacity-50">
                 {isSubmitting ? 'SUBMITTING...' : 'SUBMIT QUERY'}
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
               </button>
             </div>
           </form>
@@ -185,7 +157,3 @@ export const ContactMap = () => {
     </section>
   );
 };
-<<<<<<< HEAD
-=======
-
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb

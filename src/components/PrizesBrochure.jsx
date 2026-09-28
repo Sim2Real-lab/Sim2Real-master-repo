@@ -54,8 +54,6 @@ export const PrizesBrochure = () => {
       {/* 1. THE CENTERED PRIZES CONTAINER */}
       <div className="max-w-6xl mx-auto px-6 flex flex-col items-center" ref={containerRef}>
         
-<<<<<<< HEAD
-=======
         {/* OUR COLLABORATORS SECTION */}
         <div className="text-center mb-24 z-20 relative">
           <h2 className="text-3xl md:text-5xl font-display font-bold mb-8 tracking-tight text-foreground">
@@ -75,7 +73,6 @@ export const PrizesBrochure = () => {
           </div>
         </div>
 
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-50 pointer-events-none">
             Exciting Prizes Await!
