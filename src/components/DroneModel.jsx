@@ -4,7 +4,12 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 export const DroneModel = forwardRef((props, ref) => {
+<<<<<<< HEAD
   const { scene, nodes } = useGLTF('/droneage2.glb?v=3');
+=======
+  const dronePath = `${import.meta.env.BASE_URL}droneage2.glb?v=3`;
+  const { scene, nodes } = useGLTF(dronePath);
+>>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
 
   useEffect(() => {
     const darkMetal = new THREE.MeshStandardMaterial({
@@ -62,4 +67,8 @@ export const DroneModel = forwardRef((props, ref) => {
 });
 
 DroneModel.displayName = 'DroneModel';
+<<<<<<< HEAD
 useGLTF.preload('/droneage2.glb?v=3');
+=======
+useGLTF.preload(`${import.meta.env.BASE_URL}droneage2.glb?v=3`);
+>>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb

@@ -2,8 +2,8 @@
 {%block extra_styles%}
 <style>
 .container{
-  color:#fff;
-  background: rgba(51, 51, 55, 0.862);
+  color:#000;
+  background: #fff;
   box-shadow: 0 12px 40px 0 rgba(0,0,0,.24), 0 17px 50px 0 rgba(0,0,0,0.19);
   border-radius: 15px;
   margin-top: 80px;
@@ -18,11 +18,12 @@
 }
 h2{
   text-align:center;
+  color: #3498db; /* light blue color */
 }
 table {
   width: 100%;
   border:none;
-  color: #ddd;
+  color: #333;
   padding:0;
   margin:0;
   font-size: 0.9rem;
@@ -30,24 +31,24 @@ table {
 }
 
 thead tr {
-  background-color: #222;
+  background-color: #eee;
 }
 
 th, td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #ccc;
 }
 
 tbody tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .submit-queries{
   display:block;
   padding-bottom:15px;
   text-decoration:none;
-  color:rgba(255,255,255,0.5);
+  color:rgba(0,0,0,0.6);
   cursor:pointer;
   text-align:center;
   font-weight:bold;
@@ -55,7 +56,7 @@ tbody tr:nth-child(even) {
 }
 
 .submit-queries:hover{
-  color:#fff;
+  color:#000;
   transition: 0.25s ease-in;
 }
 

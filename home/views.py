@@ -73,21 +73,62 @@ def announce_view(request):
 def faq_view(request):
     return render(request,'home/faq_pre_registration.html')
 
+from staff_home.models import ProblemStatementConfig, Resource, Brochure, SubmissionWindow, Submission, Track
+
 @login_required
 @user_view
 def problem_statement_view(request):
     team = request.user.team.first()
     registered = team.is_registered() if team else False
 
-    config = ProblemStatementConfig.objects.first()  # Single row config
+    if not registered:
+        return render(request, "home/problem_statement.html", {
+            "visible": False,
+            "message": "Your team registration is pending verification or payment."
+        })
 
-    if not registered or not (config and config.enabled):
-        return render(request, "home/problem_statement.html", {"visible": False})
+    all_tracks = Track.objects.all()
+
+    # Handle track selection by team
+    if request.method == "POST" and "select_track_id" in request.POST and team:
+        track_id = request.POST.get("select_track_id")
+        selected_track_obj = Track.objects.filter(id=track_id).first()
+        if selected_track_obj:
+            team.track = selected_track_obj
+            team.save()
+            messages.success(request, f"Selected track '{selected_track_obj.name}'.")
+            return redirect("problem_statement")
+
+    track = team.track if (team and team.track) else None
+
+    # Auto-assign first track if team has no track set
+    if not track and all_tracks.exists():
+        track = all_tracks.first()
+        if team:
+            team.track = track
+            team.save()
+
+    if not track or not track.enabled:
+        return render(request, "home/problem_statement.html", {
+            "visible": False,
+            "team": team,
+            "track": track,
+            "all_tracks": all_tracks,
+            "message": f"Problem Statement for '{track.name}' is currently disabled." if track else "No Problem Statement available."
+        })
+
+    sections = track.sections.all().order_by("order")
+    materials = track.resources.all()
 
     return render(request, "home/problem_statement.html", {
         "visible": True,
-        "file": config.file if config else None,
-        "sections": config.sections.all().order_by("order") if config else []
+        "team": team,
+        "track": track,
+        "all_tracks": all_tracks,
+        "file": track.file,
+        "qualifying_status": track.qualifying_status,
+        "sections": sections,
+        "materials": materials,
     })
 
 @login_required

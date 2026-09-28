@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import list_tests,create_test,edit_test,delete_test,manage_questions,add_question,edit_question,delete_question,view_submissions,view_analysis,staff_dashboard,checkregistration,manage_submissions,toggle_window_visibility,create_window,window_detail,all_users_view,grade_submission,upload_questions,upload_brochure,queries,manage_resources,create_announcement,resolve_query,announcement_list,announcement_edit,verify_payments,view_payment_screenshot,add_section,manage_problem_statement,delete_section,edit_section
+from .views import list_tests,create_test,edit_test,delete_test,manage_questions,add_question,edit_question,delete_question,view_submissions,view_analysis,staff_dashboard,checkregistration,manage_submissions,toggle_window_visibility,create_window,window_detail,all_users_view,grade_submission,upload_questions,upload_brochure,queries,manage_resources,create_announcement,resolve_query,announcement_list,announcement_edit,verify_payments,view_payment_screenshot,add_section,manage_problem_statement,delete_section,edit_section,add_track,edit_track,delete_track
 
 urlpatterns = [
     path('', staff_dashboard, name='staff_dashboard'),
@@ -17,6 +17,9 @@ urlpatterns = [
     path("problem-statement/add/", add_section, name="add_section"),
     path("problem-statement/<int:pk>/edit/", edit_section, name="edit_section"),
     path("problem-statement/<int:pk>/delete/", delete_section, name="delete_section"),
+    path("tracks/add/", add_track, name="add_track"),
+    path("tracks/<int:track_id>/edit/", edit_track, name="edit_track"),
+    path("tracks/<int:track_id>/delete/", delete_track, name="delete_track"),
     path("resources/", manage_resources, name="manage_resources"),
     path("brochure/",upload_brochure,name='upload_brochure'),
     path("users/",all_users_view,name="user_data"),

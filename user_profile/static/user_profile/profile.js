@@ -31,20 +31,30 @@ document.addEventListener("DOMContentLoaded", function () {
       option.toLowerCase().includes(inputValue)
     );
 
-    filtered.forEach(option => {
+        filtered.forEach(option => {
       const li = document.createElement("li");
+
       li.textContent = option;
       li.classList.add("suggestion-item");
-      li.addEventListener("click", () => {
+
+      li.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+
         yearInput.value = option;
         suggestions.innerHTML = "";
         yearInput.setAttribute("data-valid", "true");
       });
+
       suggestions.appendChild(li);
     });
   }
 
+
+
   if (yearInput) {
+    yearInput.addEventListener("focus", function () {
+    showSuggestions(this.value);
+    });
     yearInput.addEventListener("input", function () {
       showSuggestions(this.value);
       this.setAttribute("data-valid", "false");
@@ -68,3 +78,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+

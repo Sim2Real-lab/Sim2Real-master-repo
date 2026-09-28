@@ -2,31 +2,115 @@
 {% block title %}Problem Statement | SIM2REAL{% endblock %}
 
 {% block content %}
-  {% if visible %}
-    <h2 class="text-center mb-4">Problem Statement</h2>
+<div class="container py-4">
+  {% if team %}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h2 class="mb-1">Problem Statement</h2>
+        {% if track %}
+          <p class="text-muted mb-0">Track: <span class="badge bg-primary fs-6">{{ track.name }}</span></p>
+        {% endif %}
+      </div>
 
-    <!-- Sections -->
-    {% if sections %}
-      {% for section in sections %}
-        <section class="mb-4">
-          <h3>{{ section.title }}</h3>
-          <p>{{ section.content|linebreaks }}</p>
-        </section>
-      {% endfor %}
+      <!-- Track Switcher for Team -->
+      {% if all_tracks and all_tracks|length > 1 %}
+        <form method="post" class="d-flex align-items-center mt-2 mt-md-0">
+          {% csrf_token %}
+          <label class="form-label me-2 mb-0 fw-semibold">Switch Track:</label>
+          <select name="select_track_id" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+            {% for t in all_tracks %}
+              <option value="{{ t.id }}" {% if track and t.id == track.id %}selected{% endif %}>{{ t.name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      {% endif %}
+    </div>
+  {% else %}
+    <h2 class="text-center mb-4">Problem Statement</h2>
+  {% endif %}
+
+  {% if visible and track %}
+
+    <!-- Qualifying Status Card -->
+    {% if qualifying_status %}
+      <div class="card border-info mb-4 shadow-sm">
+        <div class="card-body bg-light">
+          <div class="d-flex align-items-center">
+            <div>
+              <h5 class="card-title fw-bold mb-1">Qualifying Status & Announcements</h5>
+              <p class="card-text text-primary fs-5 mb-0 fw-semibold">{{ qualifying_status|title }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     {% endif %}
 
-    <!-- File download -->
+    <!-- Track Description -->
+    {% if track.description %}
+      <div class="alert alert-secondary mb-4">
+        <strong>Track Description:</strong> {{ track.description }}
+      </div>
+    {% endif %}
+
+    <!-- Problem Statement Sections -->
+    {% if sections %}
+      <div class="sections-container mb-4">
+        {% for section in sections %}
+          <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white">
+              <h3 class="h4 mb-0 fw-bold text-dark">{{ section.title }}</h3>
+            </div>
+            <div class="card-body">
+              <p class="card-text">{{ section.content|linebreaks }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Materials & Resources -->
+    {% if materials %}
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+          <h4 class="h5 mb-0">Track Materials & Resources</h4>
+        </div>
+        <div class="list-group list-group-flush">
+          {% for material in materials %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1 fw-bold">{{ material.title }}</h6>
+                {% if material.description %}
+                  <small class="text-muted d-block">{{ material.description }}</small>
+                {% endif %}
+              </div>
+              <div>
+                {% if material.link %}
+                  <a href="{{ material.link }}" target="_blank" class="btn btn-outline-primary btn-sm me-1">Open Link</a>
+                {% endif %}
+                {% if material.file %}
+                  <a href="{{ material.file.url }}" download class="btn btn-primary btn-sm">Download Material</a>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- File Download Button -->
     {% if file %}
       <div class="mt-4 text-center">
-        <a href="{{ file.url }}" class="btn btn-primary" download>
-          📄 Download Full Problem Statement
+        <a href="{{ file.url }}" class="btn btn-success btn-lg shadow" download>
+          Download Full Problem Statement PDF/Doc
         </a>
       </div>
     {% endif %}
 
   {% else %}
-    <div class="alert alert-warning text-center">
-      <strong>No Problem Statement Available</strong>
+    <div class="alert alert-warning text-center py-4">
+      <h4 class="alert-heading">Notice</h4>
+      <p class="mb-0">{{ message|default:"No Problem Statement Available at this time." }}</p>
     </div>
   {% endif %}
+</div>
 {% endblock %}

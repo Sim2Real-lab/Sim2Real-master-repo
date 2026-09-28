@@ -37,9 +37,15 @@ function App() {
           )}
         >
           <div className="flex justify-between items-center max-w-7xl mx-auto">
+<<<<<<< HEAD
             <div className="font-display font-bold text-2xl tracking-tighter">
               SIM2REAL
             </div>
+=======
+            <a href="/" className="font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity">
+              SIM2REAL
+            </a>
+>>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
             <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
               <a href="#timeline" className="hover:text-primary transition-colors">Time Line</a>
               <a href="#prizes" className="hover:text-primary transition-colors">Prizes</a>
@@ -49,12 +55,21 @@ function App() {
               <a href="#queries" className="hover:text-primary transition-colors">Queries</a>
             </div>
             <div className="flex gap-4 items-center">
+<<<<<<< HEAD
               <button className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
                 Sign In
               </button>
               <button className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
                 Sign Up
               </button>
+=======
+              <a href="/accounts/login/" className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
+                Sign In
+              </a>
+              <a href="/accounts/signup/" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
+                Sign Up
+              </a>
+>>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
             </div>
           </div>
         </nav>

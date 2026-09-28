@@ -40,16 +40,40 @@ class Announcments(models.Model):
         return f"Announcement ({self.category}) by {self.created_by}"
 
 
+class Track(models.Model):
+    QUALIFYING_STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("archived", "Archived"),
+        ("rejected", "Rejected"),
+    ]
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    enabled = models.BooleanField(default=False, help_text="Enable/disable problem statement visibility for this track")
+    file = models.FileField(upload_to="problem_statements/", blank=True, null=True, help_text="Problem Statement document")
+    qualifying_status = models.CharField(max_length=50, choices=QUALIFYING_STATUS_CHOICES, default="pending", help_text="Qualifying status for this track")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
+
+
 class ProblemStatementConfig(models.Model):
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="configs", null=True, blank=True)
     enabled = models.BooleanField(default=False)
     file = models.FileField(upload_to="problem_statements/", blank=True, null=True)
 
     def __str__(self):
-        return "Problem Statement Configuration"
+        return f"Config for {self.track.name}" if self.track else "Problem Statement Configuration"
 
 
 class ProblemStatementSection(models.Model):
-    config = models.ForeignKey(ProblemStatementConfig, on_delete=models.CASCADE, related_name="sections")
+    config = models.ForeignKey(ProblemStatementConfig, on_delete=models.CASCADE, related_name="sections", null=True, blank=True)
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="sections", null=True, blank=True)
     title = models.CharField(max_length=200)
     content = models.TextField()
 
@@ -62,7 +86,9 @@ class ProblemStatementSection(models.Model):
         return self.title
     
 class Resource(models.Model):
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="resources", null=True, blank=True)
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to="resources/", blank=True, null=True)
     link = models.URLField(blank=True, null=True)
 

@@ -10,8 +10,140 @@ from team_profile.models import Team
 from django.db.models import Q
 import csv
 from django.http import JsonResponse
-from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm
-from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission
+from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm,TrackForm
+from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track
+
+@login_required
+@organiser_only
+def manage_problem_statement(request):
+    tracks = Track.objects.all()
+    if not tracks.exists():
+        config_1 = ProblemStatementConfig.objects.filter(id=1).first()
+        track = Track.objects.create(
+            name="Default Track",
+            description="Default competition track",
+            enabled=config_1.enabled if config_1 else False,
+            file=config_1.file if config_1 else None,
+            qualifying_status="pending",
+            order=1,
+        )
+        tracks = Track.objects.all()
+
+    selected_track_id = request.GET.get("track_id")
+    if selected_track_id:
+        selected_track = get_object_or_404(Track, pk=selected_track_id)
+    else:
+        selected_track = tracks.first()
+
+    if request.method == "POST" and "save_track" in request.POST:
+        track_form = TrackForm(request.POST, request.FILES, instance=selected_track)
+        if track_form.is_valid():
+            track_form.save()
+            messages.success(request, f"Track '{selected_track.name}' updated successfully.")
+            return redirect(f"{request.path}?track_id={selected_track.id}")
+    else:
+        track_form = TrackForm(instance=selected_track)
+
+    sections = selected_track.sections.all()
+    resources = selected_track.resources.all()
+
+    return render(request, "staff_home/manage_problem_statement.html", {
+        "tracks": tracks,
+        "selected_track": selected_track,
+        "track_form": track_form,
+        "sections": sections,
+        "resources": resources,
+    })
+
+
+@login_required
+@organiser_only
+def add_track(request):
+    if request.method == "POST":
+        form = TrackForm(request.POST, request.FILES)
+        if form.is_valid():
+            track = form.save()
+            messages.success(request, f"Track '{track.name}' created successfully.")
+            return redirect(f"{redirect('manage_problem_statement').url}?track_id={track.id}")
+    else:
+        form = TrackForm()
+
+    return render(request, "staff_home/track_form.html", {"form": form, "action": "Add"})
+
+
+@login_required
+@organiser_only
+def edit_track(request, track_id):
+    track = get_object_or_404(Track, pk=track_id)
+    if request.method == "POST":
+        form = TrackForm(request.POST, request.FILES, instance=track)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Track '{track.name}' updated successfully.")
+            return redirect(f"{redirect('manage_problem_statement').url}?track_id={track.id}")
+    else:
+        form = TrackForm(instance=track)
+
+    return render(request, "staff_home/track_form.html", {"form": form, "action": "Edit", "track": track})
+
+
+@login_required
+@organiser_only
+def delete_track(request, track_id):
+    track = get_object_or_404(Track, pk=track_id)
+    if Track.objects.count() <= 1:
+        messages.error(request, "Cannot delete the only remaining track.")
+        return redirect("manage_problem_statement")
+    track.delete()
+    messages.success(request, "Track deleted successfully.")
+    return redirect("manage_problem_statement")
+
+
+@login_required
+@organiser_only
+def add_section(request):
+    track_id = request.GET.get("track_id")
+    initial_data = {}
+    if track_id:
+        initial_data["track"] = track_id
+
+    if request.method == "POST":
+        form = ProblemStatementSectionForm(request.POST)
+        if form.is_valid():
+            section = form.save()
+            messages.success(request, "Section added successfully.")
+            return redirect(f"{redirect('manage_problem_statement').url}?track_id={section.track.id if section.track else ''}")
+    else:
+        form = ProblemStatementSectionForm(initial=initial_data)
+
+    return render(request, "staff_home/section_form.html", {"form": form, "action": "Add"})
+
+
+@login_required
+@organiser_only
+def edit_section(request, pk):
+    section = get_object_or_404(ProblemStatementSection, pk=pk)
+
+    if request.method == "POST":
+        form = ProblemStatementSectionForm(request.POST, instance=section)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Section updated successfully.")
+            return redirect(f"{redirect('manage_problem_statement').url}?track_id={section.track.id if section.track else ''}")
+    else:
+        form = ProblemStatementSectionForm(instance=section)
+
+    return render(request, "staff_home/section_form.html", {"form": form, "action": "Edit"})
+
+
+@login_required
+@organiser_only
+def delete_section(request, pk):
+    section = get_object_or_404(ProblemStatementSection, pk=pk)
+    track_id = section.track.id if section.track else None
+    section.delete()
+    messages.success(request, "Section deleted successfully.")
+    return redirect(f"{redirect('manage_problem_statement').url}?track_id={track_id or ''}")
 from accounts.models import UserRole
 from django.core.paginator import Paginator
 from django.db.models.functions import ExtractYear
@@ -35,11 +167,13 @@ from staff_home.decorators import organiser_only, profile_updated
 @organiser_only
 def all_users_view(request):
     query = request.GET.get("q", "")
-    filter_year = request.GET.get("event_year")
-    filter_college = request.GET.get("college")
-    filter_branch = request.GET.get("branch")
-    filter_role = request.GET.get("role")  # "organiser" or "participant"
-    filter_team = request.GET.get("team")
+    filter_year = request.GET.get("event_year", "")
+    filter_college = request.GET.get("college", "")
+    filter_branch = request.GET.get("branch", "")
+    filter_role = request.GET.get("role")  # "organiser", "participant", or "all"
+    if filter_role is None:
+        filter_role = "participant"
+    filter_team = request.GET.get("team", "")
     download_csv = request.GET.get("download") == "csv"
 
     users = User.objects.select_related("userprofile", "userrole").all()
@@ -49,7 +183,9 @@ def all_users_view(request):
         users = users.filter(
             Q(userprofile__first_name__icontains=query) |
             Q(userprofile__last_name__icontains=query) |
-            Q(email__icontains=query)
+            Q(email__icontains=query) |
+            Q(username__icontains=query) |
+            Q(team__name__icontains=query)
         )
 
     # --- Filters ---
@@ -59,9 +195,10 @@ def all_users_view(request):
         users = users.filter(userprofile__college__icontains=filter_college)
     if filter_branch:
         users = users.filter(userprofile__branch__icontains=filter_branch)
-    if filter_role in ["organiser", "participant"]:
-        is_organiser = (filter_role == "organiser")
-        users = users.filter(userrole__is_organiser=is_organiser)
+    if filter_role == "participant":
+        users = users.filter(Q(userrole__is_organiser=False) | Q(userrole__isnull=True))
+    elif filter_role == "organiser":
+        users = users.filter(userrole__is_organiser=True)
     if filter_team:
         users = users.filter(team__name__icontains=filter_team)
 
@@ -76,8 +213,8 @@ def all_users_view(request):
         for u in users:
             profile = getattr(u, "userprofile", None)
             team = getattr(u, "team", None)
-            team_name = team.first().name if team.exists() else "Nil"
-            role = "Organiser" if getattr(u.userrole, "is_organiser", False) else "Participant"
+            team_name = team.first().name if team and team.exists() else ""
+            role = "Organiser" if getattr(u, "userrole", None) and getattr(u.userrole, "is_organiser", False) else "Participant"
             writer.writerow([
                 f"{profile.first_name} {profile.last_name}" if profile else u.get_full_name(),
                 u.email,
@@ -96,7 +233,12 @@ def all_users_view(request):
     page_obj = paginator.get_page(page_number)
 
     # --- For filter dropdowns ---
-    available_years = UserProfile.objects.values_list("event_year", flat=True).distinct().order_by("event_year")
+    available_years_qs = list(UserProfile.objects.values_list("event_year", flat=True).distinct().order_by("event_year"))
+    available_years = [str(y) for y in available_years_qs if y is not None]
+    if "2026" not in available_years:
+        available_years.append("2026")
+        available_years.sort()
+
     available_colleges = UserProfile.objects.values_list("college", flat=True).distinct().order_by("college")
     available_branches = UserProfile.objects.values_list("branch", flat=True).distinct().order_by("branch")
 
@@ -131,7 +273,7 @@ def checkregistration(request):
     filter_paid = request.GET.get("paid")
     filter_verified = request.GET.get("verified")
     filter_outsider = request.GET.get("outsider")
-    filter_year = request.GET.get("event_year")
+    filter_year = request.GET.get("event_year", "")
     download_csv = request.GET.get("download") == "csv"
 
     # Get all teams with prefetch of members and related profiles
@@ -208,8 +350,12 @@ def checkregistration(request):
     page_obj = paginator.get_page(page_number)
 
     # Event years for filter dropdown
-    available_years = list(User.objects.filter(userprofile__isnull=False)
+    available_years_qs = list(User.objects.filter(userprofile__isnull=False)
                            .values_list("userprofile__event_year", flat=True).distinct().order_by("userprofile__event_year"))
+    available_years = [str(y) for y in available_years_qs if y is not None]
+    if "2026" not in available_years:
+        available_years.append("2026")
+        available_years.sort()
 
     context = {
         "teams": page_obj,
@@ -351,73 +497,6 @@ def view_payment_screenshot(request, team_id):
 
     return render(request, "staff_home/payment_screenshot.html", {"team": team})
 
-
-
-@login_required
-@organiser_only
-def manage_problem_statement(request):
-    config, _ = ProblemStatementConfig.objects.get_or_create(id=1)  # single row
-
-    if request.method == "POST":
-        form = ProblemStatementConfigForm(request.POST, request.FILES, instance=config)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Problem statement settings updated.")
-            return redirect("manage_problem_statement")
-    else:
-        form = ProblemStatementConfigForm(instance=config)
-
-    sections = config.sections.all()
-
-    return render(request, "staff_home/manage_problem_statement.html", {
-        "form": form,
-        "sections": sections
-    })
-
-
-@login_required
-@organiser_only
-def add_section(request):
-    config, _ = ProblemStatementConfig.objects.get_or_create(id=1)
-
-    if request.method == "POST":
-        form = ProblemStatementSectionForm(request.POST)
-        if form.is_valid():
-            section = form.save(commit=False)
-            section.config = config
-            section.save()
-            messages.success(request, "Section added successfully.")
-            return redirect("manage_problem_statement")
-    else:
-        form = ProblemStatementSectionForm()
-
-    return render(request, "staff_home/section_form.html", {"form": form, "action": "Add"})
-
-
-@login_required
-@organiser_only
-def edit_section(request, pk):
-    section = get_object_or_404(ProblemStatementSection, pk=pk)
-
-    if request.method == "POST":
-        form = ProblemStatementSectionForm(request.POST, instance=section)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Section updated successfully.")
-            return redirect("manage_problem_statement")
-    else:
-        form = ProblemStatementSectionForm(instance=section)
-
-    return render(request, "staff_home/section_form.html", {"form": form, "action": "Edit"})
-
-
-@login_required
-@organiser_only
-def delete_section(request, pk):
-    section = get_object_or_404(ProblemStatementSection, pk=pk)
-    section.delete()
-    messages.success(request, "Section deleted successfully.")
-    return redirect("manage_problem_statement")
 
 @login_required
 @organiser_only

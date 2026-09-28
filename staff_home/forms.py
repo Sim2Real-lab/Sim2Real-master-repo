@@ -1,12 +1,12 @@
 from django import forms
-from .models import Announcments,Resource,Question,Test
 from django.forms import DateTimeInput
 import datetime
-from .models import ProblemStatementConfig, ProblemStatementSection,Brochure, Submission, SubmissionWindow
+from .models import Track, ProblemStatementConfig, ProblemStatementSection, Brochure, Submission, SubmissionWindow, Announcments, Resource, Question, Test
+
 class AnnouncmentForm(forms.ModelForm):
     class Meta:
-        model=Announcments
-        fields=[
+        model = Announcments
+        fields = [
             'message',
             'schedule_for_later',
             'valid_till',
@@ -15,26 +15,58 @@ class AnnouncmentForm(forms.ModelForm):
             'category',
         ]
 
-        widgets={
-            'schedule_for_later': forms.DateInput(attrs={'type': 'date'}),
-            'valid_till': forms.DateInput(attrs={'type': 'date'}),
+        widgets = {
+            'schedule_for_later': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+            'valid_till': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
         }
 
-        def clean(self):
-            cleaned_data = super().clean()
-            schedule_date = cleaned_data.get('schedule_for_later')
-            valid_till = cleaned_data.get('valid_till')
-            today = datetime.date.today()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        # Validate: schedule_for_later can't be in the past
-            if schedule_date and schedule_date < today:
-                self.add_error('schedule_for_later', 'Scheduled date cannot be in the past.')
+        today = datetime.date.today()
 
-        # Validate: valid_till must be after schedule_for_later
-            if valid_till and schedule_date and valid_till < schedule_date:
-                self.add_error('valid_till', 'Valid till date must be after the scheduled date.')
+        # Maximum date = exactly 10 years from today
+        from dateutil.relativedelta import relativedelta
+        max_date = today + relativedelta(years=10)
 
-            return cleaned_data
+        # Schedule date: today → 10 years from today
+        self.fields['schedule_for_later'].widget.attrs.update({
+            'min': today.isoformat(),
+            'max': max_date.isoformat(),
+        })
+
+        # Valid till: today → 10 years from today
+        self.fields['valid_till'].widget.attrs.update({
+            'min': today.isoformat(),
+            'max': max_date.isoformat(),
+        })
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        schedule_date = cleaned_data.get('schedule_for_later')
+        valid_till = cleaned_data.get('valid_till')
+        today = datetime.date.today()
+
+        # Schedule date cannot be in the past
+        if schedule_date and schedule_date < today:
+            self.add_error(
+                'schedule_for_later',
+                'Scheduled date cannot be in the past.'
+            )
+
+        # Valid till cannot be before schedule date
+        if valid_till and schedule_date and valid_till < schedule_date:
+            self.add_error(
+                'valid_till',
+                'Valid till date must be after the scheduled date.'
+            )
+
+        return cleaned_data
         
 
 class ProblemStatementConfigForm(forms.ModelForm):
@@ -45,12 +77,34 @@ class ProblemStatementConfigForm(forms.ModelForm):
 class ProblemStatementSectionForm(forms.ModelForm):
     class Meta:
         model = ProblemStatementSection
-        fields = ["title", "content", "order"]
+        fields = ["track", "title", "content", "order"]
+        widgets = {
+            "track": forms.Select(attrs={"class": "form-select"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "content": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "order": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+        }
 
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ["title", "file", "link"]
+        fields = ["track", "title", "description", "file", "link"]
+        widgets = {
+            "track": forms.Select(attrs={"class": "form-select"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
+            "file": forms.FileInput(attrs={"class": "form-control"}),
+            "link": forms.URLInput(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "track" in self.fields:
+            self.fields["track"].empty_label = None
+            if not self.instance.pk and not self.initial.get("track"):
+                first_track = Track.objects.first()
+                if first_track:
+                    self.initial["track"] = first_track.id
 
 class BrochureForm(forms.ModelForm):
     class Meta:
@@ -117,3 +171,32 @@ class QuestionForm(forms.ModelForm):
             "negative_marks": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "compiler_enabled": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+class TrackForm(forms.ModelForm):
+    class Meta:
+        model = Track
+        fields = ["name", "description", "enabled", "file", "qualifying_status"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "enabled": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "file": forms.FileInput(attrs={"class": "form-control", "accept": ".pdf,.doc,.docx"}),
+            "qualifying_status": forms.Select(attrs={"class": "form-select"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "qualifying_status" in self.fields:
+            self.fields["qualifying_status"].empty_label = None
+            if not self.instance.pk and not self.initial.get("qualifying_status"):
+                self.initial["qualifying_status"] = "pending"
+
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        if file:
+            import os
+            ext = os.path.splitext(file.name)[1].lower()
+            valid_extensions = ['.pdf', '.doc', '.docx']
+            if ext not in valid_extensions:
+                raise forms.ValidationError("Unsupported file format. Please upload a PDF or Word document (.pdf, .doc, .docx).")
+        return file

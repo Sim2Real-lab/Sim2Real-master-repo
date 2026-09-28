@@ -1,5 +1,9 @@
-<h2>Submissions for {{ window.title }}</h2>
-<a href="?download=csv">Download CSV</a>
+<style>
+.box {background:#fff;color:#000;padding:20px;border-radius:8px;}
+</style>
+<div class="box">
+<h2 style="color:black;">Submissions for {{ window.title }}</h2>
+<a href="?download=csv" style="color:black;">Download CSV</a>
 <table>
   <tr>
     <th>Team</th>
@@ -13,4 +17,4 @@
     <td>{{ s.submitted_at }}</td>
   </tr>
   {% endfor %}
-</table>
+</table></div></div>
