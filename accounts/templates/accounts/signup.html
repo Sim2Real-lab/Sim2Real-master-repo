@@ -22,8 +22,8 @@
             <form class="sign-up-htm" method="post" action="{% url 'signup' %}">
                 {% csrf_token %}
                 <div class="group">
-                    <label for="user" class="label">Email Id</label>
-                    <input name="email" id="user" type="text" class="input">
+                    <label for="username" class="label">Username</label>
+                    <input name="username" id="username" type="text" class="input" value="{{ request.POST.username|default:'' }}" required>
                 </div>
                 <div class="group">
                     <label for="password1" class="label">Create Password</label>
@@ -43,17 +43,11 @@
                     <button id="submit" class="button" value="Sign Up" type="submit">SIGN UP</button>
                 </div>
                 <div class="hr"></div>
+                {% if signup_info %}
+                    <div class="info-message" style="color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; padding: 10px; margin-top: 10px; border-radius: 5px; text-align: center;">{{ signup_info }}</div>
+                {% endif %}
                 {% if signup_error %}
                     <div class="error-message">{{ signup_error }}</div>
-                    {% if "already registered" in signup_error|lower %}
-                    <div style="text-align:center; margin-top: 10px;">
-                    <form method="post" action="{% url 'resend_verification' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="email" value="{{ request.POST.email }}">
-                        <button type="submit" class="button-resend" action="{% url 'resend_verification' %}">Resend Verification Email</button>
-                    </form>
-                    </div>
-                    {% endif %}
                 {% endif %}
                 <div class="foot-lnk">
                     <a href="{% url 'login' %}">Already Registered? </a>

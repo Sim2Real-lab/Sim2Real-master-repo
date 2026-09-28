@@ -33,7 +33,7 @@
         {% csrf_token %}
         
         <div class="group">
-          <label for="email" class="label">Email Id</label>
+          <label for="email" class="label">Username / Email</label>
           <input name="email" id="email" type="text" class="input" required>
         </div>
 
@@ -48,6 +48,10 @@
         <div class="group">
           <button id="submit" class="button" type="submit">SIGN IN</button>
         </div>
+
+        {% if login_info %}
+          <div class="alert alert-info" role="alert">{{ login_info }}</div>
+        {% endif %}
 
         {% if login_error %}
           <div class="error-message">{{ login_error|safe }}</div>
