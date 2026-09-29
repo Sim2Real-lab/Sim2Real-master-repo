@@ -10,8 +10,9 @@ from team_profile.models import Team
 from django.db.models import Q
 import csv
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm,TrackForm
-from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track
+from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest
 
 @login_required
 @organiser_only
@@ -263,7 +264,43 @@ def all_users_view(request):
 @organiser_only
 @profile_updated
 def staff_dashboard(request):
-    return render(request, 'staff_home/dashboard.html')
+    total_users = User.objects.count()
+    total_teams = Team.objects.count()
+    verified_teams = Team.objects.filter(is_paid=True, is_verified=True).count()
+    pending_payments = Team.objects.filter(is_verified=False).filter(Q(is_paid=True) | ~Q(payment_screenshot="")).count()
+    unpaid_teams = Team.objects.filter(is_paid=False).count()
+
+    total_submissions = Submission.objects.count()
+    graded_submissions = Submission.objects.filter(score__isnull=False).count()
+    pending_submissions = Submission.objects.filter(score__isnull=True).count()
+
+    total_queries = Query.objects.count()
+    pending_queries = Query.objects.filter(resolved=False).count()
+    resolved_queries = Query.objects.filter(resolved=True).count()
+
+    total_tests = Test.objects.count()
+    total_attempts = ParticipantTest.objects.count()
+    total_announcements = Announcments.objects.count()
+    total_tracks = Track.objects.count()
+
+    stats = {
+        'total_users': total_users,
+        'total_teams': total_teams,
+        'verified_teams': verified_teams,
+        'pending_payments': pending_payments,
+        'unpaid_teams': unpaid_teams,
+        'total_submissions': total_submissions,
+        'graded_submissions': graded_submissions,
+        'pending_submissions': pending_submissions,
+        'total_queries': total_queries,
+        'pending_queries': pending_queries,
+        'resolved_queries': resolved_queries,
+        'total_tests': total_tests,
+        'total_attempts': total_attempts,
+        'total_announcements': total_announcements,
+        'total_tracks': total_tracks,
+    }
+    return render(request, 'staff_home/dashboard.html', {'stats': stats})
 
 @login_required
 @organiser_only
