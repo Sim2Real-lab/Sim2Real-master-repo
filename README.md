@@ -62,3 +62,32 @@ npm run lint
 
 ## License
 This project is private and proprietary.
+
+
+## Production Configuration (Email Setup)
+This section is strictly for production use when setting up the email announcement system.
+
+Currently, the `staff_home/email_utils.py` is configured for **local/dev mode**, which intercepts announcements and prints them directly to the terminal instead of sending actual emails.
+
+When deploying to production, open `staff_home/email_utils.py` and replace the development print logic in `_send_with_retry` with the following snippet to enable actual SMTP email sending:
+
+```python
+# --- PRODUCTION MODE SNIPPET ---
+# Uncomment this block and remove the print statements above for production
+retries = 0
+while retries < MAX_RETRIES:
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@sim2real.com'),
+            recipient_list=[recipient_email],
+            fail_silently=False,
+        )
+        break  # Success, exit loop
+    except Exception as e:
+        retries += 1
+        logger.error(f"Failed to send email to {recipient_email}. Retry {retries}/{MAX_RETRIES}. Error: {e}")
+        if retries < MAX_RETRIES:
+            time.sleep(1)
+```
