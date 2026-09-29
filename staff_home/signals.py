@@ -1,6 +1,6 @@
-﻿from django.db.models.signals import post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-from home.models import Announcments
+from .models import Announcments
 from .email_utils import send_announcement_emails_batch
 
 @receiver(post_save, sender=Announcments)
