@@ -1,11 +1,191 @@
 {% extends 'home/index.html' %}
 {% load static %}
 
-{% block title %}
-Queries | Ask Us
+{% block title %}Queries | Ask Us{% endblock %}
+
+{# Hide the SIM2REAL 2026 banner on the queries page #}
+{% block top_panel %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .query-sidebar {
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 40px auto !important;
+    width: 400px !important;
+    max-width: calc(100% - 40px) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+    z-index: auto !important;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- The centered query sidebar is supplied by home/index.html when show_query_page is true.
-     Clicking "Ask a Query" opens the existing Bootstrap modal, matching the requested form screen. -->
+<div style="display:flex; justify-content:center; align-items:flex-start; padding-top: 2rem;">
+
+  <div class="query-sidebar">
+
+    <div class="query-sidebar-header">
+      <i class="fas fa-comments"></i>
+      <span>Queries</span>
+    </div>
+
+    {% if queries %}
+      <div class="query-sidebar-title">Previous Queries</div>
+      {% for query in queries %}
+        <div class="sidebar-query">
+          <div class="sidebar-ticket">Ticket: {{ query.ticket }}</div>
+          <div class="sidebar-message">{{ query.message|truncatechars:45 }}</div>
+          {% if query.resolved %}
+            <div class="sidebar-status resolved">
+              <i class="fas fa-check-circle"></i> Resolved
+            </div>
+            <a href="#" class="sidebar-view-response"
+               data-url="{% url 'fetch_response' ticket=query.ticket %}">
+              View Response
+            </a>
+          {% else %}
+            <div class="sidebar-status pending">
+              <i class="fas fa-clock"></i> Pending
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-queries">
+        <i class="fas fa-circle-question"></i>
+        <p>Any queries? Ask us now, or check our FAQs below.</p>
+      </div>
+    {% endif %}
+
+    {% if ask_query_form %}
+      <button type="button" class="query-sidebar-button"
+              data-bs-toggle="modal" data-bs-target="#askQueryModal">
+        <i class="fas fa-plus"></i> Ask a Query
+      </button>
+    {% endif %}
+
+    <a href="{% url 'faq_1' %}" class="query-sidebar-button faq-button">
+      <i class="fas fa-book"></i> Check FAQs
+    </a>
+
+  </div>
+
+</div>
+
+<!-- Ask a Query Modal -->
+{% if ask_query_form %}
+<div class="modal fade" id="askQueryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-circle-question"></i> Ask a Query</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="askQueryForm" method="post" action="{% url 'user_query' %}" novalidate>
+        <div class="modal-body">
+          {% csrf_token %}
+          {% for field in ask_query_form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <div id="askQueryFormError" class="text-danger small mb-2" style="display:none;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="askQuerySubmitBtn">Submit Query</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Query Response Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Query Response</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="responseText">Loading...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var responseModalEl = document.getElementById('responseModal');
+  var responseText = document.getElementById('responseText');
+  if (responseModalEl) {
+    var responseModal = new bootstrap.Modal(responseModalEl);
+    document.querySelectorAll('.sidebar-view-response').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        responseText.textContent = 'Loading...';
+        responseModal.show();
+        fetch(this.getAttribute('data-url'))
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            responseText.textContent = d.error ? ('Error: ' + d.error) : (d.response || 'No response provided.');
+          })
+          .catch(function () { responseText.textContent = 'Something went wrong.'; });
+      });
+    });
+  }
+
+  var askForm = document.getElementById('askQueryForm');
+  if (askForm) {
+    var askModal = new bootstrap.Modal(document.getElementById('askQueryModal'));
+    var errorBox = document.getElementById('askQueryFormError');
+    var submitBtn = document.getElementById('askQuerySubmitBtn');
+    askForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      fetch(askForm.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: new FormData(askForm),
+      })
+        .then(function (r) {
+          if (!(r.headers.get('content-type') || '').includes('application/json')) throw new Error('not-json');
+          return r.json();
+        })
+        .then(function (d) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Query';
+          if (d.success) { askModal.hide(); askForm.reset(); window.location.reload(); return; }
+          var msgs = [];
+          Object.values(d.errors || {}).forEach(function (v) { msgs = msgs.concat(v); });
+          errorBox.textContent = msgs.join(' ') || 'Could not submit. Try again.';
+          errorBox.style.display = 'block';
+        })
+        .catch(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Query';
+          errorBox.textContent = 'Please ensure your profile is complete, then try again.';
+          errorBox.style.display = 'block';
+        });
+    });
+  }
+});
+</script>
 {% endblock %}

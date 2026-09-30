@@ -1,37 +1,768 @@
-{% extends 'home/index.html' %}
-{% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'user_profile/style.css' %}" />
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile </title>
+  <link rel="stylesheet" href="{% static 'user_profile/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
+<link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
 <style>
-/* Adjust container to fit nicely inside the dashboard */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background: rgba(18, 24, 41, 0.85); /* Match dashboard surface */
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.container h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: #fff !important;
-}
-.instruction {
-    color: #58a6ff;
-    display: block;
-    margin-bottom: 20px;
-}
-/* Override existing body overlay styles if they conflict */
-.overlay { display: none; }
-</style>
-{% endblock %}
+    /* =========================================================
+       ChatGPT Dynamic Layout Architecture for Sim2Real
+       ========================================================= */
+    :root {
+      --sidebar-default-width: 270px;
+      --sidebar-width: 270px;
+      --sidebar-collapsed-width: 68px;
+      --sidebar-min-width: 210px;
+      --sidebar-max-width: 500px;
+      --sidebar-bg: #090c15;
+      --sidebar-surface: #121829;
+      --sidebar-border: rgba(255, 255, 255, 0.08);
+      --sidebar-text: #c9d1d9;
+      --sidebar-text-muted: #7d8590;
+      --sidebar-hover: rgba(255, 255, 255, 0.07);
+      --sidebar-active-bg: rgba(23, 105, 224, 0.18);
+      --sidebar-active-text: #58a6ff;
+      --sidebar-active-border: #1769E0;
+    }
 
-{% block content %}
-<div class="container">
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      padding-top: 0 !important;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+      background: #f4f8fc;
+    }
+
+    /* Overall Layout Wrapper */
+    .chatgpt-app-layout {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Body state during drag-resize */
+    body.is-resizing {
+      cursor: col-resize !important;
+      user-select: none !important;
+    }
+    body.is-resizing .chatgpt-sidebar {
+      transition: none !important;
+    }
+
+    /* =========================================================
+       1. CHATGPT-STYLE SIDEBAR (ADJUSTABLE WIDTH)
+       ========================================================= */
+    .chatgpt-sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      display: flex;
+      flex-direction: column;
+      color: var(--sidebar-text);
+      transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 1040;
+      position: relative;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .chatgpt-sidebar.collapsed {
+      width: var(--sidebar-collapsed-width) !important;
+      min-width: var(--sidebar-collapsed-width) !important;
+    }
+
+    /* Resizer Drag Handle on Right Border */
+    .sidebar-resizer {
+      position: absolute;
+      top: 0;
+      right: -3px;
+      width: 6px;
+      height: 100%;
+      cursor: col-resize;
+      z-index: 1050;
+      transition: background 0.15s ease;
+    }
+
+    .sidebar-resizer:hover,
+    .sidebar-resizer.is-resizing {
+      background: #1769E0;
+      box-shadow: 0 0 8px rgba(23, 105, 224, 0.8);
+    }
+
+    .chatgpt-sidebar.collapsed .sidebar-resizer {
+      display: none !important;
+    }
+
+    /* Sidebar Header */
+    .sidebar-header {
+      padding: 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--sidebar-border);
+      gap: 10px;
+      min-height: 64px;
+    }
+
+    .sidebar-brand-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none !important;
+      color: #ffffff !important;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .brand-icon-box {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      background: linear-gradient(135deg, #1769E0 0%, #0d3880 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(23, 105, 224, 0.4);
+      font-size: 0.95rem;
+    }
+
+    .brand-text-container {
+      display: flex;
+      flex-direction: column;
+      transition: opacity 0.2s ease;
+    }
+
+    .brand-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.15;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.68rem;
+      color: #58a6ff;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-toggle-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--sidebar-text-muted);
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-toggle-btn:hover {
+      background: var(--sidebar-hover);
+      color: #ffffff;
+      border-color: var(--sidebar-border);
+    }
+
+    /* Quick Action Button */
+    .sidebar-action-wrap {
+      padding: 12px 12px 6px;
+    }
+
+    .sidebar-new-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--sidebar-surface);
+      border: 1px solid var(--sidebar-border);
+      border-radius: 10px;
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-decoration: none !important;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .sidebar-new-btn:hover {
+      background: var(--sidebar-hover);
+      border-color: rgba(23, 105, 224, 0.5);
+      color: #58a6ff !important;
+    }
+
+    .sidebar-new-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-new-btn i.action-icon {
+      color: #58a6ff;
+      font-size: 0.95rem;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Live Search Input */
+    .sidebar-search-wrap {
+      padding: 6px 12px 8px;
+    }
+
+    .sidebar-search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-search-box i {
+      position: absolute;
+      left: 10px;
+      color: var(--sidebar-text-muted);
+      font-size: 0.78rem;
+      pointer-events: none;
+    }
+
+    .sidebar-search-input {
+      width: 100%;
+      background: var(--sidebar-surface);
+      border: 1px solid var(--sidebar-border);
+      border-radius: 8px;
+      padding: 6px 10px 6px 30px !important;
+      font-size: 0.8rem;
+      color: #e6edf3;
+      margin: 0 !important;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-search-input:focus {
+      border-color: #1769E0;
+      background: #0d1322;
+      box-shadow: 0 0 0 2px rgba(23, 105, 224, 0.25);
+    }
+
+    /* Navigation Links Container */
+    .sidebar-nav-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px 8px 14px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .sidebar-nav-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-nav-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .sidebar-group {
+      margin-bottom: 14px;
+    }
+
+    .sidebar-group-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--sidebar-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 6px 10px 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      color: var(--sidebar-text) !important;
+      text-decoration: none !important;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.16s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      position: relative;
+      margin-bottom: 2px;
+    }
+
+    .sidebar-nav-item:hover {
+      background: var(--sidebar-hover);
+      color: #ffffff !important;
+    }
+
+    .sidebar-nav-item.active {
+      background: var(--sidebar-active-bg);
+      color: var(--sidebar-active-text) !important;
+      font-weight: 600;
+      border-left: 3px solid var(--sidebar-active-border);
+    }
+
+    .sidebar-nav-item i.nav-icon {
+      font-size: 0.9rem;
+      min-width: 20px;
+      text-align: center;
+      color: var(--sidebar-text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .sidebar-nav-item:hover i.nav-icon,
+    .sidebar-nav-item.active i.nav-icon {
+      color: #58a6ff;
+    }
+
+    .sidebar-nav-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nav-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(23, 105, 224, 0.2);
+      color: #58a6ff;
+      border: 1px solid rgba(23, 105, 224, 0.3);
+      font-weight: 600;
+    }
+
+    .nav-badge.badge-warning {
+      background: rgba(234, 179, 8, 0.2);
+      color: #facc15;
+      border-color: rgba(234, 179, 8, 0.4);
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      padding: 10px 8px;
+      border-top: 1px solid var(--sidebar-border);
+      background: #080a10;
+    }
+
+    .user-profile-widget {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #ffffff;
+      transition: background 0.2s ease;
+      width: 100%;
+      background: transparent;
+      border: none;
+      text-align: left;
+    }
+
+    .user-profile-widget:hover,
+    .user-profile-widget[aria-expanded="true"] {
+      background: var(--sidebar-hover);
+    }
+
+    .user-avatar-wrap {
+      position: relative;
+      min-width: 34px;
+      width: 34px;
+      height: 34px;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #1769E0;
+    }
+
+    .user-status-dot {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 9px;
+      height: 9px;
+      background: #238636;
+      border: 2px solid var(--sidebar-bg);
+      border-radius: 50%;
+    }
+
+    .user-info-text {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .user-display-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role-tag {
+      font-size: 0.68rem;
+      color: var(--sidebar-text-muted);
+    }
+
+    .user-more-dots {
+      color: var(--sidebar-text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Collapsed Rules */
+    .chatgpt-sidebar.collapsed .brand-text-container,
+    .chatgpt-sidebar.collapsed .sidebar-new-btn span,
+    .chatgpt-sidebar.collapsed .sidebar-search-wrap,
+    .chatgpt-sidebar.collapsed .sidebar-group-title,
+    .chatgpt-sidebar.collapsed .sidebar-nav-text,
+    .chatgpt-sidebar.collapsed .nav-badge,
+    .chatgpt-sidebar.collapsed .user-info-text,
+    .chatgpt-sidebar.collapsed .user-more-dots {
+      display: none !important;
+    }
+
+    .chatgpt-sidebar.collapsed .sidebar-header {
+      justify-content: center;
+      padding: 16px 6px;
+    }
+
+    .chatgpt-sidebar.collapsed .sidebar-brand-link {
+      display: none;
+    }
+
+    .chatgpt-sidebar.collapsed .sidebar-action-wrap {
+      padding: 10px 6px 4px;
+    }
+
+    .chatgpt-sidebar.collapsed .sidebar-new-btn {
+      justify-content: center;
+      padding: 9px 0;
+    }
+
+    .chatgpt-sidebar.collapsed .sidebar-nav-item {
+      justify-content: center;
+      padding: 9px 0;
+    }
+
+    .chatgpt-sidebar.collapsed .user-profile-widget {
+      justify-content: center;
+      padding: 6px 0;
+    }
+
+    /* Custom Dropdown for Sidebar Menu */
+    .chatgpt-dropdown-menu {
+      background: #141926 !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+      padding: 6px !important;
+      min-width: 220px;
+    }
+
+    .chatgpt-dropdown-menu .dropdown-item {
+      color: #e6edf3 !important;
+      padding: 8px 12px !important;
+      border-radius: 6px !important;
+      font-size: 0.85rem !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chatgpt-dropdown-menu .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
+    }
+
+    .chatgpt-dropdown-menu .dropdown-item.text-danger {
+      color: #f85149 !important;
+    }
+
+    .chatgpt-dropdown-menu .dropdown-item.text-danger:hover {
+      background: rgba(248, 81, 73, 0.15) !important;
+    }
+
+    /* =========================================================
+       2. MAIN VIEW AREA
+       ========================================================= */
+    .chatgpt-main {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: linear-gradient(
+        to bottom,
+        #c6dcf7 0%,
+        #eaf3ff 35%,
+        #f6faff 65%,
+        #ffffff 100%
+      );
+      position: relative;
+    }
+
+    /* Floating Toggle Button (Mobile only) */
+    .floating-sidebar-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1030;
+      background: #ffffff;
+      border: 1px solid rgba(15, 55, 110, 0.18);
+      color: #0b2a5b;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(15, 55, 110, 0.12);
+      transition: all 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .floating-sidebar-btn:hover {
+      background: #f0f6ff;
+      color: #1769E0;
+      border-color: #1769E0;
+      transform: scale(1.05);
+    }
+
+    /* Scrollable Content Container */
+    .chatgpt-scroll-view {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 35px 30px 60px;
+    }
+
+    /* Mobile Backdrop */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+      z-index: 1035;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .sidebar-backdrop.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (min-width: 992px) {
+      .floating-sidebar-btn {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 991.98px) {
+      .chatgpt-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(300px, 85vw) !important;
+        min-width: min(300px, 85vw) !important;
+        transform: translateX(-100%);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .chatgpt-sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .sidebar-resizer {
+        display: none !important;
+      }
+
+      .floating-sidebar-btn {
+        display: flex !important;
+      }
+
+      .chatgpt-scroll-view {
+        padding: 68px 16px 40px !important;
+      }
+
+      .chatgpt-sidebar.collapsed {
+        width: min(300px, 85vw) !important;
+        min-width: min(300px, 85vw) !important;
+      }
+
+      .chatgpt-sidebar.collapsed .brand-text-container,
+      .chatgpt-sidebar.collapsed .sidebar-new-btn span,
+      .chatgpt-sidebar.collapsed .sidebar-search-wrap,
+      .chatgpt-sidebar.collapsed .sidebar-group-title,
+      .chatgpt-sidebar.collapsed .sidebar-nav-text,
+      .chatgpt-sidebar.collapsed .nav-badge,
+      .chatgpt-sidebar.collapsed .user-info-text,
+      .chatgpt-sidebar.collapsed .user-more-dots {
+        display: block !important;
+      }
+
+      .chatgpt-sidebar.collapsed .sidebar-brand-link {
+        display: flex !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="chatgpt-app-layout">
+  <!-- Overlay Backdrop for Mobile -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+  <!-- CHATGPT-STYLE SIDEBAR -->
+  <aside class="chatgpt-sidebar" id="appSidebar">
+    <div class="sidebar-resizer" id="sidebarResizer" title="Drag to resize sidebar"></div>
+    <div class="sidebar-header">
+      <a href="{% url 'home' %}" class="sidebar-brand-link">
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="brand-text-container">
+          <span class="brand-title">SIM2REAL 2026</span>
+          <span class="brand-subtitle">ROBOTECH NITK</span>
+        </div>
+      </a>
+      <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars-staggered"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-nav-container" id="sidebarNavContainer">
+      
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Primary Hub</div>
+        <a href="{% url 'home' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+          <i class="fa-solid fa-gauge-high nav-icon"></i>
+          <span class="sidebar-nav-text">Dashboard</span>
+        </a>
+        
+        {% if not registered %}
+        <a href="{% url 'manage_requests' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'manage_requests' %}active{% endif %}">
+          <i class="fa-solid fa-user-plus nav-icon"></i>
+          <span class="sidebar-nav-text">Register</span>
+        </a>
+        {% else %}
+        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
+          <i class="fa-solid fa-users nav-icon"></i>
+          <span class="sidebar-nav-text">Team Management</span>
+        </a>
+        <a href="{% url 'problem_statement' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'problem_statement' %}active{% endif %}">
+          <i class="fa-solid fa-file-lines nav-icon"></i>
+          <span class="sidebar-nav-text">Problem Statement</span>
+        </a>
+        <a href="{% url 'resources' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'resources' %}active{% endif %}">
+          <i class="fa-solid fa-folder-open nav-icon"></i>
+          <span class="sidebar-nav-text">Resources</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'download_brochure' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-file-arrow-down nav-icon"></i>
+          <span class="sidebar-nav-text">Download Brochure</span>
+        </a>
+        <a href="{% url 'announcements' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'announcements' %}active{% endif %}">
+          <i class="fa-solid fa-bullhorn nav-icon"></i>
+          <span class="sidebar-nav-text">Announcements</span>
+        </a>
+        <a href="{% url 'user_query' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'user_query' %}active{% endif %}">
+          <i class="fa-solid fa-circle-question nav-icon"></i>
+          <span class="sidebar-nav-text">Queries-Ask Us</span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Footer (Profile Icon) -->
+    <div class="sidebar-footer">
+      <div class="dropdown">
+        <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="user-avatar-wrap">
+            <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            <span class="user-status-dot" style="background-color: #2da44e;"></span>
+          </div>
+          <div class="user-info-text">
+            <div class="user-display-name">{{ user.username|default:"Participant" }}</div>
+            <div class="user-role-tag">User Dashboard</div>
+          </div>
+          <i class="fa-solid fa-ellipsis user-more-dots"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-dark chatgpt-dropdown-menu" aria-labelledby="userMenuBtn">
+          <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa-solid fa-user me-2 text-primary"></i> My Profile</a></li>
+          {% if user.led_team %}
+          <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+          <li><a class="dropdown-item" href="{% url 'manage_requests' %}"><i class="fas fa-cogs me-2"></i>Manage Team</a></li>
+          {% endif %}
+          <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+          <li>
+            <form method="post" action="{% url 'logout' %}" class="m-0 p-0">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item text-danger w-100 text-start bg-transparent border-0">
+                <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW AREA -->
+  <main class="chatgpt-main">
+    <button type="button" class="floating-sidebar-btn" id="floatingToggleBtn" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="chatgpt-scroll-view">
+      <div class="container-fluid p-0">
+        
+  
+  <div class="overlay"></div>
+  <div class="container">
   <h1 style="color: #fff;">My Profile</h1>
 
     <!-- Profile Form -->
@@ -133,8 +864,136 @@
       <img id="photo-preview" src="{% if photo_base64 %}{{ photo_base64 }}{% endif %}" alt="Profile Preview" class="modal-preview-img" />
     </div>
   </div>
-{% endblock %}
+</div>
 
-{% block extra_scripts %}
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Dynamic Sidebar Controller
+  const sidebar = document.getElementById('appSidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const resizer = document.getElementById('sidebarResizer');
+
+  const MIN_WIDTH = 210;
+  const MAX_WIDTH = 500;
+  const DEFAULT_WIDTH = 270;
+
+  // Restore saved width from localStorage
+  const savedWidth = localStorage.getItem('sim2real_sidebar_width');
+  if (savedWidth && window.innerWidth >= 992) {
+    const widthVal = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, parseInt(savedWidth, 10)));
+    document.documentElement.style.setProperty('--sidebar-width', widthVal + 'px');
+    sidebar.style.width = widthVal + 'px';
+  }
+
+  // Restore saved collapse state
+  const savedCollapsedState = localStorage.getItem('sim2real_sidebar_collapsed');
+  if (savedCollapsedState === 'true' && window.innerWidth >= 992) {
+    sidebar.classList.add('collapsed');
+  }
+
+  // Toggle sidebar
+  function toggleSidebar() {
+    if (window.innerWidth < 992) {
+      toggleMobileSidebar();
+    } else {
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('sim2real_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+    }
+  }
+
+  // Mobile Drawer Toggle
+  function toggleMobileSidebar() {
+    sidebar.classList.toggle('mobile-open');
+    if (sidebar.classList.contains('mobile-open')) {
+      backdrop.classList.add('show');
+    } else {
+      backdrop.classList.remove('show');
+    }
+  }
+
+  // =========================================================
+  // Drag to Resize Sidebar Width (Desktop)
+  // =========================================================
+  let isResizing = false;
+
+  resizer.addEventListener('mousedown', function(e) {
+    if (window.innerWidth < 992 || sidebar.classList.contains('collapsed')) return;
+    isResizing = true;
+    resizer.classList.add('is-resizing');
+    document.body.classList.add('is-resizing');
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isResizing) return;
+    
+    let newWidth = e.clientX;
+    const maxAllowed = Math.min(MAX_WIDTH, window.innerWidth * 0.45);
+    newWidth = Math.max(MIN_WIDTH, Math.min(maxAllowed, newWidth));
+
+    document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
+    sidebar.style.width = newWidth + 'px';
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (isResizing) {
+      isResizing = false;
+      resizer.classList.remove('is-resizing');
+      document.body.classList.remove('is-resizing');
+      const currentWidth = parseInt(sidebar.style.width, 10) || DEFAULT_WIDTH;
+      localStorage.setItem('sim2real_sidebar_width', currentWidth);
+    }
+  });
+
+  // Double-click resizer to reset to default width
+  resizer.addEventListener('dblclick', function() {
+    if (sidebar.classList.contains('collapsed')) return;
+    document.documentElement.style.setProperty('--sidebar-width', DEFAULT_WIDTH + 'px');
+    sidebar.style.width = DEFAULT_WIDTH + 'px';
+    localStorage.setItem('sim2real_sidebar_width', DEFAULT_WIDTH);
+  });
+
+  // Real-time navigation filter
+  function filterSidebarNav(query) {
+    const term = query.toLowerCase().trim();
+    const navItems = document.querySelectorAll('.sidebar-nav-item');
+    const groups = document.querySelectorAll('.sidebar-group');
+
+    navItems.forEach(item => {
+      const text = (item.textContent || '').toLowerCase();
+      if (!term || text.includes(term)) {
+        item.style.display = 'flex';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    // Hide empty groups
+    groups.forEach(group => {
+      const visibleItems = group.querySelectorAll('.sidebar-nav-item:not([style*="display: none"])');
+      if (visibleItems.length === 0 && term) {
+        group.style.display = 'none';
+      } else {
+        group.style.display = 'block';
+      }
+    });
+  }
+
+  // Keyboard shortcut (Ctrl + B to toggle sidebar)
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+</script>
 <script src="{% static 'user_profile/profile.js' %}"></script>
-{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
