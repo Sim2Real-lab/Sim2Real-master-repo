@@ -173,3 +173,4 @@ Secrets / Certificates
 *.pfx
 
 */node_modules/
+profile_photos/*.png
