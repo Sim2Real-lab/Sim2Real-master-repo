@@ -1,55 +1,37 @@
-{%load static%}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Profile </title>
-  <link rel="stylesheet" href="{% static 'user_profile/style.css' %}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
-<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/sim2real_logo.png' %}">
-<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/sim2real_logo.png' %}">
-<link rel="shortcut icon" href="{% static 'assets/sim2real_logo.png' %}">
-</head>
-<body>
-  <header>
-      <div class="back"><a href="{%url 'home'%}"><i class="fas fa-tachometer-alt"></i><span> Home</span></a></div>
-      <div class="user-info-section">
-    {% if user.is_authenticated %}
-      <div class="dropdown">
-        <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle profile-dropdown-toggle" href="#" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-         <i class="fas fa-user-circle fa-lg me-2" style="color: #1769e0;"></i>
-          <div class="d-flex flex-column align-items-start">
-            <span class="welcome-text">Welcome</span>
-            <strong class="username">{{ user.username }}</strong>
-          </div>
-        </a>
-       
-        <ul class="dropdown-menu dropdown-menu-end profile-dropdown-menu" aria-labelledby="dropdownUser1">
-            {% if not user_role.is_organiser %}
-            <li><a class="dropdown-item" href="{%url 'teamprofile'%}"><i class="fas fa-users me-2"></i> Team Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            {%endif%}
-            {% comment %} Show Manage Team only if user is a leader {% endcomment %}
-            {% if user.led_team %}
-            <li><a class="dropdown-item" href="{% url 'manage_requests' %}"><i class="fas fa-cogs me-2"></i> Manage Team</a></li>
-            <li><hr class="dropdown-divider"></li>
-            {% endif %}
-            <li>
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i> Logout</button>
-            </form>
-            </li>
-        </ul>
-      </div>
-    {% endif %} 
-        </div>
-        </header>
-  <div class="overlay"></div>
-  <div class="container">
+{% extends 'home/index.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'user_profile/style.css' %}" />
+<style>
+/* Adjust container to fit nicely inside the dashboard */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(18, 24, 41, 0.85); /* Match dashboard surface */
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.container h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #fff !important;
+}
+.instruction {
+    color: #58a6ff;
+    display: block;
+    margin-bottom: 20px;
+}
+/* Override existing body overlay styles if they conflict */
+.overlay { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
   <h1 style="color: #fff;">My Profile</h1>
 
     <!-- Profile Form -->
@@ -151,9 +133,8 @@
       <img id="photo-preview" src="{% if photo_base64 %}{{ photo_base64 }}{% endif %}" alt="Profile Preview" class="modal-preview-img" />
     </div>
   </div>
-</div>
+{% endblock %}
 
+{% block extra_scripts %}
 <script src="{% static 'user_profile/profile.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
