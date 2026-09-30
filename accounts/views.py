@@ -21,41 +21,88 @@ from django.db import transaction
 import random
 from django.core.mail import EmailMultiAlternatives
 
+import sys
+from .models import EmailVerificationToken, PasswordResetOTP
+
+def _print_terminal_link(title: str, user: User, link: str, email: str = None):
+    user_email = email or user.email or f"{user.username}@example.com"
+    msg = (
+        "\n=======================================================\n"
+        f"[{title}]\n"
+        f"User: {user.username}\n"
+        f"Email: {user_email}\n"
+        f"Verification Link:\n"
+        f"{link}\n"
+        "=======================================================\n\n"
+    )
+    print(msg, flush=True)
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+    sys.stderr.write(msg)
+    sys.stderr.flush()
+
+
 @never_cache
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        user_input = (request.POST.get('email') or request.POST.get('username') or '').strip()
         password = request.POST.get('password')
+
+        user_obj = User.objects.filter(username=user_input).first() or User.objects.filter(email=user_input).first()
+        auth_username = user_obj.username if user_obj else user_input
+        user = authenticate(request, username=auth_username, password=password)
+
+        if user is None:
+            return render(request, 'accounts/login.html', {
+                'login_error': 'Invalid username or password'
+            })
+
+        # Password is correct. Check if account is active (verified email)
+        if not user.is_active:
+            # Generate signup verification link
+            token_obj, raw_token = EmailVerificationToken.create_token(user, token_type='signup')
+            verify_link = request.build_absolute_uri(
+                reverse('verify_email_token', kwargs={'raw_token': raw_token})
+            )
+            _print_terminal_link("EMAIL VERIFICATION", user, verify_link)
+            
+            return render(request, 'accounts/login.html', {
+                'login_error': 'Your account requires email verification. A verification link has been sent to your email (and terminal log).'
+            })
+
+        # User is active -> Trigger Email-Based 2FA Login
+        token_obj, raw_token = EmailVerificationToken.create_token(user, token_type='login_2fa')
+        twofa_link = request.build_absolute_uri(
+            reverse('verify_2fa_token', kwargs={'raw_token': raw_token})
+        )
+
+        _print_terminal_link("EMAIL 2FA LOGIN VERIFICATION LINK", user, twofa_link)
+
+        # Try sending email
         try:
-            user_obj = User.objects.get(username=email)
-        except User.DoesNotExist:
-            user_obj = None
-        if user_obj and not user_obj.is_active:
-            resend_url = reverse('resend_verification') + f'?email={email}'
-            login_error = f'Your account is not active. Please <a href="{resend_url}" class="resend-link">Click here</a> to resend verification link.'
-            return render(request, 'accounts/login.html', {
-                'login_error': login_error
-            })
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            auth_login(request, user)
-            if hasattr(user, 'userrole') and user.userrole.is_organiser:
-                return redirect('staff_dashboard')
-            else:
-                return redirect('home')
-        else:
-            return render(request, 'accounts/login.html', {
-                'login_error': 'Invalid email or password'
-            })
+            subject = "SIM2REAL 2FA Login Verification Link"
+            send_mail(subject, f"Click the link to complete your login:\n\n{twofa_link}", settings.DEFAULT_FROM_EMAIL, [user.email or f"{user.username}@example.com"], fail_silently=True)
+        except Exception:
+            pass
+
+        return render(request, 'accounts/login.html', {
+            'login_info': 'A 2FA login verification link has been sent to your email (and terminal log). Please click the link to complete your login.'
+        })
 
     return render(request, 'accounts/login.html')
 
+
 @never_cache
 def signup_view(request):
+    generic_msg = "If an account exists with this information, an email has been sent. Please check your email."
+
     if request.method == 'POST':
-        email = request.POST.get('email')
+        username = (request.POST.get('username') or request.POST.get('email') or '').strip()
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
+
+        if not username:
+            return render(request, 'accounts/signup.html', {'signup_error': 'Username is required'})
 
         if password1 != password2:
             return render(request, 'accounts/signup.html', {'signup_error': 'Passwords do not match'})
@@ -65,89 +112,75 @@ def signup_view(request):
         except ValidationError as e:
             return render(request, 'accounts/signup.html', {'signup_error': e.messages})
 
-        # Delete any previous inactive users with this email
-        existing_user = User.objects.filter(username=email).first()
+        # Check if user already exists
+        existing_user = User.objects.filter(username=username).first() or User.objects.filter(email=username).first()
         if existing_user:
-            if existing_user.is_active:
-                return render(request, 'accounts/signup.html', {
-            'signup_error': 'Email already registered and verified'
-        })
-            else:
-                # Remove stale inactive user
-                existing_user.delete()
+            # DO NOT reveal existence with error message. Create verification token & print link.
+            token_obj, raw_token = EmailVerificationToken.create_token(existing_user, token_type='signup')
+            verify_link = request.build_absolute_uri(
+                reverse('verify_email_token', kwargs={'raw_token': raw_token})
+            )
+            _print_terminal_link("EMAIL VERIFICATION", existing_user, verify_link)
+            return render(request, 'accounts/signup.html', {'signup_info': generic_msg})
+
+        email_address = username if '@' in username else f"{username}@example.com"
 
         try:
             with transaction.atomic():
-                user = User.objects.create_user(username=email, email=email, password=password1)
+                user = User.objects.create_user(username=username, email=email_address, password=password1)
                 user.is_active = False
                 user.save()
 
-        # Prepare email
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                token = account_activation_token.make_token(user)
-                verification_link = request.build_absolute_uri(
-                reverse('activate', kwargs={'uidb64': uid, 'token': token})
-            )
+                token_obj, raw_token = EmailVerificationToken.create_token(user, token_type='signup')
+                verify_link = request.build_absolute_uri(
+                    reverse('verify_email_token', kwargs={'raw_token': raw_token})
+                )
+                _print_terminal_link("EMAIL VERIFICATION", user, verify_link, email=email_address)
 
-                subject = 'Verify your SIM2REAL account'
-                from_email = settings.DEFAULT_FROM_EMAIL
-                recipient_list = [email]
-
-
-                # Send email
-                
-
-# ... after generating `verification_link`
-
-                html_content = f"""
-<html>
-<head>
-<style>
-.btn {{
-    display: inline-block;
-    padding: 12px 24px;
-    font-size: 16px;
-    color: white;
-    background-color: #007BFF;
-    text-decoration: none;
-    border-radius: 5px;
-}}
-.container {{
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #333;
-}}
-</style>
-</head>
-<body>
-<div class="container">
-<h2>Welcome to SIM2REAL!</h2>
-<p>Thank you for signing up. Please verify your email to activate your account.</p>
-<p><a href="{verification_link}" class="btn">Verify Email</a></p>
-<p>If the button doesn’t work, copy and paste this link into your browser:</p>
-<p>{verification_link}</p>
-<p>Regards,<br>SIM2REAL Team</p>
-</div>
-</body>
-</html>
-"""
-
-                email_message = EmailMultiAlternatives(subject, "Please view this email in HTML", from_email, recipient_list)
-                email_message.attach_alternative(html_content, "text/html")
-                email_message.send(fail_silently=False)
+                # Send email quietly
+                try:
+                    send_mail('Verify your SIM2REAL account', f'Verification link:\n\n{verify_link}', settings.DEFAULT_FROM_EMAIL, [email_address], fail_silently=True)
+                except Exception:
+                    pass
 
         except Exception as e:
-            # If email fails, rollback user creation automatically
-            return render(request, 'accounts/signup.html', {'signup_error': f"Error sending email: Plese check your email or contact organisers"})
+            return render(request, 'accounts/signup.html', {'signup_error': f"Error creating user: {str(e)}"})
 
-        messages.success(request, "Signup successful! Check your email to activate your account. If mail not found in Inbox please check Spam")
-        return redirect('login')
+        return render(request, 'accounts/signup.html', {'signup_info': generic_msg})
 
     return render(request, 'accounts/signup.html')
 
+
+def verify_email_view(request, raw_token):
+    token_obj = EmailVerificationToken.verify_and_use_token(raw_token, token_type='signup')
+    if token_obj:
+        user = token_obj.user
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        messages.success(request, "Your email has been verified successfully! You can now log in.")
+        return redirect('login')
+    else:
+        messages.error(request, "Verification link is invalid, expired, or has already been used.")
+        return redirect('login')
+
+
+def verify_2fa_view(request, raw_token):
+    token_obj = EmailVerificationToken.verify_and_use_token(raw_token, token_type='login_2fa')
+    if token_obj:
+        user = token_obj.user
+        auth_login(request, user)
+        messages.success(request, "Logged in successfully")
+        if hasattr(user, 'userrole') and user.userrole.is_organiser:
+            return redirect('staff_dashboard')
+        else:
+            return redirect('home')
+    else:
+        messages.error(request, "2FA login link is invalid, expired, or has already been used.")
+        return redirect('login')
+
+
 from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_str  # for Django 3.1+, use force_text for older versions
-from django.http import HttpResponse
+from django.utils.encoding import force_str
 
 def activate(request, uidb64, token):
     try:
@@ -162,7 +195,8 @@ def activate(request, uidb64, token):
         messages.success(request, 'Your account has been activated successfully! You can now login.')
         return redirect('login')
     else:
-        return HttpResponse('Activation link is invalid or has expired.')
+        messages.error(request, 'Activation link is invalid or has expired.')
+        return redirect('login')
 
 def resend_verification_view(request):
     email = request.GET.get('email') or request.POST.get('email')

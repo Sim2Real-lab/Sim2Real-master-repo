@@ -7,3 +7,8 @@ class AnnouncementAdmin(admin.ModelAdmin):
     search_fields = ['message', 'created_by__username']
 
 admin.site.register(Announcments, AnnouncementAdmin)
+from .models import EmailLog
+@admin.register(EmailLog)
+class EmailLogAdmin(admin.ModelAdmin):
+    list_display = ['recipient', 'task_type', 'status', 'attempts', 'created_at']
+    list_filter = ['status', 'task_type']

@@ -4,17 +4,17 @@ import re
 from .models import UserProfile
 
 NITK_COLLEGE_NAME = "National Institute of Technology Karnataka"
-VALID_YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgrad", "PhD"]
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'contact', 'branch', 'college', 'year', 'dob']
+        fields = ['first_name', 'last_name', 'contact', 'branch', 'college', 'year', 'dob', 'photo']
 
     def __init__(self, *args, is_nitk=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_nitk = is_nitk
+        self.fields['photo'].required = False
         if self.is_nitk:
             self.fields['college'].initial = NITK_COLLEGE_NAME
             self.fields['college'].required = False
@@ -39,8 +39,8 @@ class UserProfileForm(forms.ModelForm):
         contact = self.cleaned_data.get('contact', '').strip()
         if not contact:
             raise forms.ValidationError("Contact number is required.")
-        if not re.fullmatch(r'^[6-9]\d{9}$', contact) and not re.fullmatch(r'^\d{10}$', contact):
-            raise forms.ValidationError("Please enter a valid 10-digit mobile number.")
+        if not re.fullmatch(r'^\d{10}$', contact):
+            raise forms.ValidationError("Please provide a valid 10-digit positive contact number.")
         return contact
 
     def clean_branch(self):
@@ -91,3 +91,11 @@ class UserProfileForm(forms.ModelForm):
             raise forms.ValidationError("Age cannot exceed 30 years.")
 
         return dob
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get('photo')
+        if photo and hasattr(photo, 'name') and photo.name:
+            name = photo.name.lower()
+            if not (name.endswith('.jpg') or name.endswith('.jpeg')):
+                raise forms.ValidationError("Only JPG and JPEG photo uploads are allowed.")
+        return photo

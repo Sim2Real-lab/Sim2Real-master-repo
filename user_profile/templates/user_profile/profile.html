@@ -55,7 +55,7 @@
     <h1 style="color: #fff;">My Profile</h1>
 
     <!-- Profile Form -->
-    <form id="profile-form" method="post">
+    <form id="profile-form" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <strong class="instruction">All the below fields are mandatory</strong>
 
@@ -89,7 +89,7 @@
 
         <div class="form-group">
           <label for="contact">Contact Number</label>
-          <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" value="{{ profile.contact|default:'' }}" required />
+          <input type="tel" id="contact" name="contact" value="{{ profile.contact|default:'' }}" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" required />
         </div>
 
         <div class="form-group">
@@ -105,10 +105,15 @@
                  required />
         </div>
 
-        <div class="form-group autocomplete">
+        <div class="form-group">
           <label for="year">Year</label>
-          <input type="text" id="year" name="year" value="{{ profile.year|default:'' }}" autocomplete="off" required placeholder="Eg: 1st Year" />
-          <ul class="autocomplete-list" id="year-suggestions"></ul>
+          <select id="year" name="year" required>
+            <option value="" disabled {% if not profile.year %}selected{% endif %}>Select Year</option>
+            <option value="1st Year" {% if profile.year == "1st Year" %}selected{% endif %}>1st Year</option>
+            <option value="2nd Year" {% if profile.year == "2nd Year" %}selected{% endif %}>2nd Year</option>
+            <option value="3rd Year" {% if profile.year == "3rd Year" %}selected{% endif %}>3rd Year</option>
+            <option value="4th Year" {% if profile.year == "4th Year" %}selected{% endif %}>4th Year</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -117,16 +122,40 @@
             type="date"
             id="dob"
             name="dob"
-            value="{{ profile.dob|date:'Y-m-d' }}"
+            value="{% if profile and profile.dob %}{{ profile.dob|date:'Y-m-d' }}{% endif %}"
             min="{{ min_dob|date:'Y-m-d' }}"
             max="{{ max_dob|date:'Y-m-d' }}"
             required
           >
         </div>
+
+        <div class="form-group photo-upload-group">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <label for="photo" class="mb-0">Upload Photo <small class="text-muted">(JPG, JPEG only)</small></label>
+            <button type="button" id="photo-info-btn" class="btn-info-icon" style="{% if photo_base64 %}display: inline-flex;{% else %}display: none;{% endif %}" title="Click to view photo preview">
+              <i class="fas fa-info-circle"></i>
+              <span>Preview Photo</span>
+            </button>
+          </div>
+          <input type="file" id="photo" name="photo" accept=".jpg, .jpeg, image/jpeg" />
+        </div>
       </section>
 
       <button class="submit" type="submit">Save Profile</button>
     </form>
+  </div>
+
+  <!-- Photo Preview Modal -->
+  <div id="photoModal" class="modal-preview-backdrop" style="display: none;">
+    <div class="modal-preview-content">
+      <div class="modal-preview-header">
+        <h5>Photo Preview</h5>
+        <button type="button" id="closePhotoModal" class="modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-preview-body">
+        <img id="photo-preview" src="{% if photo_base64 %}{{ photo_base64 }}{% endif %}" alt="Profile Preview" class="modal-preview-img" />
+      </div>
+    </div>
   </div>
 
   <script src="{% static 'user_profile/profile.js' %}"></script>

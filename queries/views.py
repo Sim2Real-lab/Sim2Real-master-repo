@@ -34,6 +34,9 @@ def user_query_view(request):
                 query.contact = ''
 
             query.save()
+            
+            from staff_home.email_utils import send_query_received_email
+            send_query_received_email(query)
 
             if _is_ajax(request):
                 return JsonResponse({'success': True, 'ticket': str(query.ticket)})

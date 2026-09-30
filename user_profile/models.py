@@ -12,6 +12,7 @@ class UserProfile(models.Model):
     college = models.CharField(max_length=100)
     year = models.CharField(max_length=10)
     dob = models.DateField()
+    photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
     event_year = models.IntegerField(default=2026)
     user_state = models.CharField(
         max_length=10,
@@ -42,4 +43,3 @@ class UserProfile(models.Model):
             self.dob,
         ]
         return all(bool(field and str(field).strip()) for field in required_fields)
-

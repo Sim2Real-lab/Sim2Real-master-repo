@@ -160,3 +160,16 @@ class ParticipantAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.JSONField()
     marks_awarded = models.FloatField(default=0)
+
+class EmailLog(models.Model):
+    recipient = models.EmailField()
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    attempts = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('failed', 'Failed')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    task_type = models.CharField(max_length=50, default='announcement')  # 'announcement' or 'query'
+
+    def __str__(self):
+        return f"{self.task_type} Email to {self.recipient} - {self.status}"

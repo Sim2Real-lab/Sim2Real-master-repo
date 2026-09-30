@@ -97,7 +97,7 @@ class UserProfileModelAndViewsTest(TestCase):
             'dob': '2001-08-20'
         }
         response = self.client.post(reverse('profile'), data=post_data)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('profile'))
         self.assertFalse(UserProfile.objects.filter(user=self.user).exists())
 
     def test_validation_age_under_18(self):
@@ -112,7 +112,7 @@ class UserProfileModelAndViewsTest(TestCase):
             'dob': '2020-01-01'  # Under 18
         }
         response = self.client.post(reverse('profile'), data=post_data)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('profile'))
         self.assertFalse(UserProfile.objects.filter(user=self.user).exists())
 
     def test_validation_age_over_30(self):
@@ -127,5 +127,5 @@ class UserProfileModelAndViewsTest(TestCase):
             'dob': '1980-01-01'  # Over 30
         }
         response = self.client.post(reverse('profile'), data=post_data)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('profile'))
         self.assertFalse(UserProfile.objects.filter(user=self.user).exists())

@@ -1,7 +1,8 @@
+import base64
+from datetime import date
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from datetime import date
 from .models import UserProfile
 from .forms import UserProfileForm, NITK_COLLEGE_NAME
 
@@ -16,6 +17,16 @@ def userprofile_view(request):
     # NITK email check
     user_email = (user.email or "").lower()
     is_nitk = user_email.endswith("@nitk.edu.in") or user_email.endswith(".nitk.edu.in")
+
+    # Photo Base64 stream encoding for live preview modal
+    photo_base64 = None
+    if profile and profile.photo:
+        try:
+            with profile.photo.open('rb') as f:
+                encoded = base64.b64encode(f.read()).decode('utf-8')
+                photo_base64 = f"data:image/jpeg;base64,{encoded}"
+        except Exception:
+            photo_base64 = None
 
     # Age limit: 18 to 30 years for HTML attributes
     today = date.today()
@@ -32,7 +43,7 @@ def userprofile_view(request):
     college_value = NITK_COLLEGE_NAME if is_nitk else (profile.college if profile else "")
 
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=profile, is_nitk=is_nitk)
+        form = UserProfileForm(request.POST, request.FILES, instance=profile, is_nitk=is_nitk)
         if form.is_valid():
             is_new = profile is None
             profile_obj = form.save(commit=False)
@@ -49,7 +60,7 @@ def userprofile_view(request):
             else:
                 messages.success(request, 'Profile updated successfully.')
                 if not is_organiser:
-                    messages.success(request, 'Visit Team Profile to create or join a team.')
+                    messages.success(request, 'Visit Team Profile to Create or Join a Team')
                 return redirect('profile')
         else:
             for field, errors in form.errors.items():
@@ -59,6 +70,7 @@ def userprofile_view(request):
                         messages.error(request, f"{field_label}: {error}")
                     else:
                         messages.error(request, error)
+            return redirect('profile')
 
     return render(request, 'user_profile/profile.html', {
         'user_email': user.email,
@@ -69,4 +81,5 @@ def userprofile_view(request):
         'college_value': college_value,
         'min_dob': min_dob,
         'max_dob': max_dob,
+        'photo_base64': photo_base64,
     })
