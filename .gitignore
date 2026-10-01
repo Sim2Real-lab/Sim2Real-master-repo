@@ -25,36 +25,60 @@ MANIFEST
 # Logs
 pip-log.txt
 pip-delete-this-directory.txt
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-# Virtual Environments
+============================================================
+Virtual Environments
+============================================================
+
 venv/
 env/
 ENV/
 .venv/
 .ENV/
 
-# Environment Variables / Secrets
+============================================================
+Environment Variables / Secrets
+============================================================
+
 .env
 .env.*
 !.env.example
 
-# Django
+============================================================
+Django
+============================================================
+
+Local databases
+
 *.sqlite3
 *.sqlite3-journal
+
+Django static/media files
+
 staticfiles/
 media/
+
+Django cache
+
 *.log
 
-# Testing / Coverage
+============================================================
+Django Migrations
+============================================================
+
+# Migrations are normally committed to Git.
+# Do NOT ignore migrations unless your project specifically requires it.
+
+============================================================
+Testing / Coverage
+============================================================
+
 .pytest_cache/
 .coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
 .coverage.*
 htmlcov/
 .tox/
@@ -63,38 +87,62 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# Type Checking / Linters
+============================================================
+Type Checking / Linters / Formatters
+============================================================
+
 .mypy_cache/
 .dmypy.json
 dmypy.json
 .pyre/
 .ruff_cache/
 
-# IDEs / Editors
+============================================================
+Jupyter Notebook
+============================================================
+
+.ipynb_checkpoints/
+
+============================================================
+IDEs / Editors
+============================================================
+
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.history/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 
-# OS Files
+.history/
+
+============================================================
+OS Files
+============================================================
+
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Node / Frontend
-node_modules/
-dist/
-dist-ssr/
-*.local
+============================================================
+Node / Frontend
+============================================================
 
-# Cache / Temp
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+============================================================
+Build / Cache
+============================================================
+
 .cache/
+
+============================================================
+Temporary Files
+============================================================
+
 *.tmp
 *.temp
 *.bak
@@ -102,9 +150,42 @@ dist-ssr/
 *.orig
 *.rej
 
-# Secrets
+============================================================
+Secrets / Certificates
+============================================================
+
 *.pem
 *.key
 *.crt
 *.p12
 *.pfx
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+*/node_modules/
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Uploaded Media
+profile_photos/
+

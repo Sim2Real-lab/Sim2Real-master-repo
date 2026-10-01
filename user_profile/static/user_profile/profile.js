@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Toggle Team Forms (if present)
+  // Toggle Team Forms (if present on page)
   const createTeamBtn = document.getElementById("create-team-btn");
   const joinTeamBtn = document.getElementById("join-team-btn");
   const createTeamForm = document.getElementById("create-team-form");
@@ -20,14 +20,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Contact Number Validation: Only positive integers allowed
   const contactInput = document.getElementById("contact") || document.querySelector('input[name="contact"]');
   if (contactInput) {
-    // Prevent typing non-digit characters
     contactInput.addEventListener("keypress", function (e) {
       if (!/^\d$/.test(e.key)) {
         e.preventDefault();
       }
     });
 
-    // Clean any non-digit characters on input/paste
     contactInput.addEventListener("input", function () {
       this.value = this.value.replace(/\D/g, "");
     });
@@ -52,38 +50,36 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Only JPG and JPEG image files are allowed.");
           this.value = "";
           photoPreview.src = "";
-          photoInfoBtn.style.display = "none";
+          photoInfoBtn.classList.add("d-none");
           return;
         }
 
         // Convert and stream file as Base64 Data URL
         const reader = new FileReader();
         reader.onload = function (e) {
-          photoPreview.src = e.target.result; // Base64 Data URL (data:image/jpeg;base64,...)
-          photoInfoBtn.style.display = "inline-flex";
+          photoPreview.src = e.target.result;
+          photoInfoBtn.classList.remove("d-none");
         };
         reader.onerror = function () {
           photoPreview.src = "";
-          photoInfoBtn.style.display = "none";
+          photoInfoBtn.classList.add("d-none");
         };
         reader.readAsDataURL(file);
       } else {
-        // Hide preview button if input is empty and no pre-existing base64 photo is loaded
         if (!photoPreview.getAttribute("src")) {
-          photoInfoBtn.style.display = "none";
+          photoInfoBtn.classList.add("d-none");
         }
       }
     });
 
     if (photoModal && closePhotoModal) {
-      // Ensure modal is attached directly to body to avoid clipping or container offset
       if (photoModal.parentElement !== document.body) {
         document.body.appendChild(photoModal);
       }
 
       function showModal() {
         const currentSrc = photoPreview.getAttribute("src") || photoPreview.src;
-        if (currentSrc && currentSrc.startsWith("data:image")) {
+        if (currentSrc && (currentSrc.startsWith("data:image") || currentSrc.length > 0)) {
           photoModal.style.display = "flex";
           document.body.style.overflow = "hidden";
         }
