@@ -180,9 +180,6 @@ Secrets / Certificates
 *.p12
 *.pfx
 
-<<<<<<< HEAD
-=======
->>>>>>> 71209c3d ( the first commit of Sim2Real website)
 # Logs
 logs
 *.log
@@ -193,6 +190,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+*/node_modules/
 dist
 dist-ssr
 *.local
@@ -207,6 +205,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-=======
-*/node_modules/
->>>>>>> ee4a242ca0ccb24a3993eac680145fa631828fcb
+
+# Uploaded Media
+profile_photos/
+

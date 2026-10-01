@@ -423,6 +423,8 @@ def queries(request):
         'total_queries': total_queries,
     }
     return render(request, 'staff_home/check_queries.html', context)
+from staff_home.email_utils import send_query_reply_email
+
 @login_required
 @organiser_only
 def resolve_query(request, ticket):
@@ -435,6 +437,10 @@ def resolve_query(request, ticket):
         query.response = request.POST.get('response')
         query.resolved = True
         query.save()
+        
+        # Trigger email to the user who asked
+        send_query_reply_email(query)
+        
         return redirect('respond_queries')
 
     return render(request, 'staff_home/resolve_query.html', {'query': query})

@@ -3,18 +3,22 @@ from datetime import date
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import UserProfile as up
+from .models import UserProfile
+from .forms import UserProfileForm, NITK_COLLEGE_NAME
 
-# Create your views here.
+
 @login_required
 def userprofile_view(request):
     user = request.user
-    user_role = getattr(request.user, 'userrole', None)
-    try:
-        profile = up.objects.get(user=user)
-    except up.DoesNotExist:
-        profile = None
+    user_role = getattr(user, 'userrole', None)
+    is_organiser = bool(user_role and user_role.is_organiser)
+    profile = UserProfile.objects.filter(user=user).first()
 
+    # NITK email check
+    user_email = (user.email or "").lower()
+    is_nitk = user_email.endswith("@nitk.edu.in") or user_email.endswith(".nitk.edu.in")
+
+    # Photo Base64 stream encoding for live preview modal
     photo_base64 = None
     if profile and profile.photo:
         try:
@@ -24,81 +28,58 @@ def userprofile_view(request):
         except Exception:
             photo_base64 = None
 
-    # NITK check
-    is_nitk = user.email.endswith("@nitk.edu.in")
-
-    # Age limit: 18 to 30 years
+    # Age limit: 18 to 30 years for HTML attributes
     today = date.today()
-    max_dob = today.replace(year=today.year - 18)
-    min_dob = today.replace(year=today.year - 30)
+    try:
+        max_dob = today.replace(year=today.year - 18)
+    except ValueError:
+        max_dob = today.replace(month=2, day=28, year=today.year - 18)
 
-    if is_nitk:
-        college_value = "National Institute of Technology Karnataka"
-    else:
-        college_value = profile.college if profile else ""
+    try:
+        min_dob = today.replace(year=today.year - 30)
+    except ValueError:
+        min_dob = today.replace(month=2, day=28, year=today.year - 30)
+
+    college_value = NITK_COLLEGE_NAME if is_nitk else (profile.college if profile else "")
+
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        contact = (request.POST.get('contact') or '').strip()
-        branch = request.POST.get('branch')
-        college = request.POST.get('college')
-        year = request.POST.get('year')
-        dob = request.POST.get('dob')
-        photo = request.FILES.get('photo')
+        form = UserProfileForm(request.POST, request.FILES, instance=profile, is_nitk=is_nitk)
+        if form.is_valid():
+            is_new = profile is None
+            profile_obj = form.save(commit=False)
+            profile_obj.user = user
+            if is_nitk:
+                profile_obj.college = NITK_COLLEGE_NAME
+            profile_obj.save()
 
-        # Contact Number backend validation (Positive 10-digit integer)
-        if not contact or not contact.isdigit() or int(contact) <= 0 or len(contact) != 10:
-            messages.error(request, 'Please provide a valid 10-digit positive contact number.')
-            return redirect('profile')
-
-        if photo and not photo.name.lower().endswith(('.jpg', '.jpeg')):
-            messages.error(request, 'Only JPG and JPEG photo uploads are allowed.')
-            return redirect('profile')
-
-        if profile:
-            # Update existing profile
-            profile.first_name = first_name
-            profile.last_name = last_name
-            profile.contact = contact
-            profile.branch = branch
-            profile.college = college
-            profile.year = year
-            if dob:
-                profile.dob = dob
-            if photo:
-                profile.photo = photo
-            profile.save()
-            
-            # After saving:
-            messages.success(request, 'Profile updated successfully.')
-            if not user_role or not user_role.is_organiser:
-                messages.success(request, 'Visit Team Profile to Create or Join a Team')
-            return redirect('profile')
+            if is_new:
+                messages.success(request, 'Profile saved successfully.')
+                if not is_organiser:
+                    return redirect('home')
+                return redirect('profile')
+            else:
+                messages.success(request, 'Profile updated successfully.')
+                if not is_organiser:
+                    messages.success(request, 'Visit Team Profile to Create or Join a Team')
+                return redirect('profile')
         else:
-            # Create new profile
-            up.objects.create(
-                user=user,
-                first_name=first_name,
-                last_name=last_name,
-                contact=contact,
-                branch=branch,
-                college=college,
-                year=year,
-                dob=dob,
-                photo=photo
-            )
-            messages.success(request, 'Profile Saved Successfully')
-            if not user_role or not user_role.is_organiser:
-                return redirect('home')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    field_label = field.replace('_', ' ').capitalize() if field != '__all__' else ''
+                    if field_label:
+                        messages.error(request, f"{field_label}: {error}")
+                    else:
+                        messages.error(request, error)
             return redirect('profile')
 
     return render(request, 'user_profile/profile.html', {
-    'user_email': user.email,
-    'profile': profile,
-    'user_role': user_role,
-    'is_nitk': is_nitk,
-    'college_value': college_value,
-    'min_dob': min_dob,
-    'max_dob': max_dob,
-    'photo_base64': photo_base64,
-})
+        'user_email': user.email,
+        'profile': profile,
+        'user_role': user_role,
+        'is_organiser': is_organiser,
+        'is_nitk': is_nitk,
+        'college_value': college_value,
+        'min_dob': min_dob,
+        'max_dob': max_dob,
+        'photo_base64': photo_base64,
+    })
