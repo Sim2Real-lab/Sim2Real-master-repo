@@ -12,6 +12,8 @@ from operator import attrgetter
 from django.utils.timezone import now
 
 
+from queries.models import Query
+
 @login_required
 @user_view
 @profile_updated
@@ -32,15 +34,34 @@ def home_view(request):
         chain(queryset1, queryset2),
         key=attrgetter('created_at'),
         reverse=True
-    )[:3]  # Limit to the latest 3
+    )[:4]  # Limit to the latest 4
+
     show_welcome = not request.session.get('welcome_shown', False)
-    request.session['welcome_shown'] = True  # Set flag to avoid showing again
+    request.session['welcome_shown'] = True
+
+    # Participant Statistics
+    members_count = team.members.count() if team else 0
+    track = team.track if (team and team.track) else None
+    active_windows_count = SubmissionWindow.objects.filter(is_visible=True, end_date__gte=now()).count()
+    user_submissions_count = Submission.objects.filter(team=team).count() if team else 0
+    user_queries_count = Query.objects.filter(sender=request.user).count()
+    user_pending_queries = Query.objects.filter(sender=request.user, resolved=False).count()
+    resources_count = Resource.objects.count()
+
     context = {
-    'registered': registered,
-    'announcements': combined,
-    'show_welcome': show_welcome,
-    'paid':paid,
-}
+        'team': team,
+        'members_count': members_count,
+        'track': track,
+        'registered': registered,
+        'paid': paid,
+        'announcements': combined,
+        'show_welcome': show_welcome,
+        'active_windows_count': active_windows_count,
+        'user_submissions_count': user_submissions_count,
+        'user_queries_count': user_queries_count,
+        'user_pending_queries': user_pending_queries,
+        'resources_count': resources_count,
+    }
     return render(request, 'home/index.html', context)
 
 

@@ -1,21 +1,43 @@
 {% extends "home/index.html" %}
 {% block title %}Announcements | SIM2REAL{% endblock %}
+
 {% block content %}
+<div class="overview-card-container">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.75rem;">Announcements</h2>
+      <p class="text-muted mb-0" style="font-size: 0.9rem;">Official event updates, guidelines, and competition notices.</p>
+    </div>
+  </div>
+
   {% if Announcments %}
-  <h5 class="card-title"><i class="fas fa-bullhorn me-2"></i> Announcements</h5>
-  {% for announcement in Announcments %}
-  <div class="card announcements-card mb-4">
-        <div class="card-body">
-            <ul class="list-unstyled">
-                <li><p class="mb-1"><strong>Date:</strong>       {{announcement.created_at}}</p></li>
-                <li><p class="mb-1"><strong>Message:</strong>        {{announcement.message}}</p></li>
-               <li></li>
-            </ul>
+    <div class="row g-3">
+      {% for announcement in Announcments %}
+        <div class="col-12">
+          <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">
+                <i class="fa-regular fa-calendar me-1"></i> {{ announcement.created_at|date:"M d, Y • H:i" }}
+              </span>
+              {% if announcement.category %}
+              <span class="badge bg-secondary-subtle text-secondary px-2 py-1 small">
+                {{ announcement.get_category_display|default:announcement.category }}
+              </span>
+              {% endif %}
+            </div>
+            <p class="mb-0 text-dark" style="font-size: 0.95rem; line-height: 1.6;">{{ announcement.message }}</p>
+          </div>
         </div>
-      </div>
-        {% endfor %}
-        
+      {% endfor %}
+    </div>
   {% else %}
-    <p>No announcements found.</p>
+    <div class="card shadow-sm border-0 rounded-3 p-4 bg-white text-center">
+      <i class="fa-solid fa-bullhorn text-muted fs-1 mb-2"></i>
+      <h5 class="text-secondary fw-semibold">No Announcements Found</h5>
+      <p class="text-muted small mb-0">There are currently no announcements for your category.</p>
+    </div>
   {% endif %}
+
+</div>
 {% endblock %}

@@ -48,15 +48,7 @@
   }
 
   .metric-icon-bubble {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-    background: rgba(23, 105, 224, 0.08);
-    color: #1769E0;
+    display: none !important;
   }
 
   .metric-value-number {
@@ -115,9 +107,6 @@
         <div>
           <div class="metric-header">
             <span class="metric-label">Participants</span>
-            <div class="metric-icon-bubble">
-              <i class="fa-solid fa-users"></i>
-            </div>
           </div>
           <div class="metric-value-number">{{ stats.total_users|default:"0" }}</div>
         </div>
@@ -134,9 +123,6 @@
         <div>
           <div class="metric-header">
             <span class="metric-label">Teams</span>
-            <div class="metric-icon-bubble" style="background: rgba(34, 197, 94, 0.1); color: #16a34a;">
-              <i class="fa-solid fa-people-group"></i>
-            </div>
           </div>
           <div class="metric-value-number">{{ stats.total_teams|default:"0" }}</div>
         </div>
@@ -153,9 +139,6 @@
         <div>
           <div class="metric-header">
             <span class="metric-label">Payment Approvals</span>
-            <div class="metric-icon-bubble" style="background: rgba(245, 158, 11, 0.12); color: #d97706;">
-              <i class="fa-solid fa-credit-card"></i>
-            </div>
           </div>
           <div class="metric-value-number">{{ stats.pending_payments|default:"0" }}</div>
         </div>
@@ -172,9 +155,6 @@
         <div>
           <div class="metric-header">
             <span class="metric-label">Submissions</span>
-            <div class="metric-icon-bubble" style="background: rgba(147, 51, 234, 0.1); color: #9333ea;">
-              <i class="fa-solid fa-file-arrow-up"></i>
-            </div>
           </div>
           <div class="metric-value-number">{{ stats.total_submissions|default:"0" }}</div>
         </div>
@@ -191,9 +171,6 @@
         <div>
           <div class="metric-header">
             <span class="metric-label">Support Queries</span>
-            <div class="metric-icon-bubble" style="background: rgba(225, 29, 72, 0.1); color: #e11d48;">
-              <i class="fa-solid fa-life-ring"></i>
-            </div>
           </div>
           <div class="metric-value-number">{{ stats.pending_queries|default:"0" }}</div>
         </div>
@@ -210,9 +187,6 @@
         <div>
           <div class="metric-header">
             <span class="metric-label">Quiz Modules</span>
-            <div class="metric-icon-bubble" style="background: rgba(13, 148, 136, 0.1); color: #0d9488;">
-              <i class="fa-solid fa-graduation-cap"></i>
-            </div>
           </div>
           <div class="metric-value-number">{{ stats.total_tests|default:"0" }}</div>
         </div>

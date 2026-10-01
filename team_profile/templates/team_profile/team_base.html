@@ -62,7 +62,7 @@ Team Management
         text-align: left !important;
     }
 
-    input[type="text"], input[type="email"], input[type="password"], select {
+    input[type="text"]:not(.sidebar-search-input), input[type="email"], input[type="password"], select {
         width: 100% !important;
         padding: 12px 15px !important;
         border: 1px solid #d2d6dc !important;
@@ -80,7 +80,9 @@ Team Management
     }
 
     /* Buttons matching query form style */
-    button, input[type="submit"], .create, .join, .create-team-btn, .join-team-btn {
+    .team-card-container button:not(.sidebar-collapse-btn):not(.user-profile-widget):not(.floating-sidebar-btn),
+    .team-card-container input[type="submit"],
+    .create, .join, .create-team-btn, .join-team-btn {
         background-color: #0066ff !important;
         color: #ffffff !important;
         border: none !important;
@@ -97,7 +99,9 @@ Team Management
         transition: background-color 0.3s ease !important;
     }
 
-    button:hover, input[type="submit"]:hover, .create:hover, .join:hover, .create-team-btn:hover, .join-team-btn:hover {
+    .team-card-container button:not(.sidebar-collapse-btn):not(.user-profile-widget):not(.floating-sidebar-btn):hover,
+    .team-card-container input[type="submit"]:hover,
+    .create:hover, .join:hover, .create-team-btn:hover, .join-team-btn:hover {
         background-color: #0052cc !important;
     }
 </style>
