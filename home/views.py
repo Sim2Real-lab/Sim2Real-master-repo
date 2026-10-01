@@ -146,17 +146,10 @@ def resources_view(request):
 def download_brochure(request):
     brochure = Brochure.objects.first()
     if not brochure or not brochure.file:
-        # Show a side toast message instead of 404
-        messages.error(request, "Brochure download failed. File not available.")
-        return redirect("problem_statement")  # Redirect to a participant page
+        messages.error(request, "Brochure not available.")
+        return redirect("problem_statement")
 
-    # Return the file as a download
-    response = FileResponse(
-        brochure.file.open('rb'),
-        as_attachment=True,
-        filename=brochure.file.name
-    )
-    return response
+    return render(request, "home/brochure_view.html", {"brochure": brochure})
 @login_required
 def user_submission_windows(request):
     team = request.user.team.first()

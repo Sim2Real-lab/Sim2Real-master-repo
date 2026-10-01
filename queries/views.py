@@ -52,7 +52,12 @@ def user_query_view(request):
     else:
         form = UserQueryForm(user=request.user)
 
-    return render(request, 'queries/query_hub.html', {'form': form, 'show_query_page': True})
+    queries = Query.objects.filter(sender=request.user).order_by('-created_at') if request.user.is_authenticated else []
+    return render(request, 'queries/query_hub.html', {
+        'ask_query_form': form, 
+        'queries': queries,
+        'show_query_page': True
+    })
 
 
 @login_required

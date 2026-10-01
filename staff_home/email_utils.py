@@ -1,4 +1,4 @@
-﻿import threading
+import threading
 import time
 from django.core.mail import send_mail
 from django.conf import settings
@@ -16,20 +16,7 @@ def _execute_email_send(subject, message, from_email, recipient_email):
     """
     Executes the actual email send or prints to terminal for dev mode.
     """
-    # --- DEVELOPMENT / LOCAL MODE ---
-    print(f"\n{'='*40}")
-    print(f"Sent from: {from_email}")
-    print(f"Sent to: {recipient_email}")
-    print(f"Subject: {subject}")
-    print(f"Message: {message}")
-    print(f"{'='*40}\n")
-    # In DEV mode, this always succeeds. 
-    # To test failures locally, you could raise Exception("Simulated failure") here.
-    return True
-
-    '''
-    # --- PRODUCTION MODE SNIPPET ---
-    # Uncomment below and remove the dev block above for production
+    # --- PRODUCTION MODE ---
     send_mail(
         subject=subject,
         message=message,
@@ -38,7 +25,6 @@ def _execute_email_send(subject, message, from_email, recipient_email):
         fail_silently=False,
     )
     return True
-    '''
 
 def _send_with_retry(subject, message, recipient_email, task_type='announcement'):
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@sim2real.com')
