@@ -71,7 +71,7 @@ export const Testimonials = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [currentIndex]); // Re-run animation when card changes
+  }, []); // Run only on mount
 
   const nextTestimonial = () => {
     if (currentIndex < TESTIMONIALS.length - 1) {
@@ -94,7 +94,7 @@ export const Testimonials = () => {
       <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-slate-300/40 rounded-full blur-[100px] mix-blend-multiply opacity-50 pointer-events-none"></div>
 
       {/* FIX 2: Switched to flex to match Prizes, stripped 'relative z-10' trap */}
-      <div className="max-w-6xl mx-auto px-6 flex flex-col items-center">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
         
         {/* Wrapped Header in Card UI */}
         <div className="p-8 md:p-10 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 mb-16 relative z-50">
@@ -107,38 +107,44 @@ export const Testimonials = () => {
         </div>
         
         {/* FIX 4: Pushed the z-20 specifically to the cards grid so they float visually over the drone */}
-        <div className="relative z-20 w-full max-w-4xl mx-auto flex items-center justify-center gap-6">
+        <div className="relative z-20 w-full max-w-5xl mx-auto flex items-center justify-center gap-4 md:gap-8">
           
           <button 
             onClick={prevTestimonial}
-            className={`p-4 rounded-full bg-white/80 border border-white/40 shadow-lg hover:bg-white hover:scale-110 transition-all z-30 ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+            className={`flex-shrink-0 p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m15 18-6-6 6-6"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           
-          <div className="flex-1 w-full max-w-2xl">
+          <div className="flex-1 w-full max-w-3xl overflow-hidden p-6 -m-6 rounded-[2.5rem]">
             <div 
-              key={currentIndex} 
-              className="testimonial-card flex flex-col justify-between h-full p-10 md:p-12 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group"
+              className="flex transition-transform duration-700 ease-in-out h-full"
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              <div className="absolute top-10 text-primary/10 font-display text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
-                "
-              </div>
-              <p className="text-xl md:text-2xl font-sans text-foreground/80 leading-relaxed font-semibold z-10 relative mb-12 tracking-tight min-h-[160px] md:min-h-[140px]">
-                <SplitQuote text={TESTIMONIALS[currentIndex].quote} />
-              </p>
-              <div className="mt-auto relative z-10">
-                <div className="font-bold font-sans text-foreground text-lg tracking-tight">{TESTIMONIALS[currentIndex].author}</div>
-                <div className="text-sm font-semibold text-primary mt-1 uppercase tracking-wider">{TESTIMONIALS[currentIndex].role}</div>
-              </div>
+              {TESTIMONIALS.map((t, index) => (
+                <div key={index} className="w-full flex-shrink-0 px-2 py-2">
+                  <div className="testimonial-card flex flex-col justify-between h-full p-10 md:p-14 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group">
+                    <div className="absolute top-10 text-primary/10 font-display text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
+                      "
+                    </div>
+                    <p className="text-xl md:text-3xl font-sans text-foreground/80 leading-relaxed font-semibold z-10 relative mb-12 tracking-tight min-h-[160px]">
+                      <SplitQuote text={t.quote} />
+                    </p>
+                    <div className="mt-auto relative z-10">
+                      <div className="font-bold font-sans text-foreground text-xl tracking-tight">{t.author}</div>
+                      <div className="text-sm font-semibold text-primary mt-1 uppercase tracking-wider">{t.role}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
           <button 
             onClick={nextTestimonial}
-            className={`p-4 rounded-full bg-white/80 border border-white/40 shadow-lg hover:bg-white hover:scale-110 transition-all z-30 ${currentIndex === TESTIMONIALS.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+            className={`flex-shrink-0 p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === TESTIMONIALS.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m9 18 6-6-6-6"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </button>
           
         </div>
