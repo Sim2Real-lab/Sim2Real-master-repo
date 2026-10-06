@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Only JPG and JPEG image files are allowed.");
           this.value = "";
           photoPreview.src = "";
-          photoInfoBtn.style.display = "none";
+          photoInfoBtn.classList.add("d-none");
           return;
         }
 
@@ -58,16 +58,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const reader = new FileReader();
         reader.onload = function (e) {
           photoPreview.src = e.target.result;
-          photoInfoBtn.style.display = "inline-flex";
+          photoInfoBtn.classList.remove("d-none");
         };
         reader.onerror = function () {
           photoPreview.src = "";
-          photoInfoBtn.style.display = "none";
+          photoInfoBtn.classList.add("d-none");
         };
         reader.readAsDataURL(file);
       } else {
         if (!photoPreview.getAttribute("src")) {
-          photoInfoBtn.style.display = "none";
+          photoInfoBtn.classList.add("d-none");
         }
       }
     });

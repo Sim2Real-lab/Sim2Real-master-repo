@@ -133,6 +133,111 @@ class EmailBased2FATest(TestCase):
         # 3. Verify user is logged in
         self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
 
+        # 4. Visiting login page while logged in redirects (does not show form or send 2FA)
+        login_page_response = self.client.get(reverse('login'))
+        self.assertEqual(login_page_response.status_code, 302)
+
+        # 5. Log out
+        self.client.post(reverse('logout'))
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+        # 6. Log back in within the same session - 2FA should NOT be sent again
+        captured_output_2 = io.StringIO()
+        sys.stdout = captured_output_2
+        sys.stderr = captured_output_2
+        try:
+            relogin_response = self.client.post(reverse('login'), {
+                'email': 'login2fauser',
+                'password': 'Password123!'
+            }, follow=True)
+        finally:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+        # User is logged in directly without 2FA
+        self.assertEqual(relogin_response.status_code, 200)
+        self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
+        output_str_2 = captured_output_2.getvalue()
+        self.assertNotIn("[EMAIL 2FA LOGIN VERIFICATION LINK]", output_str_2)
+
+    def test_2fa_sent_only_once_while_pending_in_session(self):
+        user = User.objects.create_user(username='pending2fauser', password='Password123!', is_active=True)
+
+        captured_output_1 = io.StringIO()
+        sys.stdout = captured_output_1
+        sys.stderr = captured_output_1
+        try:
+            res1 = self.client.post(reverse('login'), {
+                'email': 'pending2fauser',
+                'password': 'Password123!'
+            })
+        finally:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+        self.assertContains(res1, "A 2FA login verification link has been sent to your email")
+        self.assertIn("[EMAIL 2FA LOGIN VERIFICATION LINK]", captured_output_1.getvalue())
+
+        # Second POST in the same session without verifying yet
+        captured_output_2 = io.StringIO()
+        sys.stdout = captured_output_2
+        sys.stderr = captured_output_2
+        try:
+            res2 = self.client.post(reverse('login'), {
+                'email': 'pending2fauser',
+                'password': 'Password123!'
+            })
+        finally:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+        self.assertContains(res2, "A 2FA login verification link has been sent to your email")
+        # Ensure it was not sent again
+        self.assertNotIn("[EMAIL 2FA LOGIN VERIFICATION LINK]", captured_output_2.getvalue())
+
+    def test_password_change_invalidates_2fa_session(self):
+        user = User.objects.create_user(username='pwdchangeuser', password='OldPassword123!', is_active=True)
+
+        # 1. First login with 2FA
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        sys.stderr = captured_output
+        try:
+            self.client.post(reverse('login'), {'email': 'pwdchangeuser', 'password': 'OldPassword123!'})
+        finally:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+        # Extract 2FA token url and verify
+        lines = captured_output.getvalue().splitlines()
+        twofa_url = next(line.strip() for line in lines if "/accounts/verify-2fa/" in line)
+        self.client.get(twofa_url, follow=True)
+
+        # 2. Change password
+        user.set_password('NewPassword456!')
+        user.save()
+
+        # 3. Log out and log back in with new password
+        self.client.post(reverse('logout'))
+
+        captured_output_after = io.StringIO()
+        sys.stdout = captured_output_after
+        sys.stderr = captured_output_after
+        try:
+            res = self.client.post(reverse('login'), {'email': 'pwdchangeuser', 'password': 'NewPassword456!'})
+        finally:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+        # Since password changed, 2FA must be required again
+        self.assertContains(res, "A 2FA login verification link has been sent to your email")
+        self.assertIn("[EMAIL 2FA LOGIN VERIFICATION LINK]", captured_output_after.getvalue())
+
+
+
+
+
+
 
 
 
