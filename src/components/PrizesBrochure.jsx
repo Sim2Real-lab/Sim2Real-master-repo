@@ -11,6 +11,12 @@ const PRIZES = [
   { title: 'Third Place', pool: 'Prize Pool (TBD)', emphasis: false }
 ];
 
+const JUDGES = [
+  { name: 'Dr. Jane Smith', role: 'Professor of AI', image: 'https://i.pravatar.cc/300?img=47' },
+  { name: 'John Doe', role: 'Industry Specialist', image: 'https://i.pravatar.cc/300?img=11' },
+  { name: 'Alice Cooper', role: 'Chief Engineer', image: 'https://i.pravatar.cc/300?img=32' }
+];
+
 /* HELPER COMPONENT: Physically stacks letters vertically */
 const VerticalText = ({ word, className }) => (
   <div className={cn("flex flex-col items-center leading-[0.85]", className)}>
@@ -22,14 +28,16 @@ const VerticalText = ({ word, className }) => (
 
 export const PrizesBrochure = () => {
   const containerRef = useRef(null);
+  const judgesRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
     
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray('.prize-card');
+      const prizeCards = gsap.utils.toArray('.prize-card');
+      const judgeCards = gsap.utils.toArray('.judge-card');
       
-      gsap.fromTo(cards, 
+      gsap.fromTo(prizeCards, 
         { y: 100, opacity: 0 },
         { 
           y: 0, 
@@ -38,12 +46,30 @@ export const PrizesBrochure = () => {
           stagger: 0.2, 
           ease: "power3.out",
           scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top 70%",
+            trigger: prizeCards[0],
+            start: "top 80%",
             toggleActions: "play none none reverse"
           }
         }
       );
+
+      if (judgeCards.length > 0) {
+        gsap.fromTo(judgeCards, 
+          { y: 100, opacity: 0 },
+          { 
+            y: 0, 
+            opacity: 1, 
+            duration: 0.8, 
+            stagger: 0.2, 
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: judgesRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
     }, containerRef);
 
     return () => ctx.revert();
@@ -74,7 +100,7 @@ export const PrizesBrochure = () => {
         </div>
 
         <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-50 pointer-events-none">
+          <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none">
             Exciting Prizes Await!
           </h2>
           <p id="prize-text" className="text-foreground/60 max-w-2xl mx-auto font-sans leading-relaxed">
@@ -106,6 +132,32 @@ export const PrizesBrochure = () => {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* JUDGES SECTION */}
+        <div className="text-center mb-16 w-full" ref={judgesRef}>
+          <h2 className="text-4xl md:text-6xl font-display font-bold mb-12 tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none">
+            Meet Our Judges
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto relative z-20">
+            {JUDGES.map((judge, i) => (
+              <div 
+                key={i}
+                className="judge-card flex flex-col items-center p-8 bg-white/40 backdrop-blur-xl border border-white/40 rounded-3xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-900/10"
+              >
+                <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-md">
+                  <img src={judge.image} alt={judge.name} className="w-full h-full object-cover" />
+                </div>
+                <h3 className="font-display font-bold text-foreground text-xl md:text-2xl tracking-tight mb-2">
+                  {judge.name}
+                </h3>
+                <p className="font-sans text-primary font-semibold text-xs md:text-sm tracking-wider uppercase text-center">
+                  {judge.role}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div> 
       {/* END CENTERED CONTAINER */}

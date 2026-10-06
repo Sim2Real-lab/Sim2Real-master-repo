@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -14,6 +14,11 @@ const TESTIMONIALS = [
     quote: "The workshops were incredibly insightful, bridging the gap between theoretical and practical robotics. This competition truly pushes the boundaries of innovation.",
     author: "Dr. Mervin Joe Thomas",
     role: "Faculty Advisor"
+  },
+  {
+    quote: "A transformative experience that exceeded our expectations. The resources and support provided allowed us to build robust solutions and learn immensely.",
+    author: "Jane Doe",
+    role: "Filler Role"
   }
 ];
 
@@ -33,6 +38,7 @@ const SplitQuote = ({ text }) => {
 
 export const Testimonials = () => {
   const sectionRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -65,7 +71,19 @@ export const Testimonials = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, []); // Run only on mount
+
+  const nextTestimonial = () => {
+    if (currentIndex < TESTIMONIALS.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const prevTestimonial = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
 
   return (
     // FIX 1: Stripped 'relative' and 'overflow-hidden' to match the Prizes section exactly
@@ -76,37 +94,58 @@ export const Testimonials = () => {
       <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-slate-300/40 rounded-full blur-[100px] mix-blend-multiply opacity-50 pointer-events-none"></div>
 
       {/* FIX 2: Switched to flex to match Prizes, stripped 'relative z-10' trap */}
-      <div className="max-w-6xl mx-auto px-6 flex flex-col items-center">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
         
-        {/* Wrapped Header in Card UI */}
-        <div className="p-8 md:p-10 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 mb-16 relative z-50">
+        <div className="text-center mb-16">
           <h2 
             id="innovators-title" 
-            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-foreground pointer-events-none"
+            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none"
           >
             Hear From Our Innovators
           </h2>
         </div>
         
         {/* FIX 4: Pushed the z-20 specifically to the cards grid so they float visually over the drone */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-20 w-full">
-          {TESTIMONIALS.map((t, i) => (
+        <div className="relative z-20 w-full max-w-5xl mx-auto flex items-center justify-center gap-4 md:gap-8">
+          
+          <button 
+            onClick={prevTestimonial}
+            className={`flex-shrink-0 p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          
+          <div className="flex-1 w-full max-w-4xl overflow-hidden p-6 -m-6 rounded-[2.5rem]">
             <div 
-              key={i} 
-              className="testimonial-card flex flex-col justify-between h-full p-10 md:p-12 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group"
+              className="flex transition-transform duration-700 ease-in-out h-full"
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              <div className="absolute top-10 text-primary/10 font-display text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
-                "
-              </div>
-              <p className="text-xl md:text-2xl font-sans text-foreground/80 leading-relaxed font-semibold z-10 relative mb-12 tracking-tight">
-                <SplitQuote text={t.quote} />
-              </p>
-              <div className="mt-auto relative z-10">
-                <div className="font-bold font-sans text-foreground text-lg tracking-tight">{t.author}</div>
-                <div className="text-sm font-semibold text-primary mt-1 uppercase tracking-wider">{t.role}</div>
-              </div>
+              {TESTIMONIALS.map((t, index) => (
+                <div key={index} className="w-full flex-shrink-0 px-2 py-2">
+                  <div className="testimonial-card flex flex-col justify-between h-full p-12 md:p-16 bg-white/60 backdrop-blur-xl border-2 border-black/80 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group">
+                    <div className="absolute top-10 text-primary/10 font-display text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
+                      "
+                    </div>
+                    <p className="text-xl md:text-3xl font-sans text-foreground/80 leading-relaxed font-semibold z-10 relative mb-12 tracking-tight min-h-[160px]">
+                      <SplitQuote text={t.quote} />
+                    </p>
+                    <div className="mt-auto relative z-10">
+                      <div className="font-bold font-sans text-foreground text-xl tracking-tight">{t.author}</div>
+                      <div className="text-sm font-semibold text-primary mt-1 uppercase tracking-wider">{t.role}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <button 
+            onClick={nextTestimonial}
+            className={`flex-shrink-0 p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === TESTIMONIALS.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          
         </div>
       </div>
     </section>
