@@ -78,15 +78,18 @@ export const Hero = () => {
         </div>
 
 {/* ── Right Decorative Column (Spline Robot Integration) ── */}
-<div className="hidden md:flex w-full md:w-1/2 h-[600px] relative items-center justify-center pointer-events-auto overflow-hidden">
+<div className="hidden md:flex w-full md:w-1/2 h-[600px] relative items-center justify-center pointer-events-auto">
   {sequenceStep >= 1 && (
     <FadeIn delay={0.4} duration={1.5} className="w-full h-full relative">
       
       <div className="w-full h-full scale-[1.05] origin-center relative">
         
-        {/* WATERMARK REMOVAL: We make the container taller than the parent so the watermark overflows at the bottom and is hidden by the parent's overflow-hidden! 
-            We shift it up by 80px so the robot remains perfectly centered. */}
-        <div className="absolute top-[-80px] left-0 w-full h-[calc(100%+160px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
+        {/* WATERMARK REMOVAL: We use clip-path to slice off exactly 80px from the top and bottom. 
+            This hides the watermark at the bottom, while allowing the hands to overflow the left/right sides without being clipped! */}
+        <div 
+          className="absolute top-[-80px] left-0 w-full h-[calc(100%+160px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]"
+          style={{ clipPath: "inset(80px 0 80px 0)" }}
+        >
           <Spline 
             scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
           />
