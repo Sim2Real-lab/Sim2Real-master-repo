@@ -586,3 +586,27 @@ body::before {
     max-width: 380px;
 }
 
+/* Back to Home Button Styling */
+.back-home-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 8px 16px !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: #1769d5 !important;
+    background: #f0f6ff !important;
+    border: 1px solid #cbd9e9 !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    margin-bottom: 12px !important;
+}
+
+.back-home-btn:hover {
+    background: #1769d5 !important;
+    color: #ffffff !important;
+    border-color: #1769d5 !important;
+    text-decoration: none !important;
+}
+
+
