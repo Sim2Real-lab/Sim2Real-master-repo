@@ -135,12 +135,12 @@ export const PrizesBrochure = () => {
         </div>
 
         {/* JUDGES SECTION */}
-        <div className="text-center mb-16 z-20 relative w-full" ref={judgesRef}>
-          <h2 className="text-3xl md:text-5xl font-display font-bold mb-12 tracking-tight text-foreground">
+        <div className="text-center mb-16 w-full" ref={judgesRef}>
+          <h2 className="text-4xl md:text-6xl font-display font-bold mb-12 tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none">
             Meet Our Judges
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto relative z-20">
             {JUDGES.map((judge, i) => (
               <div 
                 key={i}
