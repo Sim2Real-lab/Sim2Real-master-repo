@@ -84,18 +84,13 @@ export const Hero = () => {
       
       <div className="w-full h-full scale-[1.05] origin-center relative">
         
-        {/* THE COLOR FILTER: Hue shift to deep blue + lowered brightness for the "Dark" look */}
-        <div className="w-full h-full filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
+        {/* WATERMARK REMOVAL: We make the container taller than the parent so the watermark overflows at the bottom and is hidden by the parent's overflow-hidden! 
+            We shift it up by 60px so the robot remains perfectly centered. */}
+        <div className="absolute top-[-60px] left-0 w-full h-[calc(100%+120px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
           <Spline 
             scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
           />
         </div>
-        
-        {/* SURGICAL WATERMARK REMOVAL:
-            Spline badge is usually located at bottom right.
-            We use a larger div to ensure it's fully covered.
-        */}
-        <div className="absolute bottom-0 right-0 w-[300px] h-[100px] bg-white z-[999] translate-x-2 translate-y-2 pointer-events-none" />
         
       </div>
     </FadeIn>
