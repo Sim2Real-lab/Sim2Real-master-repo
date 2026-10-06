@@ -85,8 +85,8 @@ export const Hero = () => {
       <div className="w-full h-full scale-[1.05] origin-center relative">
         
         {/* WATERMARK REMOVAL: We make the container taller than the parent so the watermark overflows at the bottom and is hidden by the parent's overflow-hidden! 
-            We shift it up by 60px so the robot remains perfectly centered. */}
-        <div className="absolute top-[-60px] left-0 w-full h-[calc(100%+120px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
+            We shift it up by 80px so the robot remains perfectly centered. */}
+        <div className="absolute top-[-80px] left-0 w-full h-[calc(100%+160px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
           <Spline 
             scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
           />
