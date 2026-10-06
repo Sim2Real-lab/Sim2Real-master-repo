@@ -12,7 +12,7 @@ import csv
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm,TrackForm
-from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest
+from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig
 
 @login_required
 @organiser_only
@@ -485,20 +485,53 @@ def announcement_edit(request, pk):
 
     return render(request, 'staff_home/announcment_edit.html', {'form': form})
 @login_required
+@login_required
 @organiser_only
 def verify_payments(request, team_id=None):
     """
-    Handles both:
-    - POST: verify a specific team
-    - GET: list all teams with optional search/status filters
+    Organizer Payment Portal:
+    - POST: Approve or Reject payment for a specific team OR update PaymentConfig (amount, payee name, QR code)
+    - GET: List all teams with search, status filters, and PaymentConfig settings
     """
-    # POST: verify a specific team
+    payment_config, _ = PaymentConfig.objects.get_or_create(id=1)
+
+    # POST: handle update payment config
+    if request.method == "POST" and "update_payment_config" in request.POST:
+        amount = request.POST.get("amount")
+        payee_name = request.POST.get("payee_name", "").strip()
+        qr_code = request.FILES.get("qr_code")
+
+        if amount:
+            payment_config.amount = amount
+        if payee_name:
+            payment_config.payee_name = payee_name
+        if qr_code:
+            payment_config.qr_code = qr_code
+        payment_config.save()
+
+        messages.success(request, "Payment Settings (QR Code, Fee Amount, Payee Name) updated successfully!")
+        return redirect('verify_payments')
+
+    # POST: approve or reject team payment
     if request.method == "POST" and team_id:
         team = get_object_or_404(Team, id=team_id)
-        team.is_verified = True
-        team.save()
-        messages.success(request, f"Team '{team.name}' payment verified.")
-        return redirect('verify_payments')  # redirect to the list view
+        action = request.POST.get("action", "approve")
+
+        if action == "approve":
+            team.is_paid = True
+            team.is_verified = True
+            team.rejection_reason = None
+            team.save()
+            messages.success(request, f"Payment for team '{team.name}' has been APPROVED.")
+        elif action == "reject":
+            reason = request.POST.get("rejection_reason", "").strip() or "Transaction ID / screenshot proof could not be verified."
+            team.is_paid = False
+            team.is_verified = False
+            team.rejection_reason = reason
+            team.save()
+            messages.warning(request, f"Payment for team '{team.name}' has been REJECTED. Rejection note recorded.")
+
+        return redirect('verify_payments')
 
     # GET: list all teams
     teams = Team.objects.all().order_by('-id')
@@ -508,6 +541,7 @@ def verify_payments(request, team_id=None):
     if query:
         teams = teams.filter(
             Q(name__icontains=query) |
+            Q(payment_ref__icontains=query) |
             Q(leader__first_name__icontains=query) |
             Q(leader__last_name__icontains=query) |
             Q(leader__email__icontains=query)
@@ -517,18 +551,28 @@ def verify_payments(request, team_id=None):
     status = request.GET.get("status", "").lower()
     if status == "pending":
         teams = teams.filter(is_paid=True, is_verified=False)
-    elif status == "verified":
+    elif status in ["verified", "approved"]:
         teams = teams.filter(is_paid=True, is_verified=True)
+    elif status == "rejected":
+        teams = teams.filter(is_paid=False, rejection_reason__isnull=False).exclude(rejection_reason="")
     elif status == "unpaid":
-        teams = teams.filter(is_paid=False)
-    # else: show all if no status filter
+        teams = teams.filter(is_paid=False, rejection_reason__isnull=True)
+
+    pending_count = Team.objects.filter(is_paid=True, is_verified=False).count()
+    approved_count = Team.objects.filter(is_paid=True, is_verified=True).count()
+    rejected_count = Team.objects.filter(is_paid=False, rejection_reason__isnull=False).exclude(rejection_reason="").count()
 
     context = {
         "teams": teams,
         "query": query,
         "status": status,
+        "pending_count": pending_count,
+        "approved_count": approved_count,
+        "rejected_count": rejected_count,
+        "payment_config": payment_config,
     }
     return render(request, "staff_home/verify_payments.html", context)
+
 
 @login_required
 @organiser_only

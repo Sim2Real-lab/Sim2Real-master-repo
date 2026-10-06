@@ -778,9 +778,10 @@
             <i class="fa-solid fa-people-group nav-icon"></i>
             <span class="sidebar-nav-text">Check Teams</span>
           </a>
-          <a href="{% url 'verify_payments' %}" class="sidebar-nav-item">
-            <i class="fa-solid fa-users nav-icon"></i>
-            <span class="sidebar-nav-text">Payment Status</span>
+          <a href="{% url 'verify_payments' %}"
+            class="sidebar-nav-item {% if request.resolver_match.url_name == 'verify_payments' or request.resolver_match.url_name == 'view_payment_screenshot' %}active{% endif %}">
+            <i class="fa-solid fa-credit-card nav-icon"></i>
+            <span class="sidebar-nav-text">Payment Portal</span>
           </a>
         </div>
 

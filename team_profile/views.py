@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import JoinRequest,Team
 from .forms import TeamCreationForm, JoinCodeForm, PaymentProofForm
+from staff_home.models import PaymentConfig
 from django.contrib import messages
 from django.db import transaction
 from .decorator import user_view,profile_updated
@@ -185,11 +186,7 @@ def manage_requests(request):
         return redirect('manage_requests')
 
     # ✅ now handle GET logic
-    if team.is_paid and team.is_verified:
-        messages.info(request, "Team is registered and payment completed. No further changes allowed.")
-        team_locked = True
-    elif team.is_paid and not team.is_verified:
-        messages.info(request, "Team payment completed. Waiting for Verification.")
+    if team.is_paid:
         team_locked = True
     else:
         team_locked = False
@@ -227,20 +224,16 @@ def register_for_event(request):
 @profile_updated
 def payment_view(request):
     """
-    Show payment page for both NITK and outsider teams.
-    NITK: upload ID card + roll number
-    Outsiders: upload payment screenshot + payment reference
+    Payment Portal for Participant Team Leaders:
+    - Upload Transaction ID & Screenshot
+    - View status: Pending Approval, Approved/Verified, or Rejected with reason
     """
     if not hasattr(request.user, 'led_team'):
-        messages.error(request, "You don't lead any team.")
+        messages.error(request, "You don't lead any team. Form or join a team first.")
         return redirect('teamprofile')
 
     team = request.user.led_team
     is_nitk_team = not team.is_outsider()
-
-    if team.is_paid:
-        messages.info(request, "Payment proof already submitted.")
-        return redirect('teamprofile')
 
     if request.method == 'POST':
         form = PaymentProofForm(request.POST, request.FILES, instance=team)
@@ -248,32 +241,39 @@ def payment_view(request):
             team = form.save(commit=False)
             team.is_paid = True
             team.is_verified = False
+            team.rejection_reason = None  # Reset previous rejection reason on new submission
 
-            screenshot = form.cleaned_data.get("payment_screenshot")
+            screenshot = form.cleaned_data.get("payment_screenshot") or team.payment_screenshot
 
             if is_nitk_team:
-                # Require roll number and ID card
-                if not getattr(team, 'roll_number', None) or not screenshot:
-                    messages.error(request, "Provide your roll number and upload ID card.")
+                pay_ref = request.POST.get('roll_number') or request.POST.get('payment_ref') or getattr(team, 'payment_ref', '')
+                if not pay_ref or not screenshot:
+                    messages.error(request, "Please provide your Roll Number / Reference ID and upload ID card / screenshot.")
                     return redirect('payment_page')
-                screenshot.name = f"{team.roll_number}.png"
+                team.payment_ref = pay_ref
+                screenshot.name = f"{team.payment_ref}.png"
                 team.payment_screenshot = screenshot
             else:
-                # Require payment reference and screenshot
                 if not team.payment_ref or not screenshot:
-                    messages.error(request, "Provide payment reference and upload screenshot.")
+                    messages.error(request, "Please provide your Transaction ID and upload the payment screenshot.")
                     return redirect('payment_page')
                 screenshot.name = f"{team.payment_ref}.png"
                 team.payment_screenshot = screenshot
 
             team.save()
-            messages.success(request, "Payment proof uploaded. Waiting for verification by organisers.")
-            return redirect('teamprofile')
+            messages.success(request, "Payment proof & Transaction ID submitted successfully! Waiting for organizer approval.")
+            return redirect('payment_page')
+        else:
+            messages.error(request, "Invalid input. Please check the Transaction ID and screenshot file.")
     else:
         form = PaymentProofForm(instance=team)
+
+    payment_config, _ = PaymentConfig.objects.get_or_create(id=1)
 
     return render(request, 'team_profile/register_pay.html', {
         'team': team,
         'form': form,
-        'is_nitk_team': is_nitk_team
+        'is_nitk_team': is_nitk_team,
+        'payment_config': payment_config
     })
+

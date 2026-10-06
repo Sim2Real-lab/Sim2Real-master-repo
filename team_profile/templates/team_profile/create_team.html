@@ -210,11 +210,6 @@
 
 <!-- TEAM CREATION / JOIN CODE BOX -->
 <div class="create-team-page">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
 
     {% if form.errors %}
         <div class="alert alert-danger">

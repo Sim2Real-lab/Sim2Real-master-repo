@@ -69,16 +69,37 @@
       {% csrf_token %}
       <strong class="instruction">All the below fields are mandatory</strong>
 
-      <!-- Messages -->
+      <!-- Messages (Top Right Toast) -->
       {% if messages %}
-      <div class="messages-container my-3">
+      <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="toast show align-items-center text-white 
+          {% if message.tags == 'success' %}bg-success
+          {% elif message.tags == 'error' or message.tags == 'danger' %}bg-danger
+          {% elif message.tags == 'warning' %}bg-warning
+          {% else %}bg-info{% endif %} 
+          border-0 mb-2 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="fa-solid 
+                {% if message.tags == 'success' %}fa-circle-check
+                {% elif message.tags == 'error' or message.tags == 'danger' %}fa-circle-exclamation
+                {% elif message.tags == 'warning' %}fa-triangle-exclamation
+                {% else %}fa-circle-info{% endif %} me-2"></i>{{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
         </div>
         {% endfor %}
       </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+          toastElList.forEach(function(toastEl) {
+            new bootstrap.Toast(toastEl, { delay: 5000 }).show();
+          });
+        });
+      </script>
       {% endif %}
 
       <section class="personal-details">

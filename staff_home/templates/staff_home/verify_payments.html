@@ -1,140 +1,255 @@
 {% extends "staff_home/base.html" %}
+{% load static %}
 
-{% block extra_styles %}
-<style>
-    .payment-card {
-        background: rgba(30, 30, 40, 0.95);
-        padding: 20px;
-        margin: 20px auto;
-        border-radius: 12px;
-        max-width: 700px;
-        color: #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-
-    .payment-card h3 {
-        margin-bottom: 10px;
-        font-size: 20px;
-        font-weight: 600;
-    }
-
-    .screenshot {
-        margin: 15px 0;
-        text-align: center;
-    }
-
-    .screenshot img {
-        max-width: 100%;
-        max-height: 350px;
-        border-radius: 8px;
-        border: 1px solid #444;
-    }
-
-    .actions {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        margin-top: 15px;
-    }
-
-    .btn-verify {
-        background: #28a745;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        color: #fff;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-    .btn-reject {
-        background: #dc3545;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        color: #fff;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-    .btn-verify:hover { background: #218838; }
-    .btn-reject:hover { background: #c82333; }
-
-    .filter-bar {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-start;
-        margin: 20px auto;
-        max-width: 700px;
-    }
-
-    .filter-bar input, .filter-bar select, .filter-bar button {
-        padding: 6px 10px;
-        border-radius: 6px;
-        border: 1px solid #555;
-        background: #222;
-        color: #fff;
-    }
-
-    .filter-bar button {
-        background: #007bff;
-        border: none;
-        cursor: pointer;
-    }
-
-    .filter-bar button:hover {
-        background: #0069d9;
-    }
-</style>
-{% endblock %}
+{% block title %}Organizer Payment Portal | SIM2REAL Staff{% endblock %}
 
 {% block content %}
+<div class="container-fluid p-0">
 
-<div class="filter-bar">
-    <form method="get" style="display:flex; gap: 10px; width:100%;">
-        <input type="text" name="q" placeholder="Search team or leader" value="{{ query }}">
-        <select name="status">
-            <option value="" {% if status == "" %}selected{% endif %}>All</option>
-            <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
-            <option value="verified" {% if status == "verified" %}selected{% endif %}>Verified</option>
-            <option value="unpaid" {% if status == "unpaid" %}selected{% endif %}>Unpaid</option>
-        </select>
-        <button type="submit">Filter</button>
-    </form>
-</div>
+  <!-- Header Banner -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.75rem;">
+        <i class="fa-solid fa-credit-card text-primary me-2"></i>Organizer Payment Portal
+      </h2>
+      <p class="text-muted mb-0" style="font-size: 0.9rem;">Review participant transaction IDs, payment screenshots, and approve or reject registrations.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 fs-6">
+        <i class="fa-solid fa-clock me-1"></i> {{ pending_count }} Pending
+      </span>
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+        <i class="fa-solid fa-check me-1"></i> {{ approved_count }} Approved
+      </span>
+      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6">
+        <i class="fa-solid fa-xmark me-1"></i> {{ rejected_count }} Rejected
+      </span>
+    </div>
+  </div>
 
-{% if teams %}
-    {% for team in teams %}
-        <div class="payment-card">
-            <h3>Payment Proof – Team {{ team.name }}</h3>
-            <p><strong>Reference No:</strong> {{ team.payment_ref|default:"N/A" }}</p>
-            <p><strong>Status:</strong> 
-                {% if team.is_verified %}
-                    ✅ Verified
-                {% elif team.is_paid %}
-                    ⏳ Pending Verification
-                {% else %}
-                    ❌ Not Submitted
-                {% endif %}
-            </p>
+  <!-- Configure Payment Settings Card (Organizer Control Block) -->
+  <div class="card shadow-sm border-0 mb-4 bg-white rounded-3">
+    <div class="card-header bg-light border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0 text-dark" style="color: #0b2a5b;">
+        <i class="fa-solid fa-sliders text-primary me-2"></i>Configure Payment Details (Participant View)
+      </h5>
+      <button class="btn btn-sm btn-outline-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#paymentConfigCollapse" aria-expanded="false" aria-controls="paymentConfigCollapse">
+        <i class="fa-solid fa-pen-to-square me-1"></i> Edit Settings
+      </button>
+    </div>
+    <div class="collapse show" id="paymentConfigCollapse">
+      <div class="card-body p-4 border-top">
+        <form method="post" action="{% url 'verify_payments' %}" enctype="multipart/form-data" class="row g-3 align-items-center">
+          {% csrf_token %}
+          <input type="hidden" name="update_payment_config" value="1">
+          
+          <div class="col-md-3 text-center border-end pe-md-4">
+            <label class="form-label fw-semibold text-muted small d-block">Current QR Code</label>
+            {% if payment_config.qr_code %}
+              <img src="{{ payment_config.qr_code.url }}" alt="UPI QR Code" class="img-thumbnail rounded-3 shadow-sm mb-2" style="max-height: 120px; max-width: 120px; object-fit: contain;">
+            {% else %}
+              <img src="{% static 'images/qr.jpeg' %}" alt="Default QR Code" class="img-thumbnail rounded-3 shadow-sm mb-2" style="max-height: 120px; max-width: 120px; object-fit: contain;">
+            {% endif %}
+            <span class="d-block text-muted" style="font-size: 0.75rem;">Reflected on participant portal</span>
+          </div>
 
-             {% if team.payment_screenshot %}
-<a href="{{ team.payment_screenshot.url }}" target="_blank" class="btn-verify" style="background:#17a2b8;">View Screenshot</a>
-{% endif %}
+          <div class="col-md-9">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="id_amount" class="form-label fw-semibold text-dark small">Registration Fee Amount (₹)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light font-monospace fw-bold">₹</span>
+                  <input type="number" step="0.01" min="0" name="amount" id="id_amount" class="form-control" value="{{ payment_config.amount }}" required>
+                </div>
+              </div>
 
+              <div class="col-md-6">
+                <label for="id_payee_name" class="form-label fw-semibold text-dark small">Payee / Account Name</label>
+                <input type="text" name="payee_name" id="id_payee_name" class="form-control" value="{{ payment_config.payee_name }}" placeholder="e.g. SIM2REAL NITK Robotics Club" required>
+              </div>
 
-            <div class="actions">
-                {% if team.is_paid and not team.is_verified %}
-                <form method="post" action="{% url 'verify_payments' team.id %}">
-                    {% csrf_token %}
-                    <button class="btn-verify" type="submit">✔ Verify</button>
-                </form>
-                {% endif %}
+              <div class="col-12">
+                <label for="id_qr_code" class="form-label fw-semibold text-dark small">Upload New QR Code Image (PNG / JPG)</label>
+                <input type="file" name="qr_code" id="id_qr_code" class="form-control" accept="image/*">
+                <span class="text-muted small">Select a file to replace current QR image or leave empty to keep existing.</span>
+              </div>
+
+              <div class="col-12 text-end mt-3">
+                <button type="submit" class="btn btn-primary fw-semibold px-4">
+                  <i class="fa-solid fa-floppy-disk me-1"></i> Save Payment Settings
+                </button>
+              </div>
             </div>
-        </div>
-    {% endfor %}
-{% else %}
-    <p style="text-align:center; color:#ccc; margin-top:30px;">No teams found.</p>
-{% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
+  <!-- Search & Filter Controls -->
+  <div class="card p-3 mb-4 shadow-sm border-0 bg-white rounded-3">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-5 col-sm-12">
+        <div class="input-group">
+          <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search by team name, leader, email, or Transaction ID..." value="{{ query }}">
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-8">
+        <select name="status" class="form-select" onchange="this.form.submit()">
+          <option value="" {% if status == "" %}selected{% endif %}>All Payment Statuses</option>
+          <option value="pending" {% if status == "pending" %}selected{% endif %}>⏳ Pending Approval ({{ pending_count }})</option>
+          <option value="approved" {% if status == "approved" or status == "verified" %}selected{% endif %}>✅ Approved / Verified ({{ approved_count }})</option>
+          <option value="rejected" {% if status == "rejected" %}selected{% endif %}>❌ Rejected ({{ rejected_count }})</option>
+          <option value="unpaid" {% if status == "unpaid" %}selected{% endif %}>⚪ Unpaid / No Proof</option>
+        </select>
+      </div>
+      <div class="col-md-3 col-sm-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100 fw-semibold">
+          <i class="fa-solid fa-filter me-1"></i> Filter
+        </button>
+        {% if query or status %}
+        <a href="{% url 'verify_payments' %}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Teams Payment Cards List -->
+  {% if teams %}
+  <div class="row g-3">
+    {% for team in teams %}
+    <div class="col-12">
+      <div class="card shadow-sm border rounded-3 bg-white p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3 pb-3 border-bottom">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <h4 class="fw-bold text-dark mb-0 me-2">{{ team.name }}</h4>
+              {% if team.is_outsider %}
+                <span class="badge bg-secondary">Outsider Team</span>
+              {% else %}
+                <span class="badge bg-info text-dark">NITK Team</span>
+              {% endif %}
+            </div>
+            <p class="text-muted mb-0 small">
+              <i class="fa-solid fa-user me-1 text-primary"></i> <strong>Leader:</strong> {{ team.leader.get_full_name|default:team.leader.username }} ({{ team.leader.email }})
+              &bull; <i class="fa-solid fa-users me-1 text-primary"></i> <strong>Members:</strong> {{ team.members.count }}
+            </p>
+          </div>
+          <div>
+            {% if team.is_verified %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
+                <i class="fa-solid fa-circle-check me-1"></i> Approved & Verified
+              </span>
+            {% elif team.is_paid %}
+              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 fs-6 rounded-pill">
+                <i class="fa-solid fa-clock me-1"></i> Pending Approval
+              </span>
+            {% elif team.rejection_reason %}
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
+                <i class="fa-solid fa-circle-xmark me-1"></i> Rejected
+              </span>
+            {% else %}
+              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 fs-6 rounded-pill">
+                <i class="fa-solid fa-circle-info me-1"></i> No Proof Uploaded
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="row align-items-center g-3">
+          <!-- Transaction Details -->
+          <div class="col-md-6 col-lg-5">
+            <div class="p-3 bg-light rounded-3 border">
+              <div class="mb-2">
+                <span class="text-muted small d-block">Transaction ID / UPI Reference:</span>
+                <span class="fw-bold text-dark font-monospace fs-6">{{ team.payment_ref|default:"Not Provided" }}</span>
+              </div>
+              {% if team.rejection_reason %}
+              <div class="mt-2 pt-2 border-top text-danger small">
+                <strong>Rejection Note:</strong> {{ team.rejection_reason }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Screenshot Preview -->
+          <div class="col-md-6 col-lg-4 text-center text-md-start">
+            {% if team.payment_screenshot %}
+            <div class="d-flex align-items-center gap-3">
+              <a href="{{ team.payment_screenshot.url }}" target="_blank" title="Click to open image in new tab">
+                <img src="{{ team.payment_screenshot.url }}" alt="Screenshot Proof" class="img-thumbnail rounded-3 border shadow-sm" style="max-height: 90px; max-width: 140px; object-fit: cover;">
+              </a>
+              <div>
+                <a href="{{ team.payment_screenshot.url }}" target="_blank" class="btn btn-sm btn-outline-primary fw-semibold rounded-2 mb-1 d-inline-block">
+                  <i class="fa-solid fa-expand me-1"></i> View Screenshot
+                </a>
+                <span class="text-muted d-block small">Click thumbnail to expand</span>
+              </div>
+            </div>
+            {% else %}
+            <span class="text-muted small"><i class="fa-solid fa-image-slash me-1"></i> No screenshot uploaded yet</span>
+            {% endif %}
+          </div>
+
+          <!-- Approval / Rejection Action Buttons -->
+          <div class="col-lg-3 text-lg-end text-center">
+            <div class="d-flex flex-column gap-2 justify-content-center">
+              
+              {% if not team.is_verified %}
+              <form method="post" action="{% url 'verify_payments' team.id %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="approve">
+                <button type="submit" class="btn btn-success fw-semibold w-100 rounded-2">
+                  <i class="fa-solid fa-check me-1"></i> Approve Payment
+                </button>
+              </form>
+              {% else %}
+              <div class="text-success small fw-semibold mb-1">
+                <i class="fa-solid fa-circle-check me-1"></i> Approved
+              </div>
+              {% endif %}
+
+              <!-- Reject Button trigger modal or inline form -->
+              <button type="button" class="btn btn-outline-danger btn-sm fw-semibold w-100 rounded-2" data-bs-toggle="collapse" data-bs-target="#rejectCollapse{{ team.id }}" aria-expanded="false">
+                <i class="fa-solid fa-xmark me-1"></i> Reject Submission
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Inline Rejection Form Collapse -->
+          <div class="collapse col-12 mt-3" id="rejectCollapse{{ team.id }}">
+            <div class="p-3 bg-danger-subtle bg-opacity-25 border border-danger rounded-3">
+              <form method="post" action="{% url 'verify_payments' team.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <label for="reason_{{ team.id }}" class="form-label fw-semibold text-danger small mb-1">
+                  Reason for Rejection (Visible to Team Leader):
+                </label>
+                <div class="input-group">
+                  <input type="text" name="rejection_reason" id="reason_{{ team.id }}" class="form-control form-control-sm" placeholder="e.g. Transaction ID invalid or screenshot image unreadable" required>
+                  <button type="submit" class="btn btn-danger btn-sm fw-semibold">
+                    Confirm Rejection
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5 bg-white border rounded-3 my-3">
+    <i class="fa-solid fa-folder-open text-muted" style="font-size: 3rem;"></i>
+    <h5 class="fw-bold text-dark mt-3">No teams found</h5>
+    <p class="text-muted small">No teams match your selected filter or search criteria.</p>
+  </div>
+  {% endif %}
+
+</div>
 {% endblock %}

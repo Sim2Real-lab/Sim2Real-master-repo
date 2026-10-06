@@ -173,3 +173,14 @@ class EmailLog(models.Model):
 
     def __str__(self):
         return f"{self.task_type} Email to {self.recipient} - {self.status}"
+
+
+class PaymentConfig(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=500.00, help_text="Registration fee amount in INR")
+    payee_name = models.CharField(max_length=150, default="Sim2Real Robotech NITK", help_text="Payee / Account Name")
+    qr_code = models.ImageField(upload_to="payment_qr/", blank=True, null=True, help_text="UPI QR Code image")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Payment Config (₹{self.amount} - {self.payee_name})"
+

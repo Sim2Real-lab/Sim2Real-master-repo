@@ -1,181 +1,224 @@
 {% extends 'team_profile/team_base.html' %}
-{%load static%}
-{% block extra_styles %}
-<style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    h2 {
-        color: #ffffff;
-        margin-bottom: 15px;
-        text-align: center;
-        font-weight: 600;
-    }
-
-    p, strong, label {
-        color: #dddddd;
-        font-size: 14px;
-    }
-
-    .container {
-        background-color: rgba(31, 32, 35, 0.9);
-        padding: 30px 25px;
-        border-radius: 15px;
-        margin: 80px auto 0 auto;
-        width: 380px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
-    }
-
-    form {
-        width: 100%;
-        margin-top: 15px;
-    }
-
-    input, select, textarea {
-        background: rgba(128, 128, 128, 0.25);
-        border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.15);
-        color: #fff;
-        width: 100%;
-        padding: 10px 12px;
-        margin: 10px 0 18px 0;
-        font-size: 14px;
-        transition: background 0.3s ease, border 0.3s ease;
-    }
-
-    input:focus, select:focus, textarea:focus {
-        background-color: rgba(180, 180, 180, 0.25);
-        border: 1px solid #0092e7;
-        outline: none;
-    }
-
-    button {
-        background: linear-gradient(90deg, #0057e7, #0092e7);
-        cursor: pointer;
-        color: #fff;
-        padding: 10px;
-        border: none;
-        font-size: 15px;
-        font-weight: 600;
-        margin: 10px auto 0 auto;
-        width: 100%;
-        border-radius: 8px;
-        transition: all 0.3s ease-in-out;
-    }
-
-    button:hover {
-        background: linear-gradient(90deg, #0092e7, #0057e7);
-        box-shadow: 0px 3px 8px rgba(0, 146, 231, 0.4);
-    }
-
-    ul.errorlist {
-        color: #ff4d4d;
-        font-size: 13px;
-        margin: -5px 0 10px 0;
-        padding-left: 15px;
-        list-style: none;
-    }
-
-    ul.errorlist li {
-        margin-bottom: 5px;
-    }
-
-    .free-registration-banner {
-        background-color: #28a745;
-        color: #fff;
-        padding: 12px 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    /* ✅ QR styling */
-    .qr-section {
-        margin: 20px 0;
-        text-align: center;
-    }
-
-    .qr-section img {
-        width: 200px;
-        height: 200px;
-        border-radius: 10px;
-        border: 2px solid #0092e7;
-        margin-bottom: 10px;
-    }
-
-    .qr-note {
-        font-size: 13px;
-        color: #bbbbbb;
-        margin-bottom: 15px;
-    }
-</style>
-{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="container">
-
-  {% if not team.is_outsider %}
-  <div class="free-registration-banner">
-      As all team members are NITK students, your team has been registered for free.
-      {% if not team.is_verified %} Waiting for organiser verification. {% endif %}
-  </div>
-  {% endif %}
-
-  <h2>Payment for Team: {{ team.name }}</h2>
-  <p>Total members: {{ team.members.count }}</p>
-
-  {% if team.is_outsider %}
-  <p>Amount to be paid: <strong>₹500</strong></p>
-
-  <!-- ✅ QR Code Section -->
-  <div class="qr-section">
-      <img src="{% static 'assets/upi_qr.jpg' %}" alt="UPI QR Code">
-      <p class="qr-note">Scan this QR code to pay using any UPI app (PhonePe, GPay, Paytm, etc.)</p>
-  </div>
-
-  <h2>Submit Payment Proof</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload & Submit</button>
-  </form>
-  {% else %}
-  <p>Amount to be paid: <strong>Free</strong></p>
-  {% endif %}
-
-  <p style="margin-bottom: 20px; font-size: 13px; text-align: center;">
-    By submitting, you confirm that all details are correct.  
-    For any concerns, raise a query or contact organisers.
-  </p>
-</div>
-
-{% if messages %}
-<div class="toast-container position-fixed top-0 end-0 p-3">
-  {% for message in messages %}
-  <div class="toast align-items-center text-white bg-{{ message.tags }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ message }}
-      </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+<div class="team-card-container mx-auto" style="max-width: 850px;">
+  
+  <!-- Header Banner -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.6rem;">
+        <i class="fa-solid fa-credit-card text-primary me-2"></i>Payment Portal
+      </h2>
+      <p class="text-muted mb-0" style="font-size: 0.9rem;">
+        Team: <strong>{{ team.name }}</strong> &bull; Total Members: {{ team.members.count }}
+      </p>
+    </div>
+    <div>
+      {% if team.is_verified %}
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
+          <i class="fa-solid fa-circle-check me-1"></i> Payment Approved & Verified
+        </span>
+      {% elif team.is_paid %}
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 fs-6 rounded-pill">
+          <i class="fa-solid fa-clock me-1"></i> Waiting for Organizer Approval
+        </span>
+      {% elif team.rejection_reason %}
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
+          <i class="fa-solid fa-circle-xmark me-1"></i> Payment Rejected
+        </span>
+      {% endif %}
     </div>
   </div>
-  {% endfor %}
+
+  <!-- Rejection Alert Notice -->
+  {% if team.rejection_reason and not team.is_paid and not team.is_verified %}
+  <div class="alert alert-danger border-danger shadow-sm rounded-3 p-3 mb-4" role="alert">
+    <div class="d-flex align-items-start gap-3">
+      <i class="fa-solid fa-triangle-exclamation text-danger fs-3 mt-1"></i>
+      <div>
+        <h5 class="fw-bold mb-1">Previous Payment Proof Rejected</h5>
+        <p class="mb-2" style="font-size: 0.92rem;">
+          <strong>Organizer Note:</strong> {{ team.rejection_reason }}
+        </p>
+        <span class="text-muted small">Please re-verify your Transaction ID and upload a clear screenshot of the payment receipt below.</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Approved Payment Details -->
+  {% if team.is_verified %}
+  <div class="card border-success bg-success-subtle bg-opacity-10 p-4 rounded-3 mb-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.4rem;">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <div>
+        <h4 class="fw-bold mb-0 text-success">Registration Approved!</h4>
+        <p class="text-muted mb-0 small">Your team payment has been verified by the event organizers.</p>
+      </div>
+    </div>
+
+    <div class="row g-3 bg-white p-3 rounded-3 border">
+      <div class="col-sm-6">
+        <span class="text-muted d-block small">Transaction ID / Reference:</span>
+        <strong class="text-dark fs-6">{{ team.payment_ref|default:"Verified" }}</strong>
+      </div>
+      <div class="col-sm-6">
+        <span class="text-muted d-block small">Status:</span>
+        <strong class="text-success fs-6"><i class="fa-solid fa-shield-check me-1"></i>Verified & Unlocked</strong>
+      </div>
+      {% if team.payment_screenshot %}
+      <div class="col-12 mt-3 pt-2 border-top">
+        <span class="text-muted d-block small mb-2">Uploaded Proof Screenshot:</span>
+        <a href="{{ team.payment_screenshot.url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-2">
+          <i class="fa-solid fa-image me-1"></i> View Submitted Screenshot
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Pending Approval Details -->
+  {% elif team.is_paid %}
+  <div class="card border-warning bg-warning-subtle bg-opacity-10 p-4 rounded-3 mb-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.4rem;">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <div>
+        <h4 class="fw-bold mb-0 text-warning-emphasis">Proof Submitted — Pending Approval</h4>
+        <p class="text-muted mb-0 small">Your payment proof has been uploaded. An organizer will review and approve your submission shortly.</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-3 rounded-3 border mb-3">
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <span class="text-muted d-block small">Transaction ID / Reference:</span>
+          <strong class="text-dark fs-6">{{ team.payment_ref|default:"Submitted" }}</strong>
+        </div>
+        <div class="col-sm-6">
+          <span class="text-muted d-block small">Approval Status:</span>
+          <strong class="text-warning-emphasis fs-6"><i class="fa-solid fa-spinner fa-spin me-1"></i>Under Organizer Review</strong>
+        </div>
+        {% if team.payment_screenshot %}
+        <div class="col-12 mt-2 pt-2 border-top">
+          <span class="text-muted d-block small mb-2">Submitted Screenshot:</span>
+          <a href="{{ team.payment_screenshot.url }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-2 me-2">
+            <i class="fa-solid fa-image me-1"></i> View Proof Screenshot
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Optional Option to update -->
+    <details class="mt-2">
+      <summary class="text-primary fw-semibold cursor-pointer" style="font-size: 0.9rem;">
+        <i class="fa-solid fa-pen-to-square me-1"></i> Need to update Transaction ID or Screenshot?
+      </summary>
+      <div class="bg-white p-3 rounded-3 border mt-3">
+        <form method="post" enctype="multipart/form-data" class="needs-validation">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_payment_ref" class="form-label fw-semibold text-dark">Transaction ID / UPI Reference Number</label>
+            <input type="text" name="payment_ref" id="id_payment_ref" class="form-control" value="{{ team.payment_ref|default:'' }}" placeholder="e.g. 329182749102" required>
+          </div>
+          <div class="mb-3">
+            <label for="id_payment_screenshot" class="form-label fw-semibold text-dark">Upload New Payment Screenshot</label>
+            <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control" accept="image/*">
+          </div>
+          <button type="submit" class="btn btn-primary fw-semibold px-4 py-2 rounded-2">
+            <i class="fa-solid fa-rotate me-1"></i> Update Payment Details
+          </button>
+        </form>
+      </div>
+    </details>
+  </div>
+
+  <!-- Form for Uploading Transaction ID and Screenshot -->
+  {% else %}
+  
+  {% if is_nitk_team %}
+  <div class="alert alert-info border-info rounded-3 p-3 mb-4">
+    <i class="fa-solid fa-graduation-cap text-info me-2 fs-5"></i>
+    <strong>NITK Student Team:</strong> As all team members are NITK students, event registration is free. Please upload your Student ID Card / Roll Number for organizer verification.
+  </div>
+  {% else %}
+  <div class="row g-4 mb-4 align-items-center">
+    <!-- QR Code Section -->
+    <div class="col-md-5 text-center">
+      <div class="p-3 bg-light border rounded-3 shadow-sm">
+        <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
+        <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
+        {% if payment_config and payment_config.qr_code %}
+        <img src="{{ payment_config.qr_code.url }}" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
+        {% else %}
+        <img src="{% static 'assets/upi_qr.jpg' %}" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
+        {% endif %}
+        <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
+        <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">Fee: ₹{{ payment_config.amount|default:"500"|floatformat:0 }} / team</div>
+      </div>
+    </div>
+    <!-- Payment Instructions -->
+    <div class="col-md-7">
+      <div class="p-3 bg-light border rounded-3">
+        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-list-check text-primary me-2"></i>Instructions</h6>
+        <ol class="text-muted small ps-3 mb-0">
+          <li class="mb-2">Complete payment of <strong>₹{{ payment_config.amount|default:"500"|floatformat:0 }}</strong> to the QR code / Payee name shown.</li>
+          <li class="mb-2">Copy the 12-digit <strong>UPI Reference Number / Transaction ID</strong> from your UPI app receipt.</li>
+          <li class="mb-2">Take a clear <strong>screenshot</strong> of the completed payment page.</li>
+          <li>Enter the Transaction ID and upload the screenshot image below.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Upload Form -->
+  <div class="card p-4 border rounded-3 shadow-sm bg-white">
+    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>Submit Transaction Details</h5>
+    
+    <form method="post" enctype="multipart/form-data" class="needs-validation">
+      {% csrf_token %}
+
+      {% if is_nitk_team %}
+      <div class="mb-3">
+        <label for="id_roll_number" class="form-label fw-semibold text-dark">Roll Number / Reference ID</label>
+        <input type="text" name="roll_number" id="id_roll_number" class="form-control" value="{{ team.payment_ref|default:'' }}" placeholder="Enter Student Roll Number" required>
+      </div>
+      <div class="mb-3">
+        <label for="id_payment_screenshot" class="form-label fw-semibold text-dark">Upload Student ID Card Screenshot</label>
+        <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control" accept="image/*" required>
+      </div>
+      {% else %}
+      <div class="mb-3">
+        <label for="id_payment_ref" class="form-label fw-semibold text-dark">UPI Transaction ID / Reference Number</label>
+        <input type="text" name="payment_ref" id="id_payment_ref" class="form-control" value="{{ team.payment_ref|default:'' }}" placeholder="e.g. 329182749102" required>
+        <div class="form-text">Found in your payment app receipt (12-digit UPI Ref/UTR).</div>
+      </div>
+      <div class="mb-3">
+        <label for="id_payment_screenshot" class="form-label fw-semibold text-dark">Payment Screenshot Image</label>
+        <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control" accept="image/*" required>
+        <div class="form-text">Attach a screenshot image showing the successful transaction.</div>
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-2 w-100">
+        <i class="fa-solid fa-paper-plane me-2"></i> Submit for Organizer Approval
+      </button>
+    </form>
+  </div>
+
+  {% endif %}
+
+  <div class="mt-4 pt-3 border-top text-center text-muted small">
+    <i class="fa-solid fa-shield-halved me-1 text-primary"></i>
+    Need assistance with payment? Contact event organizers or submit a query on the Helpdesk.
+  </div>
+
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-  toastElList.forEach(function(toastEl) {
-    new bootstrap.Toast(toastEl, { delay: 5000 }).show();
-  });
-});
-</script>
-{% endif %}
 {% endblock %}
