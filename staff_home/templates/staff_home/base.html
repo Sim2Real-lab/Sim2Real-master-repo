@@ -416,14 +416,7 @@
     }
 
     .user-status-dot {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 9px;
-      height: 9px;
-      background: #238636;
-      border: 2px solid var(--sidebar-bg);
-      border-radius: 50%;
+      display: none;
     }
 
     .user-info-text {
@@ -795,7 +788,6 @@
         <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
           <div class="user-avatar-wrap">
             <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
-            <span class="user-status-dot"></span>
           </div>
           <div class="user-info-text">
             <div class="user-display-name">{{ user.username|default:"Organiser" }}</div>
