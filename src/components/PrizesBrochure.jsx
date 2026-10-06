@@ -74,7 +74,7 @@ export const PrizesBrochure = () => {
         </div>
 
         <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-50 pointer-events-none">
+          <h2 className="text-4xl md:text-6xl font-display font-bold mb-4 tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none">
             Exciting Prizes Await!
           </h2>
           <p id="prize-text" className="text-foreground/60 max-w-2xl mx-auto font-sans leading-relaxed">

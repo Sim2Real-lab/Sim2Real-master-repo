@@ -96,11 +96,10 @@ export const Testimonials = () => {
       {/* FIX 2: Switched to flex to match Prizes, stripped 'relative z-10' trap */}
       <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
         
-        {/* Wrapped Header in Card UI */}
-        <div className="p-8 md:p-10 bg-white/60 backdrop-blur-xl border border-white/40 rounded-3xl shadow-xl shadow-blue-900/5 mb-16 relative z-50">
+        <div className="text-center mb-16 relative z-30">
           <h2 
             id="innovators-title" 
-            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-foreground pointer-events-none"
+            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-white mix-blend-exclusion pointer-events-none"
           >
             Hear From Our Innovators
           </h2>
