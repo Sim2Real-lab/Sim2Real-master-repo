@@ -84,17 +84,18 @@ export const Hero = () => {
       
       <div className="w-full h-full scale-[1.05] origin-center relative">
         
-        {/* WATERMARK REMOVAL: 
-            Instead of overlaying a white box (which cuts the robot's leg) or shifting the canvas (which changes aspect ratio and cuts hands), 
-            we use a precise polygon clip-path to strictly cut out the bottom-right 250x60 pixel area where the watermark sits! */}
-        <div 
-          className="w-full h-full filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]"
-          style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 60px), calc(100% - 250px) calc(100% - 60px), calc(100% - 250px) 100%, 0 100%)" }}
-        >
+        {/* THE COLOR FILTER: Hue shift to deep blue + lowered brightness for the "Dark" look */}
+        <div className="w-full h-full filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
           <Spline 
             scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
           />
         </div>
+        
+        {/* SURGICAL WATERMARK REMOVAL:
+            Spline badge is usually 120x30. We use a slightly larger div 
+            to ensure it's fully clipped regardless of screen size.
+        */}
+        <div className="absolute bottom-0 right-0 w-41.5 h-16 bg-white z-50 translate-x-2 translate-y-2" />
         
       </div>
     </FadeIn>
