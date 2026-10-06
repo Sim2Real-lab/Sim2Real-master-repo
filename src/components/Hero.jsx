@@ -64,9 +64,15 @@ export const Hero = () => {
                   <a href="#timeline" className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block">
                     EXPLORE MORE
                   </a>
-                  <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
-                    SIGN IN
-                  </a>
+                  {window.IS_AUTHENTICATED ? (
+                    <a href="/user" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
+                      GO TO DASHBOARD
+                    </a>
+                  ) : (
+                    <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
+                      SIGN IN
+                    </a>
+                  )}
                 </FadeIn>
 
                 <FadeIn delay={0.6}>
