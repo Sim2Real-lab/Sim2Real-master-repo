@@ -52,7 +52,7 @@ def user_query_view(request):
     else:
         form = UserQueryForm(user=request.user)
 
-    return render(request, 'queries/query_hub.html', {'form': form, 'show_query_page': True})
+    return render(request, 'queries/query_form.html', {'form': form})
 
 
 @login_required
