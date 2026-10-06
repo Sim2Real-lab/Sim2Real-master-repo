@@ -572,3 +572,17 @@ body::before {
 .hr {
     background: #d9e5f3 !important;
 }
+
+/* Toast Notifications Container (Top Right) */
+.toast-container {
+    z-index: 9999 !important;
+}
+
+.toast-container .toast {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    font-size: 0.9rem !important;
+    min-width: 280px;
+    max-width: 380px;
+}
+

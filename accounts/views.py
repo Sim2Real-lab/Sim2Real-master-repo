@@ -110,7 +110,7 @@ def signup_view(request):
         try:
             validate_password(password1)
         except ValidationError as e:
-            return render(request, 'accounts/signup.html', {'signup_error': e.messages})
+            return render(request, 'accounts/signup.html', {'signup_error': " ".join(e.messages)})
 
         # Check if user already exists
         existing_user = User.objects.filter(username=username).first() or User.objects.filter(email=username).first()
