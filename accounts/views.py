@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse
@@ -23,6 +23,7 @@ from django.core.mail import EmailMultiAlternatives
 
 import sys
 from .models import EmailVerificationToken, PasswordResetOTP
+from .decorators import is_2fa_verified_for_session, mark_2fa_verified_in_session, clear_2fa_session
 
 def _print_terminal_link(title: str, user: User, link: str, email: str = None):
     user_email = email or user.email or f"{user.username}@example.com"
@@ -44,6 +45,11 @@ def _print_terminal_link(title: str, user: User, link: str, email: str = None):
 
 @never_cache
 def login_view(request):
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'userrole') and request.user.userrole.is_organiser:
+            return redirect('staff_dashboard')
+        return redirect('home')
+
     if request.method == 'POST':
         user_input = (request.POST.get('email') or request.POST.get('username') or '').strip()
         password = request.POST.get('password')
@@ -70,7 +76,26 @@ def login_view(request):
                 'login_error': 'Your account requires email verification. A verification link has been sent to your email (and terminal log).'
             })
 
-        # User is active -> Trigger Email-Based 2FA Login
+        # Check if 2FA has already been verified in this session
+        if is_2fa_verified_for_session(request, user):
+            auth_login(request, user)
+            messages.success(request, "Logged in successfully")
+            redirect_url = 'staff_dashboard' if (hasattr(user, 'userrole') and user.userrole.is_organiser) else 'home'
+            response = redirect(redirect_url)
+            mark_2fa_verified_in_session(request, response, user)
+            return response
+
+        # Check if a 2FA link was already sent in this session and is still active
+        active_token = EmailVerificationToken.objects.filter(
+            user=user, token_type='login_2fa', is_used=False
+        ).order_by('-created_at').first()
+
+        if active_token and active_token.is_valid() and request.session.get('twofa_sent_for_user') == user.pk:
+            return render(request, 'accounts/login.html', {
+                'login_info': 'A 2FA login verification link has been sent to your email (and terminal log). Please click the link to complete your login.'
+            })
+
+        # User is active -> Trigger Email-Based 2FA Login for the first time in this session
         token_obj, raw_token = EmailVerificationToken.create_token(user, token_type='login_2fa')
         twofa_link = request.build_absolute_uri(
             reverse('verify_2fa_token', kwargs={'raw_token': raw_token})
@@ -85,6 +110,8 @@ def login_view(request):
         except Exception:
             pass
 
+        request.session['twofa_sent_for_user'] = user.pk
+
         return render(request, 'accounts/login.html', {
             'login_info': 'A 2FA login verification link has been sent to your email (and terminal log). Please click the link to complete your login.'
         })
@@ -94,6 +121,11 @@ def login_view(request):
 
 @never_cache
 def signup_view(request):
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'userrole') and request.user.userrole.is_organiser:
+            return redirect('staff_dashboard')
+        return redirect('home')
+
     generic_msg = "If an account exists with this information, an email has been sent. Please check your email."
 
     if request.method == 'POST':
@@ -170,10 +202,10 @@ def verify_2fa_view(request, raw_token):
         user = token_obj.user
         auth_login(request, user)
         messages.success(request, "Logged in successfully")
-        if hasattr(user, 'userrole') and user.userrole.is_organiser:
-            return redirect('staff_dashboard')
-        else:
-            return redirect('home')
+        redirect_url = 'staff_dashboard' if (hasattr(user, 'userrole') and user.userrole.is_organiser) else 'home'
+        response = redirect(redirect_url)
+        mark_2fa_verified_in_session(request, response, user)
+        return response
     else:
         messages.error(request, "2FA login link is invalid, expired, or has already been used.")
         return redirect('login')
@@ -303,3 +335,9 @@ def verify_otp_view(request):
         form = OTPVerifyForm(initial={'email': initial_email})
 
     return render(request, 'accounts/verify_otp.html', {'form': form})
+
+
+def logout_view(request):
+    auth_logout(request)
+    return redirect('login')
+
