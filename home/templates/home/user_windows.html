@@ -1,27 +1,65 @@
 {% extends "home/index.html" %}
+{% block title %}Project Submissions | SIM2REAL{% endblock %}
+
 {% block content %}
-<h2 style="color:white;">Available Submissions</h2>
+<div class="overview-card-container">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.75rem;">Project Submissions</h2>
+      <p class="text-muted mb-0" style="font-size: 0.9rem;">Submit your project links and documentation for active evaluation windows.</p>
+    </div>
+  </div>
 
-{% if not team %}
-<p><strong>You are not in a team. Join a team to submit.</strong></p>
-{% endif %}
+  {% if not team %}
+  <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+    <i class="fa-solid fa-triangle-exclamation me-2 fs-5"></i>
+    <div>You are not currently part of any team. <a href="{% url 'manage_requests' %}" class="alert-link">Create or join a team</a> to submit project files.</div>
+  </div>
+  {% endif %}
 
-<ul>
+  <div class="row g-3">
     {% for w in windows %}
-        <li>
-            <strong>{{ w.title }}</strong> ({{ w.start_date }} - {{ w.end_date }})
-            {% if submissions.w.id %}
-                ✅ Already Submitted: 
-                <a href="{{ submissions.w.id.link }}" target="_blank">View Link</a>
-                <a href="{% url 'submit_to_window' w.id %}">Resubmit</a>
-            {% else %}
+      <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1 text-dark">{{ w.title }}</h5>
+              <p class="text-muted small mb-0">
+                <i class="fa-regular fa-clock me-1"></i> Window: {{ w.start_date|date:"M d, Y H:i" }} - {{ w.end_date|date:"M d, Y H:i" }}
+              </p>
+              {% if w.description %}
+              <p class="mt-2 mb-0 small text-secondary">{{ w.description }}</p>
+              {% endif %}
+            </div>
+
+            <div>
+              {% if submissions and w.id in submissions %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 me-2">
+                  <i class="fa-solid fa-check me-1"></i> Submitted
+                </span>
+                <a href="{% url 'submit_to_window' w.id %}" class="btn btn-sm btn-outline-primary">Resubmit</a>
+              {% else %}
                 {% if team %}
-                    <a href="{% url 'submit_to_window' w.id %}">Submit</a>
+                  <a href="{% url 'submit_to_window' w.id %}" class="btn btn-sm btn-primary">
+                    <i class="fa-solid fa-file-arrow-up me-1"></i> Submit Project
+                  </a>
                 {% endif %}
-            {% endif %}
-        </li>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
     {% empty %}
-        <p>No active submissions.</p>
+      <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-3 p-4 bg-white text-center">
+          <i class="fa-solid fa-folder-open text-muted fs-1 mb-2"></i>
+          <h5 class="text-secondary fw-semibold">No Active Submission Windows</h5>
+          <p class="text-muted small mb-0">Submissions are currently closed. Please check announcements for updates.</p>
+        </div>
+      </div>
     {% endfor %}
-</ul>
+  </div>
+
+</div>
 {% endblock %}

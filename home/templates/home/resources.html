@@ -2,25 +2,51 @@
 {% block title %}Resources | SIM2REAL{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">Resources</h2>
+<div class="overview-card-container">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.75rem;">Contest Resources</h2>
+      <p class="text-muted mb-0" style="font-size: 0.9rem;">Helpful documentation, starter kits, and reference materials.</p>
+    </div>
+  </div>
 
-{% if resources %}
-  <ul class="list-group">
-    {% for r in resources %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        {{ r.title }}
-        <div>
-          {% if r.file %}
-            <a href="{{ r.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">📄 File</a>
-          {% endif %}
-          {% if r.link %}
-            <a href="{{ r.link }}" class="btn btn-sm btn-outline-success" target="_blank">🔗 Link</a>
-          {% endif %}
+  {% if resources %}
+    <div class="row g-3">
+      {% for r in resources %}
+        <div class="col-12">
+          <div class="card shadow-sm border-0 rounded-3 p-3 bg-white">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                <h5 class="fw-bold mb-1 text-dark">{{ r.title }}</h5>
+                {% if r.description %}
+                <p class="text-muted small mb-0">{{ r.description }}</p>
+                {% endif %}
+              </div>
+              <div class="d-flex gap-2">
+                {% if r.file %}
+                  <a href="{{ r.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i> Download File
+                  </a>
+                {% endif %}
+                {% if r.link %}
+                  <a href="{{ r.link }}" class="btn btn-sm btn-outline-success" target="_blank">
+                    <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open Link
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
         </div>
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <div class="alert alert-warning text-center">No resources available yet.</div>
-{% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card shadow-sm border-0 rounded-3 p-4 bg-white text-center">
+      <i class="fa-solid fa-folder-open text-muted fs-1 mb-2"></i>
+      <h5 class="text-secondary fw-semibold">No Resources Available Yet</h5>
+      <p class="text-muted small mb-0">Check back later or view announcements for updates.</p>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

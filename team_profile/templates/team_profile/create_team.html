@@ -59,7 +59,7 @@
         text-align: left;
     }
 
-    input[type="text"], input[type="email"], input[type="password"], select {
+    input[type="text"]:not(.sidebar-search-input), input[type="email"], input[type="password"], select {
         width: 100% !important;
         padding: 12px 15px !important;
         border: 1px solid #d2d6dc !important;
@@ -76,7 +76,7 @@
         border-color: #0066ff !important;
     }
 
-    .create, .join, button[type="submit"], input[type="submit"] {
+    .form-card button[type="submit"], .card button[type="submit"], .create, .join, .team-card-container input[type="submit"] {
         background-color: #0066ff !important;
         color: #ffffff !important;
         border: none !important;
@@ -91,7 +91,7 @@
         transition: background-color 0.3s ease !important;
     }
 
-    .create:hover, .join:hover, button[type="submit"]:hover, input[type="submit"]:hover {
+    .form-card button[type="submit"]:hover, .card button[type="submit"]:hover, .create:hover, .join:hover {
         background-color: #0052cc !important;
     }
     /* ===== CREATE TEAM PAGE ===== */
