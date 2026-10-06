@@ -1464,9 +1464,10 @@ div:has(> .fa-bullhorn, > svg, .bi-megaphone) + *,
    ===================================== */
 
 .query-sidebar {
-    position: fixed;
-    right: 20px;
-    top: 100px;
+    position: relative;
+    right: auto;
+    top: auto;
+    margin: 40px auto;
 
     width: 280px;
     max-height: calc(100vh - 120px);
@@ -1664,9 +1665,9 @@ div:has(> .fa-bullhorn, > svg, .bi-megaphone) + *,
 }
 
 .query-page .top-panel,
-.query-page .main-content-area {
+/* .query-page .main-content-area {
     display: none !important;
-}
+} */
 
 .query-sidebar.query-sidebar-centered {
     position: fixed !important;

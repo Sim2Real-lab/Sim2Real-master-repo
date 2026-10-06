@@ -1,22 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}SIM2REAL 2026 | Participant Dashboard{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIM2REAL | ROBOTECH-NITK</title>
 
   <!-- Google Fonts & Bootstrap CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static " home/style.css" %}">
-
+  <link rel="stylesheet" href="{% static 'home/style.css' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/sim2real_logo.png' %}">
+  
   <style>
     /* =========================================================
        ChatGPT Dynamic Layout Architecture for Sim2Real
@@ -42,8 +40,7 @@
       box-sizing: border-box;
     }
 
-    html,
-    body {
+    html, body {
       height: 100%;
       margin: 0;
       padding: 0;
@@ -67,7 +64,6 @@
       cursor: col-resize !important;
       user-select: none !important;
     }
-
     body.is-resizing .chatgpt-sidebar {
       transition: none !important;
     }
@@ -245,40 +241,36 @@
     }
 
     .sidebar-search-box {
-      position: relative !important;
-      display: flex !important;
-      align-items: center !important;
-      width: 100% !important;
+      position: relative;
+      display: flex;
+      align-items: center;
     }
 
     .sidebar-search-box i {
-      position: absolute !important;
-      left: 12px !important;
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-      color: var(--sidebar-text-muted) !important;
-      font-size: 0.82rem !important;
-      pointer-events: none !important;
-      z-index: 5 !important;
+      position: absolute;
+      left: 10px;
+      color: var(--sidebar-text-muted);
+      font-size: 0.78rem;
+      pointer-events: none;
     }
 
     .sidebar-search-input {
-      width: 100% !important;
-      background: var(--sidebar-surface) !important;
-      border: 1px solid var(--sidebar-border) !important;
-      border-radius: 8px !important;
-      padding: 7px 10px 7px 34px !important;
-      font-size: 0.8rem !important;
-      color: #e6edf3 !important;
+      width: 100%;
+      background: var(--sidebar-surface);
+      border: 1px solid var(--sidebar-border);
+      border-radius: 8px;
+      padding: 6px 10px 6px 30px !important;
+      font-size: 0.8rem;
+      color: #e6edf3;
       margin: 0 !important;
-      outline: none !important;
-      transition: all 0.2s ease !important;
+      outline: none;
+      transition: all 0.2s ease;
     }
 
     .sidebar-search-input:focus {
-      border-color: #1769E0 !important;
-      background: #0d1322 !important;
-      box-shadow: 0 0 0 2px rgba(23, 105, 224, 0.25) !important;
+      border-color: #1769E0;
+      background: #0d1322;
+      box-shadow: 0 0 0 2px rgba(23, 105, 224, 0.25);
     }
 
     /* Navigation Links Container */
@@ -294,7 +286,6 @@
     .sidebar-nav-container::-webkit-scrollbar {
       width: 4px;
     }
-
     .sidebar-nav-container::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.15);
       border-radius: 4px;
@@ -376,10 +367,10 @@
       font-weight: 600;
     }
 
-    .nav-badge.badge-success {
-      background: rgba(34, 197, 94, 0.2);
-      color: #4ade80;
-      border-color: rgba(34, 197, 94, 0.4);
+    .nav-badge.badge-warning {
+      background: rgba(234, 179, 8, 0.2);
+      color: #facc15;
+      border-color: rgba(234, 179, 8, 0.4);
     }
 
     /* Sidebar Footer */
@@ -543,11 +534,13 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background: linear-gradient(to bottom,
-          #c6dcf7 0%,
-          #eaf3ff 35%,
-          #f6faff 65%,
-          #ffffff 100%);
+      background: linear-gradient(
+        to bottom,
+        #c6dcf7 0%,
+        #eaf3ff 35%,
+        #f6faff 65%,
+        #ffffff 100%
+      );
       position: relative;
     }
 
@@ -585,139 +578,6 @@
       overflow-y: auto;
       overflow-x: hidden;
       padding: 35px 30px 60px;
-    }
-
-    /* Clean Card Styling for Participant Overview */
-    .overview-card-container {
-      max-width: 1380px;
-      margin: 0 auto;
-    }
-
-    .stat-metric-box {
-      background: #ffffff;
-      border: 1px solid #d8e5f5;
-      border-radius: 16px;
-      padding: 22px 24px;
-      box-shadow: 0 4px 18px rgba(15, 55, 110, 0.05);
-      transition: all 0.22s ease;
-      cursor: pointer;
-      text-decoration: none !important;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100%;
-      color: inherit !important;
-    }
-
-    .metric-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .metric-label {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .metric-icon-bubble {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.05rem;
-      background: rgba(23, 105, 224, 0.08);
-      color: #1769E0;
-    }
-
-    .metric-value-number {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: #0b2a5b;
-      line-height: 1.2;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .metric-subtext {
-      font-size: 0.82rem;
-      color: #64748b;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .metric-action-link {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #1769E0;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Announcements Container */
-    .announcements-feed-card {
-      background: #ffffff;
-      border: 1px solid #d8e5f5;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 18px rgba(15, 55, 110, 0.05);
-      margin-top: 24px;
-    }
-
-    .announcements-feed-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .announcements-feed-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #0b2a5b;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .announcement-item {
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: #f8fafc;
-      border: 1px solid #edf2f7;
-      margin-bottom: 10px;
-      transition: background 0.2s ease;
-    }
-
-    .announcement-item:hover {
-      background: #f0f6ff;
-    }
-
-    .announcement-date {
-      font-size: 0.75rem;
-      color: #64748b;
-      font-weight: 600;
-    }
-
-    .announcement-text {
-      font-size: 0.88rem;
-      color: #1e293b;
-      margin: 4px 0 0;
-      line-height: 1.5;
     }
 
     /* Mobile Backdrop */
@@ -793,491 +653,393 @@
       }
     }
   </style>
-
-  {% block extra_styles %}{% endblock %}
+{% block extra_css %}{% endblock %}
 </head>
+<body class="{% if show_query_page %}query-page{% endif %}">
 
-<body>
+{% if show_welcome %}
+<div id="welcome-overlay">
+    Welcome to <strong style="margin-left: 10px;">Sim2Real</strong>
+</div>
+{% endif %}
 
-  <div class="chatgpt-app-layout">
+<div class="body-background"></div> 
 
-    <!-- Mobile Backdrop -->
-    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+<div class="chatgpt-app-layout">
+  <!-- Overlay Backdrop for Mobile -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
 
-    <!-- =========================================================
-       DYNAMIC CHATGPT SIDEBAR FOR PARTICIPANTS
-       ========================================================= -->
-    <aside class="chatgpt-sidebar" id="appSidebar">
-
-      <!-- Drag Resizer Handle on Desktop -->
-      <div class="sidebar-resizer" id="sidebarResizer" title="Drag to resize sidebar (Double click to reset)"></div>
-
-      <!-- Sidebar Header -->
-      <div class="sidebar-header">
-        <a href="{% url 'home' %}" class="sidebar-brand-link">
-          <div class="brand-icon-box">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <div class="brand-text-container">
-            <span class="brand-title">SIM2REAL 2026</span>
-            <span class="brand-subtitle">ROBOTECH NITK</span>
-          </div>
-        </a>
-
-        <!-- Single Toggle Button -->
-        <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()"
-          title="Toggle Sidebar (Ctrl + B)">
-          <i class="fa-solid fa-bars-staggered"></i>
-        </button>
-      </div>
-
-      <!-- Quick Action / Overview Button -->
-      <div class="sidebar-action-wrap">
-        <a href="{% url 'home' %}" class="sidebar-new-btn">
-          <div class="sidebar-new-btn-left">
-            <i class="fa-solid fa-gauge-high action-icon"></i>
-            <span>Dashboard Home</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.75rem;"></i>
-        </a>
-      </div>
-
-      <!-- Real-time Filter/Search -->
-      <div class="sidebar-search-wrap">
-        <div class="sidebar-search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="sidebarSearchInput" class="sidebar-search-input" placeholder="Search portal..."
-            oninput="filterSidebarNav(this.value)">
+  <!-- CHATGPT-STYLE SIDEBAR -->
+  <aside class="chatgpt-sidebar" id="appSidebar">
+    <div class="sidebar-resizer" id="sidebarResizer" title="Drag to resize sidebar"></div>
+    <div class="sidebar-header">
+      <a href="{% url 'home' %}" class="sidebar-brand-link">
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-robot"></i>
         </div>
-      </div>
-
-      <!-- Navigation Groups for Participants -->
-      <div class="sidebar-nav-container" id="sidebarNavContainer">
-
-        <!-- Group 1: General & Team -->
-        <div class="sidebar-group">
-          <div class="sidebar-group-title">My Hub</div>
-          <a href="{% url 'home' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-            <i class="fa-solid fa-chart-pie nav-icon"></i>
-            <span class="sidebar-nav-text">Dashboard</span>
-          </a>
-          <a href="{% url 'teamprofile' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
-            <i class="fa-solid fa-people-group nav-icon"></i>
-            <span class="sidebar-nav-text">Team Profile</span>
-            {% if registered %}
-            <span class="nav-badge badge-success">Verified</span>
-            {% endif %}
-          </a>
-          <a href="{% url 'manage_requests' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'manage_requests' %}active{% endif %}">
-            <i class="fa-solid fa-user-plus nav-icon"></i>
-            <span class="sidebar-nav-text">Manage Team</span>
-          </a>
+        <div class="brand-text-container">
+          <span class="brand-title">SIM2REAL 2026</span>
+          <span class="brand-subtitle">ROBOTECH NITK</span>
         </div>
-
-        <!-- Group 2: Contest & Problem -->
-        <div class="sidebar-group">
-          <div class="sidebar-group-title">Contest</div>
-          <a href="{% url 'problem_statement' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'problem_statement' %}active{% endif %}">
-            <i class="fa-solid fa-file-lines nav-icon"></i>
-            <span class="sidebar-nav-text">Problem Statement</span>
-          </a>
-          <a href="{% url 'resources' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'resources' %}active{% endif %}">
-            <i class="fa-solid fa-folder-open nav-icon"></i>
-            <span class="sidebar-nav-text">Resources Hub</span>
-          </a>
-          <a href="{% url 'download_brochure' %}" class="sidebar-nav-item">
-            <i class="fa-solid fa-book-open nav-icon"></i>
-            <span class="sidebar-nav-text">Download Brochure</span>
-          </a>
-          <a href="{% url 'user_submission_windows' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'user_submission_windows' or request.resolver_match.url_name == 'submit_to_window' %}active{% endif %}">
-            <i class="fa-solid fa-file-arrow-up nav-icon"></i>
-            <span class="sidebar-nav-text">Project Submissions</span>
-          </a>
-        </div>
-
-        <!-- Group 3: Communication & Support -->
-        <div class="sidebar-group">
-          <div class="sidebar-group-title">Help & Info</div>
-          <a href="{% url 'announcements' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'announcements' %}active{% endif %}">
-            <i class="fa-solid fa-bullhorn nav-icon"></i>
-            <span class="sidebar-nav-text">Announcements</span>
-          </a>
-          <a href="{% url 'user_query' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'user_query' %}active{% endif %}">
-            <i class="fa-solid fa-circle-question nav-icon"></i>
-            <span class="sidebar-nav-text">Ask a Query</span>
-          </a>
-          <a href="{% url 'faq_1' %}"
-            class="sidebar-nav-item {% if request.resolver_match.url_name == 'faq_1' %}active{% endif %}">
-            <i class="fa-solid fa-circle-info nav-icon"></i>
-            <span class="sidebar-nav-text">Event FAQs</span>
-          </a>
-        </div>
-
-      </div>
-
-      <!-- Sidebar Footer -->
-      <div class="sidebar-footer">
-        <div class="dropdown">
-          <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <div class="user-avatar-wrap d-flex align-items-center justify-content-center">
-              {% if user_profile.photo_base64 %}
-              <img src="{{ user_profile.photo_base64 }}" alt="Profile" class="user-avatar">
-              {% else %}
-              <i class="fa-solid fa-circle-user text-primary" style="font-size: 2rem;"></i>
-              {% endif %}
-              <span class="user-status-dot"></span>
-            </div>
-            <div class="user-info-text">
-              <div class="user-display-name">{{ request.user.username }}</div>
-              <div class="user-role-tag">{% if request.user.led_team %}Team Leader{% else %}Participant{% endif %}</div>
-            </div>
-            <i class="fa-solid fa-ellipsis user-more-dots"></i>
-          </button>
-
-          <ul class="dropdown-menu dropdown-menu-dark chatgpt-dropdown-menu" aria-labelledby="userMenuBtn">
-            <li>
-              <a class="dropdown-item" href="{% url 'profile' %}">
-                <i class="fa-solid fa-user me-2 text-primary"></i> My Profile
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="{% url 'teamprofile' %}">
-                <i class="fa-solid fa-people-group me-2 text-info"></i> Team Profile
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider border-secondary opacity-25">
-            </li>
-            <li>
-              <form method="post" action="{% url 'logout' %}" class="m-0 p-0">
-                {% csrf_token %}
-                <button type="submit" class="dropdown-item text-danger w-100 text-start bg-transparent border-0">
-                  <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
-                </button>
-              </form>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- =========================================================
-       2. MAIN VIEW AREA
-       ========================================================= -->
-    <main class="chatgpt-main">
-
-      <!-- Floating Hamburger Toggle (Mobile only) -->
-      <button type="button" class="floating-sidebar-btn" id="floatingToggleBtn" onclick="toggleSidebar()"
-        aria-label="Toggle Sidebar Navigation" title="Open Navigation">
-        <i class="fa-solid fa-bars"></i>
+      </a>
+      <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars-staggered"></i>
       </button>
+    </div>
 
-      <!-- Scrollable Content View -->
-      <div class="chatgpt-scroll-view">
-        <div class="container-fluid p-0">
-          {% block content %}
-
-          <div class="overview-card-container">
-
-            <!-- Header Banner -->
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-              <div>
-                <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.75rem;">Participant Dashboard</h2>
-                <p class="text-muted mb-0" style="font-size: 0.9rem;">Welcome, {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}! Track your team, problem statement, and submissions.</p>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                {% if registered %}
-                <span
-                  class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-semibold"
-                  style="font-size: 0.85rem;">
-                  <i class="fa-solid fa-circle-check me-1"></i> Registration Verified
-                </span>
-                {% elif paid %}
-                <span
-                  class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 fw-semibold"
-                  style="font-size: 0.85rem;">
-                  <i class="fa-solid fa-clock me-1"></i> Payment Verification Pending
-                </span>
-                {% endif %}
-              </div>
-            </div>
-
-            <!-- =========================================================
-               CLEAN PARTICIPANT METRICS GRID
-               ========================================================= -->
-            <div class="row g-3">
-
-              <!-- 1. My Team & Members -->
-              <div class="col-lg-4 col-md-6 col-12">
-                <a href="{% url 'teamprofile' %}" class="stat-metric-box">
-                  <div>
-                    <div class="metric-header">
-                      <span class="metric-label">My Team</span>
-                    </div>
-                    <div class="metric-value-number">{{ team.name|default:"No Team Yet" }}</div>
-                  </div>
-                  <div class="metric-subtext">
-                    <span>{% if team %}{{ members_count }} members enrolled{% else %}Form or join a team{% endif %}</span>
-                    <span class="metric-action-link">Team details <i class="fa-solid fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </div>
-
-              <!-- 2. Competition Track -->
-              <div class="col-lg-4 col-md-6 col-12">
-                <a href="{% url 'problem_statement' %}" class="stat-metric-box">
-                  <div>
-                    <div class="metric-header">
-                      <span class="metric-label">Competition Track</span>
-                    </div>
-                    <div class="metric-value-number">{{ track.name|default:"General Track" }}</div>
-                  </div>
-                  <div class="metric-subtext">
-                    <span>{% if registered %}Problem statement unlocked{% else %}Complete verification to unlock{% endif %}</span>
-                    <span class="metric-action-link">View track <i class="fa-solid fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </div>
-
-              <!-- 3. Project Submissions -->
-              <div class="col-lg-4 col-md-6 col-12">
-                <a href="{% url 'user_submission_windows' %}" class="stat-metric-box">
-                  <div>
-                    <div class="metric-header">
-                      <span class="metric-label">Submissions</span>
-                    </div>
-                    <div class="metric-value-number">{{ active_windows_count }} Active Windows</div>
-                  </div>
-                  <div class="metric-subtext">
-                    <span>{{ user_submissions_count }} submitted projects</span>
-                    <span class="metric-action-link">Submit <i class="fa-solid fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </div>
-
-              <!-- 4. Resources & Brochure -->
-              <div class="col-lg-4 col-md-6 col-12">
-                <a href="{% url 'resources' %}" class="stat-metric-box">
-                  <div>
-                    <div class="metric-header">
-                      <span class="metric-label">Resources & Guides</span>
-                    </div>
-                    <div class="metric-value-number">{{ resources_count }} Materials</div>
-                  </div>
-                  <div class="metric-subtext">
-                    <span>Documentation, assets & files</span>
-                    <span class="metric-action-link">Explore <i class="fa-solid fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </div>
-
-              <!-- 5. Support Queries -->
-              <div class="col-lg-4 col-md-6 col-12">
-                <a href="{% url 'user_query' %}" class="stat-metric-box">
-                  <div>
-                    <div class="metric-header">
-                      <span class="metric-label">Helpdesk Queries</span>
-                    </div>
-                    <div class="metric-value-number">{{ user_queries_count }} Submitted</div>
-                  </div>
-                  <div class="metric-subtext">
-                    <span>{% if user_pending_queries > 0 %}{{ user_pending_queries }} pending response{% else %}All queries resolved{% endif %}</span>
-                    <span class="metric-action-link">Ask query <i class="fa-solid fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </div>
-
-              <!-- 6. Event Brochure -->
-              <div class="col-lg-4 col-md-6 col-12">
-                <a href="{% url 'download_brochure' %}" class="stat-metric-box">
-                  <div>
-                    <div class="metric-header">
-                      <span class="metric-label">Brochure & Rules</span>
-                    </div>
-                    <div class="metric-value-number">Official Guide</div>
-                  </div>
-                  <div class="metric-subtext">
-                    <span>Download official rulebook PDF</span>
-                    <span class="metric-action-link">Download <i class="fa-solid fa-arrow-down"></i></span>
-                  </div>
-                </a>
-              </div>
-
-            </div>
-
-            <!-- =========================================================
-               LATEST ANNOUNCEMENTS FEED
-               ========================================================= -->
-            <div class="announcements-feed-card">
-              <div class="announcements-feed-header">
-                <div class="announcements-feed-title">
-                  <i class="fa-solid fa-bullhorn text-primary"></i>
-                  <span>Latest Announcements</span>
-                </div>
-                <a href="{% url 'announcements' %}" class="btn btn-sm btn-outline-primary fw-semibold"
-                  style="border-radius: 8px;">
-                  View All
-                </a>
-              </div>
-
-              {% if announcements %}
-              {% for announcement in announcements %}
-              <div class="announcement-item">
-                <div class="announcement-date">
-                  <i class="fa-regular fa-calendar me-1"></i> {{ announcement.created_at|date:"M d, Y • H:i" }}
-                </div>
-                <p class="announcement-text">{{ announcement.message }}</p>
-              </div>
-              {% endfor %}
-              {% else %}
-              <p class="text-muted text-center my-3" style="font-size: 0.9rem;">No announcements published yet.</p>
-              {% endif %}
-            </div>
-
-          </div>
-
-          {% endblock %}
-        </div>
+    <div class="sidebar-nav-container" id="sidebarNavContainer">
+      
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Primary Hub</div>
+        <a href="{% url 'home' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+          <i class="fa-solid fa-gauge-high nav-icon"></i>
+          <span class="sidebar-nav-text">Dashboard</span>
+        </a>
+        
+        {% if not registered %}
+        <a href="{% url 'manage_requests' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'manage_requests' %}active{% endif %}">
+          <i class="fa-solid fa-user-plus nav-icon"></i>
+          <span class="sidebar-nav-text">Register</span>
+        </a>
+        {% else %}
+        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
+          <i class="fa-solid fa-users nav-icon"></i>
+          <span class="sidebar-nav-text">Team Management</span>
+        </a>
+        <a href="{% url 'problem_statement' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'problem_statement' %}active{% endif %}">
+          <i class="fa-solid fa-file-lines nav-icon"></i>
+          <span class="sidebar-nav-text">Problem Statement</span>
+        </a>
+        <a href="{% url 'resources' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'resources' %}active{% endif %}">
+          <i class="fa-solid fa-folder-open nav-icon"></i>
+          <span class="sidebar-nav-text">Resources</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'download_brochure' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-file-arrow-down nav-icon"></i>
+          <span class="sidebar-nav-text">Download Brochure</span>
+        </a>
+        <a href="{% url 'announcements' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'announcements' %}active{% endif %}">
+          <i class="fa-solid fa-bullhorn nav-icon"></i>
+          <span class="sidebar-nav-text">Announcements</span>
+        </a>
+        <a href="{% url 'user_query' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'user_query' %}active{% endif %}">
+          <i class="fa-solid fa-circle-question nav-icon"></i>
+          <span class="sidebar-nav-text">Queries-Ask Us</span>
+        </a>
       </div>
 
-    </main>
+    </div>
+
+    <!-- Sidebar Footer (Profile Icon) -->
+    <div class="sidebar-footer">
+      <div class="dropdown">
+        <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="user-avatar-wrap">
+            <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            <span class="user-status-dot" style="background-color: #2da44e;"></span>
+          </div>
+          <div class="user-info-text">
+            <div class="user-display-name">{{ user.username|default:"Participant" }}</div>
+            <div class="user-role-tag">User Dashboard</div>
+          </div>
+          <i class="fa-solid fa-ellipsis user-more-dots"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-dark chatgpt-dropdown-menu" aria-labelledby="userMenuBtn">
+          <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa-solid fa-user me-2 text-primary"></i> My Profile</a></li>
+          {% if user.led_team %}
+          <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+          <li><a class="dropdown-item" href="{% url 'manage_requests' %}"><i class="fas fa-cogs me-2"></i>Manage Team</a></li>
+          {% endif %}
+          <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+          <li>
+            <form method="post" action="{% url 'logout' %}" class="m-0 p-0">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item text-danger w-100 text-start bg-transparent border-0">
+                <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW AREA -->
+  <main class="chatgpt-main">
+    <button type="button" class="floating-sidebar-btn" id="floatingToggleBtn" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="chatgpt-scroll-view">
+      <div class="container-fluid p-0">
+        {% block top_panel %}
+        <!-- Old top-panel and dashboard blocks injected here -->
+        <div class="top-panel">
+<header class="d-flex justify-content-between align-items-center px-4 py-3">
+  <div class="site-branding">
+    <h1 class="mb-0">SIM2REAL 2026</h1>
+    <p class="mb-0"><strong>ROBOTECH NITK</strong></p>
+    <p class="tagline">Simulate. Build. Compete.</p>
   </div>
+</header>
+</div>
+        {% endblock %}
 
-  <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container main-content-area mt-4">
+  {% block content %}
+  <!-- Dynamic content relevant to a logged-in hackathon participant -->
+  <section class="dashboard-section p-4 rounded-lg shadow-lg">
+    <h2 class="text-center mb-4">Sim2Real 2026 Dashboard</h2>
 
-  <script>
-    // Dynamic Sidebar Controller
-    const sidebar = document.getElementById('appSidebar');
-    const backdrop = document.getElementById('sidebarBackdrop');
-    const resizer = document.getElementById('sidebarResizer');
+    {%if not registered and paid%}
+    <div class="card registration-card mb-4">
+        <div class="card-body text-center">
+            <h3 class="card-title">âœ… Payment Detail Submitted! Waiting for Confirmation</h3>
+            <p class="card-text">You have already submitted Payment Details </br>Waiting for organisers to verify.</p>
+        </div>
+    </div>
+    {% elif not registered %} {# Placeholder condition #}
+    <div class="card registration-card mb-4">
+        <div class="card-body text-center">
+            <h3 class="card-title"> Ready to Simulate to Real?</h3>
+            <p class="card-text">Registration Closes on 5 September 2025.</br>If you have registered on Google form make your team and upload necessary details to access problem Statement.</p>
+            <a href="{% url 'manage_requests' %}" class="btn btn-glow">Register Now!</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="card registration-status-card mb-4">
+        <div class="card-body text-center">
+            <h3 class="card-title text-success">âœ… Registration Complete!</h3>
+            <p class="card-text">You are all set for Sim2Real 2025. Explore your team profile and resources.</p>
+            <a href="{% url 'teamprofile' %}" class="btn btn-outline-light">View Team Profile</a>
+        </div>
+    </div>
+    {% endif %}
 
-    const MIN_WIDTH = 210;
-    const MAX_WIDTH = 500;
-    const DEFAULT_WIDTH = 270;
+    <div class="row">
+      {%if not registered%}
+      <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-user"></i> My Profile</h5>
+                    <p class="card-text">Manage your personal details, academic information, and profile.</p>
+                    <a href="{% url 'profile' %}" class="btn btn-sm btn-outline-light">My Profile</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-users me-2"></i> Team Management</h5>
+                    <p class="card-text">Form or join a team, manage requests, and collaborate with your members.</p>
+                    <a href="{% url 'teamprofile' %}" class="btn btn-sm btn-outline-light">Go to Team</a>
+                </div>
+            </div>
+        </div>
+        {%endif%}
+        {%if registered%}
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-question-circle-o"></i> Scripting Quiz</h5>
+                    <p class="card-text">Attempt Scripting Quiz</p>
+                    <a href="#" class="btn btn-sm btn-outline-light">Attempt Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card feature-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-file-upload me-2"></i> Project Submission</h5>
+                    <p class="card-text">Submit your project, view guidelines, and track your submission status.</p>
+                    <a href="{%url 'user_submission_windows'%}" class="btn btn-sm btn-outline-light">Submit Project</a> 
+                </div>
+            </div>
+        </div>
+    </div>
+    {%endif%}
+    <div class="card announcements-card mb-4">
+         <h5 class="card-title"><i class="fas fa-bullhorn me-2" style="margin-top:20px;"></i> Latest Announcements</h5>
+            {% for announcement in announcements %}
+        <div class="card-body" style="padding:0px;">
+            <ul class="list-unstyled">
+                <li><p class="mb-1"><strong>{{announcement.created_at}}  :   </strong>      {{announcement.message}}</p></li>
+            <li></li>
+            </ul>
+        </div>
+    {%endfor%}
+    <a href="{% url 'announcements' %}" class="btn btn-sm btn-outline-light mt-3" style="margin-bottom:20px;max-width:300px;">View All Announcements</a>
+    </div>
+  </section>
+  {% endblock %}
+</div>
+      </div>
+    </div>
+  </main>
+</div>
 
-    // Restore saved width from localStorage
-    const savedWidth = localStorage.getItem('sim2real_sidebar_width');
-    if (savedWidth && window.innerWidth >= 992) {
-      const widthVal = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, parseInt(savedWidth, 10)));
-      document.documentElement.style.setProperty('--sidebar-width', widthVal + 'px');
-      sidebar.style.width = widthVal + 'px';
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Dynamic Sidebar Controller
+  const sidebar = document.getElementById('appSidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const resizer = document.getElementById('sidebarResizer');
+
+  const MIN_WIDTH = 210;
+  const MAX_WIDTH = 500;
+  const DEFAULT_WIDTH = 270;
+
+  // Restore saved width from localStorage
+  const savedWidth = localStorage.getItem('sim2real_sidebar_width');
+  if (savedWidth && window.innerWidth >= 992) {
+    const widthVal = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, parseInt(savedWidth, 10)));
+    document.documentElement.style.setProperty('--sidebar-width', widthVal + 'px');
+    sidebar.style.width = widthVal + 'px';
+  }
+
+  // Restore saved collapse state
+  const savedCollapsedState = localStorage.getItem('sim2real_sidebar_collapsed');
+  if (savedCollapsedState === 'true' && window.innerWidth >= 992) {
+    sidebar.classList.add('collapsed');
+  }
+
+  // Toggle sidebar
+  function toggleSidebar() {
+    if (window.innerWidth < 992) {
+      toggleMobileSidebar();
+    } else {
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('sim2real_sidebar_collapsed', sidebar.classList.contains('collapsed'));
     }
+  }
 
-    // Restore saved collapse state
-    const savedCollapsedState = localStorage.getItem('sim2real_sidebar_collapsed');
-    if (savedCollapsedState === 'true' && window.innerWidth >= 992) {
-      sidebar.classList.add('collapsed');
+  // Mobile Drawer Toggle
+  function toggleMobileSidebar() {
+    sidebar.classList.toggle('mobile-open');
+    if (sidebar.classList.contains('mobile-open')) {
+      backdrop.classList.add('show');
+    } else {
+      backdrop.classList.remove('show');
     }
+  }
 
-    // Toggle sidebar
-    function toggleSidebar() {
-      if (window.innerWidth < 992) {
-        toggleMobileSidebar();
+  // =========================================================
+  // Drag to Resize Sidebar Width (Desktop)
+  // =========================================================
+  let isResizing = false;
+
+  resizer.addEventListener('mousedown', function(e) {
+    if (window.innerWidth < 992 || sidebar.classList.contains('collapsed')) return;
+    isResizing = true;
+    resizer.classList.add('is-resizing');
+    document.body.classList.add('is-resizing');
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isResizing) return;
+    
+    let newWidth = e.clientX;
+    const maxAllowed = Math.min(MAX_WIDTH, window.innerWidth * 0.45);
+    newWidth = Math.max(MIN_WIDTH, Math.min(maxAllowed, newWidth));
+
+    document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
+    sidebar.style.width = newWidth + 'px';
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (isResizing) {
+      isResizing = false;
+      resizer.classList.remove('is-resizing');
+      document.body.classList.remove('is-resizing');
+      const currentWidth = parseInt(sidebar.style.width, 10) || DEFAULT_WIDTH;
+      localStorage.setItem('sim2real_sidebar_width', currentWidth);
+    }
+  });
+
+  // Double-click resizer to reset to default width
+  resizer.addEventListener('dblclick', function() {
+    if (sidebar.classList.contains('collapsed')) return;
+    document.documentElement.style.setProperty('--sidebar-width', DEFAULT_WIDTH + 'px');
+    sidebar.style.width = DEFAULT_WIDTH + 'px';
+    localStorage.setItem('sim2real_sidebar_width', DEFAULT_WIDTH);
+  });
+
+  // Real-time navigation filter
+  function filterSidebarNav(query) {
+    const term = query.toLowerCase().trim();
+    const navItems = document.querySelectorAll('.sidebar-nav-item');
+    const groups = document.querySelectorAll('.sidebar-group');
+
+    navItems.forEach(item => {
+      const text = (item.textContent || '').toLowerCase();
+      if (!term || text.includes(term)) {
+        item.style.display = 'flex';
       } else {
-        sidebar.classList.toggle('collapsed');
-        localStorage.setItem('sim2real_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+        item.style.display = 'none';
       }
-    }
+    });
 
-    // Mobile Drawer Toggle
-    function toggleMobileSidebar() {
-      sidebar.classList.toggle('mobile-open');
-      if (sidebar.classList.contains('mobile-open')) {
-        backdrop.classList.add('show');
+    // Hide empty groups
+    groups.forEach(group => {
+      const visibleItems = group.querySelectorAll('.sidebar-nav-item:not([style*="display: none"])');
+      if (visibleItems.length === 0 && term) {
+        group.style.display = 'none';
       } else {
-        backdrop.classList.remove('show');
+        group.style.display = 'block';
       }
-    }
+    });
+  }
 
-    // =========================================================
-    // Drag to Resize Sidebar Width (Desktop)
-    // =========================================================
-    let isResizing = false;
-
-    resizer.addEventListener('mousedown', function (e) {
-      if (window.innerWidth < 992 || sidebar.classList.contains('collapsed')) return;
-      isResizing = true;
-      resizer.classList.add('is-resizing');
-      document.body.classList.add('is-resizing');
+  // Keyboard shortcut (Ctrl + B to toggle sidebar)
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
       e.preventDefault();
-    });
-
-    window.addEventListener('mousemove', function (e) {
-      if (!isResizing) return;
-
-      let newWidth = e.clientX;
-      const maxAllowed = Math.min(MAX_WIDTH, window.innerWidth * 0.45);
-      newWidth = Math.max(MIN_WIDTH, Math.min(maxAllowed, newWidth));
-
-      document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
-      sidebar.style.width = newWidth + 'px';
-    });
-
-    window.addEventListener('mouseup', function () {
-      if (isResizing) {
-        isResizing = false;
-        resizer.classList.remove('is-resizing');
-        document.body.classList.remove('is-resizing');
-        const currentWidth = parseInt(sidebar.style.width, 10) || DEFAULT_WIDTH;
-        localStorage.setItem('sim2real_sidebar_width', currentWidth);
-      }
-    });
-
-    // Double-click resizer to reset to default width
-    resizer.addEventListener('dblclick', function () {
-      if (sidebar.classList.contains('collapsed')) return;
-      document.documentElement.style.setProperty('--sidebar-width', DEFAULT_WIDTH + 'px');
-      sidebar.style.width = DEFAULT_WIDTH + 'px';
-      localStorage.setItem('sim2real_sidebar_width', DEFAULT_WIDTH);
-    });
-
-    // Real-time navigation filter
-    function filterSidebarNav(query) {
-      const term = query.toLowerCase().trim();
-      const navItems = document.querySelectorAll('.sidebar-nav-item');
-      const groups = document.querySelectorAll('.sidebar-group');
-
-      navItems.forEach(item => {
-        const text = (item.textContent || '').toLowerCase();
-        if (!term || text.includes(term)) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-
-      // Hide empty groups
-      groups.forEach(group => {
-        const visibleItems = group.querySelectorAll('.sidebar-nav-item:not([style*="display: none"])');
-        if (visibleItems.length === 0 && term) {
-          group.style.display = 'none';
-        } else {
-          group.style.display = 'block';
-        }
-      });
+      toggleSidebar();
     }
+  });
+</script>
+<script src="{% static 'home/script.js' %}"></script>
 
-    // Keyboard shortcut (Ctrl + B to toggle sidebar)
-    document.addEventListener('keydown', function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-        e.preventDefault();
-        toggleSidebar();
-      }
+<!-- Old script logic for toast, welcome screen, modals -->
+{% if show_welcome %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            const overlay = document.getElementById("welcome-overlay");
+            if(overlay) overlay.classList.add("fade-out");
+        }, 2500);
     });
-  </script>
+</script>
+{% endif %}
 
-  {% block extra_scripts %}{% endblock %}
+{% if messages %}
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060;">
+  {% for message in messages %}
+  <div class="toast align-items-center text-white bg-{{ message.tags }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ message }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+  toastElList.forEach(function(toastEl) {
+    new bootstrap.Toast(toastEl, { delay: 5000 }).show();
+  });
+});
+</script>
+{% endif %}
+
+{% block extra_scripts %}{% endblock %}
 </body>
-
 </html>
+

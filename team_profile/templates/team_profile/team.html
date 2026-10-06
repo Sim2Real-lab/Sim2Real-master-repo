@@ -1,39 +1,65 @@
-{% extends 'team_profile/team_base.html' %}
+{% extends 'home/index.html' %}
 {% load static %}
 
-{% block title %}Team Profile{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'team_profile/style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-{% block team_content %}
-{% if not user.team.exists %}
-<div class="team-start-card text-center py-4">
+<style>
+  /* Eliminate scrolling for the small register card */
+  .chatgpt-scroll-view {
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: hidden !important;
+  }
+  .main-content-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+  }
+</style>
 
-    <div class="team-icon mb-3">
-        <i class="fa fa-users text-primary" style="font-size: 3rem;"></i>
+{% endblock %}
+
+{# Hide the SIM2REAL 2026 banner — only show the team card #}
+{% block top_panel %}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+  {% if not user.team.exists %}
+  <div class="team-start-card">
+
+    <div class="team-icon">
+        <i class="fa fa-users"></i>
     </div>
 
-    <h2 class="fw-bold mb-2">Ready to Compete?</h2>
+    <h2>Ready to Compete?</h2>
 
-    <p class="team-subtitle text-muted mb-2">
+    <p class="team-subtitle">
         You're not part of any team yet.
     </p>
 
-    <p class="team-description text-muted mb-4">
+    <p class="team-description">
         Create a new team or join an existing one to get started
         and participate in the competition.
     </p>
 
-    <div class="team-actions d-flex justify-content-center gap-3">
-        <a href="{% url 'create_team' %}" class="create-team-btn btn btn-primary px-4 py-2 rounded-pill fw-semibold text-white">
-            <i class="fa fa-plus me-1"></i>
+    <div class="team-actions">
+        <a href="{% url 'create_team' %}" class="create-team-btn">
+            <i class="fa fa-plus"></i>
             Create Team
         </a>
 
-        <a href="{% url 'join_team' %}" class="join-team-btn btn btn-outline-primary px-4 py-2 rounded-pill fw-semibold">
-            <i class="fa fa-users me-1"></i>
+        <a href="{% url 'join_team' %}" class="join-team-btn">
+            <i class="fa fa-users"></i>
             Join Team
         </a>
     </div>
 
+  </div>
+  {% endif %}
 </div>
-{% endif %}
 {% endblock %}
