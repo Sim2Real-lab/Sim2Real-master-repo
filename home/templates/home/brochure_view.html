@@ -1,0 +1,83 @@
+{% extends "home/index.html" %}
+{% load static %}
+
+{% block title %}Sim2Real 2026 Brochure{% endblock %}
+
+{# Hide the SIM2REAL 2026 banner on the brochure page #}
+{% block top_panel %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Remove all paddings/margins from the layout to let the viewer take 100% space */
+  .chatgpt-scroll-view {
+    padding: 0 !important;
+    overflow: hidden !important; /* Stop outer scrollbar */
+    display: flex;
+    flex-direction: column;
+  }
+  .main-content-area {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    height: 100vh; /* Fill the whole screen */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .brochure-container {
+    background: #121829;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+  }
+  .brochure-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: #090c15;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .brochure-header h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.25rem;
+  }
+  .download-btn {
+    background: #1769E0;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  .download-btn:hover {
+    background: #1255b3;
+    color: #fff;
+  }
+  .pdf-viewer {
+    width: 100%;
+    flex: 1;
+    border: none;
+    display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="brochure-container">
+  <div class="brochure-header">
+    <h2>Sim2Real 2026 Brochure</h2>
+    <a href="{{ brochure.file.url }}" download class="download-btn">
+      <i class="fas fa-download me-2"></i> Download PDF
+    </a>
+  </div>
+  <iframe src="{{ brochure.file.url }}" class="pdf-viewer" title="Brochure Viewer"></iframe>
+</div>
+{% endblock %}

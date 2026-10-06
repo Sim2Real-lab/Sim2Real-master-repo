@@ -64,9 +64,15 @@ export const Hero = () => {
                   <a href="#timeline" className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block">
                     EXPLORE MORE
                   </a>
-                  <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
-                    SIGN IN
-                  </a>
+                  {window.IS_AUTHENTICATED ? (
+                    <a href="/user" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
+                      GO TO DASHBOARD
+                    </a>
+                  ) : (
+                    <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
+                      SIGN IN
+                    </a>
+                  )}
                 </FadeIn>
 
                 <FadeIn delay={0.6}>
@@ -84,18 +90,13 @@ export const Hero = () => {
       
       <div className="w-full h-full scale-[1.05] origin-center relative">
         
-        {/* THE COLOR FILTER: Hue shift to deep blue + lowered brightness for the "Dark" look */}
-        <div className="w-full h-full filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
+        {/* WATERMARK REMOVAL: We make the container taller than the parent so the watermark overflows at the bottom and is hidden by the parent's overflow-hidden! 
+            We shift it up by 80px so the robot remains perfectly centered. */}
+        <div className="absolute top-[-80px] left-0 w-full h-[calc(100%+160px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
           <Spline 
             scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
           />
         </div>
-        
-        {/* SURGICAL WATERMARK REMOVAL:
-            Spline badge is usually 120x30. We use a slightly larger div 
-            to ensure it's fully clipped regardless of screen size.
-        */}
-        <div className="absolute bottom-0 right-0 w-41.5 h-16 bg-white z-50 translate-x-2 translate-y-2" />
         
       </div>
     </FadeIn>
