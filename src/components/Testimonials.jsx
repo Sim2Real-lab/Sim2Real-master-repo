@@ -96,10 +96,10 @@ export const Testimonials = () => {
       {/* FIX 2: Switched to flex to match Prizes, stripped 'relative z-10' trap */}
       <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
         
-        <div className="text-center mb-16 relative z-30">
+        <div className="text-center mb-16">
           <h2 
             id="innovators-title" 
-            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-white mix-blend-exclusion pointer-events-none"
+            className="text-4xl md:text-6xl font-display font-bold text-center tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none"
           >
             Hear From Our Innovators
           </h2>
