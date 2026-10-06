@@ -95,7 +95,7 @@ export const Hero = () => {
             Spline badge is usually located at bottom right.
             We use a larger div to ensure it's fully covered.
         */}
-        <div className="absolute bottom-0 right-0 w-[250px] h-[80px] bg-background z-50 translate-x-2 translate-y-2" />
+        <div className="absolute bottom-0 right-0 w-[300px] h-[100px] bg-white z-[999] translate-x-2 translate-y-2 pointer-events-none" />
         
       </div>
     </FadeIn>
