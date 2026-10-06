@@ -1,12 +1,13 @@
 from django.contrib.auth import admin,views
 from django.urls import path, include
 from .views import (
-    login_view, signup_view, activate, resend_verification_view,
+    login_view, logout_view, signup_view, activate, resend_verification_view,
     request_otp_view, verify_otp_view, verify_email_view, verify_2fa_view
 )
 
 urlpatterns = [
     path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='accounts_logout'),
     path('signup/', signup_view, name='signup'),
     path('activate/<uidb64>/<token>/', activate, name='activate'),
     path('verify-email/<str:raw_token>/', verify_email_view, name='verify_email_token'),
