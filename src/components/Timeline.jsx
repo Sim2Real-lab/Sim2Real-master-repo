@@ -5,8 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const TIMELINE_DATA = [
-  { date: 'Sept 12, 2025, 09:00 IST', title: 'Registration', desc: 'Event Registration Starts. Click here to Register' },
-  { date: 'Sept 20, 2025, 11:00 IST', title: 'Setup and Simulate Round Starts', desc: 'The problem statement is given and the Simulation Round Starts' },
+  { date: '7th October 2026 00:00AM IST to 14th October 2026 11:59PM IST', title: 'Registration', desc: 'Event Registration Starts. Click here to Register' },
+  { date: '14th October 2026 5:30AM IST', title: 'Setup and Simulate Round Starts', desc: 'The problem statement is given and the Simulation Round Starts' },
   { date: 'Sept 25, 2025, 09:00 IST', title: 'Submission', desc: 'Submission of the Simulation of Problem statement.' },
   { date: 'Sept 25, 2025, 16:00 IST', title: 'Shortlist', desc: 'Results for the simulation round will be out.' },
   { date: 'Sept 27, 2025, 11:00 IST', title: 'Real-World Deployment', desc: 'Transition projects from simulation to hardware with mentorship support.' },
