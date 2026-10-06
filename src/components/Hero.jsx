@@ -92,10 +92,10 @@ export const Hero = () => {
         </div>
         
         {/* SURGICAL WATERMARK REMOVAL:
-            Spline badge is usually 120x30. We use a slightly larger div 
-            to ensure it's fully clipped regardless of screen size.
+            Spline badge is usually located at bottom right.
+            We use a larger div to ensure it's fully covered.
         */}
-        <div className="absolute bottom-0 right-0 w-41.5 h-16 bg-white z-50 translate-x-2 translate-y-2" />
+        <div className="absolute bottom-0 right-0 w-[250px] h-[80px] bg-background z-50 translate-x-2 translate-y-2" />
         
       </div>
     </FadeIn>
