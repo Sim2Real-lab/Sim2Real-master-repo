@@ -14,6 +14,7 @@ export const Timeline = () => {
 
   return (
     <section
+      id="timeline"
       className="relative w-full overflow-hidden"
       ref={sectionRef}
     >
