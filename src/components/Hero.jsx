@@ -61,21 +61,22 @@ export const Hero = () => {
             {sequenceStep >= 1 && (
               <>
                 <FadeIn delay={0.4} className="flex flex-wrap items-center gap-4">
+                  {/* 1. Register Now */}
                   {!window.IS_REGISTERED && (
                     <div className="flex items-center gap-2">
                       {!window.IS_AUTHENTICATED ? (
                         <div
                           title="Sign In to Participate!"
-                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary opacity-50 blur-[1px] cursor-not-allowed select-none inline-block"
+                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary opacity-50 blur-[2px] cursor-not-allowed select-none inline-block uppercase"
                         >
-                          REGISTER!
+                          Register Now!
                         </div>
                       ) : (
                         <a
-                          href={window.PROFILE_COMPLETED ? "/user/team/manage/" : "/user/profile/"}
-                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block"
+                          href="/user/team/"
+                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase"
                         >
-                          REGISTER!
+                          Register Now!
                         </a>
                       )}
 
@@ -102,15 +103,21 @@ export const Hero = () => {
                     </div>
                   )}
 
-                  <a href="#timeline" className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block">
-                    EXPLORE MORE
-                  </a>
-                  {window.IS_AUTHENTICATED ? (
-                    <a href="/user" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
+                  {/* 2. Go to Dashboard (if authenticated) */}
+                  {window.IS_AUTHENTICATED && (
+                    <a href="/user" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block uppercase">
                       GO TO DASHBOARD
                     </a>
-                  ) : (
-                    <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block">
+                  )}
+
+                  {/* 3. Explore More */}
+                  <a href="#timeline" className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase">
+                    EXPLORE MORE
+                  </a>
+
+                  {/* 4. Sign In (if not authenticated) */}
+                  {!window.IS_AUTHENTICATED && (
+                    <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block uppercase">
                       SIGN IN
                     </a>
                   )}
