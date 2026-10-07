@@ -704,6 +704,13 @@
         </a>
         {% endif %}
         
+        {% if user_team and user_team.members.count >= 2 %}
+        <a href="{% url 'payment_page' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'payment_page' %}active{% endif %}">
+          <i class="fa-solid fa-credit-card nav-icon"></i>
+          <span class="sidebar-nav-text">Payment</span>
+        </a>
+        {% endif %}
+        
         {% if registered %}
         <a href="{% url 'problem_statement' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'problem_statement' %}active{% endif %}">
           <i class="fa-solid fa-file-lines nav-icon"></i>

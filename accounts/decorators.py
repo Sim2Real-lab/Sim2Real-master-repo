@@ -23,7 +23,7 @@ def participant_required(view_func):
     return _wrapped_view
 
 
-SESSION_2FA_MAX_AGE = 12 * 3600  # 12 hours
+SESSION_2FA_MAX_AGE = 10*24 * 3600  # 12 hours
 
 
 def _get_user_auth_fingerprint(user):
@@ -121,4 +121,4 @@ def twofa_required(view_func):
         if not is_2fa_verified_for_session(request, request.user):
             return redirect('login')
         return view_func(request, *args, **kwargs)
-    return _wrapped_view
+    return _wrapped_view
