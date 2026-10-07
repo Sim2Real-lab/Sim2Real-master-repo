@@ -14,7 +14,7 @@ class Team(models.Model):
     payment_ref = models.CharField(max_length=50, blank=True, null=True)
     rejection_reason = models.TextField(blank=True, null=True)
     track = models.ForeignKey('staff_home.Track', on_delete=models.SET_NULL, null=True, blank=True, related_name="teams")
-    event_year = models.IntegerField(default=2025)
+    event_year = models.IntegerField(default=2026)
 
     def is_registered(self):
         return self.is_paid and self.is_verified

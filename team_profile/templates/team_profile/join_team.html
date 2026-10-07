@@ -4,10 +4,26 @@
 {% block title %}Join Team{% endblock %}
 
 {% block team_content %}
-<h2>Join a Team</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="join">Send Join Request</button>
-</form>
+{% if joined_team %}
+    <h2>You are a member of team: <strong>{{ team.name }}</strong></h2>
+    <h3>Members:</h3>
+    <ul>
+      {% for member in members %}
+        <li>{{ member.username }}</li>
+      {% endfor %}
+    </ul>
+{% elif pending %}
+    <h2>Join Request Pending</h2>
+    <p style="text-align: center;">Your join request to team <strong>{{ team_name }}</strong> is currently pending approval.</p>
+{% elif already_in_team %}
+    <h2>Already in a Team</h2>
+    <p style="text-align: center;">You are already a member of a team.</p>
+{% else %}
+    <h2>Join a Team</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="join">Send Join Request</button>
+    </form>
+{% endif %}
 {% endblock %}

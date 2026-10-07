@@ -74,7 +74,8 @@ def create_team_with_code(request):
         'show_join_code': True,
         'members':members,
         'team_locked': team.is_paid,
-        'registered':team.is_paid
+        'registered':team.is_registered(),
+        'is_pending': team.is_paid and not team.is_verified
     }
     return render(request, 'team_profile/create_team.html',context)
 
@@ -89,14 +90,15 @@ def join_team_with_code(request):
             'joined_team': True,
             'team': team,
             'members': members,
-            'registered':team.is_paid
+            'registered': team.is_registered(),
+            'is_pending': team.is_paid and not team.is_verified
         })
 
     existing_request = JoinRequest.objects.filter(user=request.user).order_by('-id').first()
     
     if existing_request:
         if existing_request.status == 'pending':
-            return render(request, 'team_profile/request_team.html', {
+            return render(request, 'team_profile/join_team.html', {
                 'pending': True,
                 'team_name': existing_request.team.name
             })
@@ -243,6 +245,7 @@ def payment_view(request):
             team.is_verified = False
             team.rejection_reason = None  # Reset previous rejection reason on new submission
 
+            import os
             screenshot = form.cleaned_data.get("payment_screenshot") or team.payment_screenshot
 
             if is_nitk_team:
@@ -251,20 +254,26 @@ def payment_view(request):
                     messages.error(request, "Please provide your Roll Number / Reference ID and upload ID card / screenshot.")
                     return redirect('payment_page')
                 team.payment_ref = pay_ref
-                screenshot.name = f"{team.payment_ref}.png"
+                ext = os.path.splitext(screenshot.name)[1].lower()
+                screenshot.name = f"{team.payment_ref}{ext}"
                 team.payment_screenshot = screenshot
             else:
                 if not team.payment_ref or not screenshot:
                     messages.error(request, "Please provide your Transaction ID and upload the payment screenshot.")
                     return redirect('payment_page')
-                screenshot.name = f"{team.payment_ref}.png"
+                ext = os.path.splitext(screenshot.name)[1].lower()
+                screenshot.name = f"{team.payment_ref}{ext}"
                 team.payment_screenshot = screenshot
 
             team.save()
             messages.success(request, "Payment proof & Transaction ID submitted successfully! Waiting for organizer approval.")
             return redirect('payment_page')
         else:
-            messages.error(request, "Invalid input. Please check the Transaction ID and screenshot file.")
+            error_msgs = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_msgs.append(f"{error}")
+            messages.error(request, "Invalid input: " + " | ".join(error_msgs))
     else:
         form = PaymentProofForm(instance=team)
 

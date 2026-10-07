@@ -133,7 +133,7 @@ class Test(models.Model):
     duration = models.PositiveIntegerField(help_text="Duration in minutes")
     is_visible = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    event_year = models.IntegerField(default=2025)
+    event_year = models.IntegerField(default=2026)
     def __str__(self):
         return f"{self.title} ({self.code})"
     

@@ -232,8 +232,10 @@
         {% if pending_requests %}
             <p>You have <span class="highlight">{{ pending_requests.count }}</span> pending join request{{ pending_requests.count|pluralize }}. 
             <a href="{% url 'manage_requests' %}">Manage Requests</a></p>
-        {% elif team_locked %}
-        <p style="color: yellow;">✅ Your team is registered. You cannot modify the team now.</p>
+        {% elif team_locked and registered %}
+        <p style="color: #102A5C;">✅ Your team is registered. You cannot modify the team now.</p>
+        {% elif team_locked and is_pending %}
+        <p style="color: #d39e00;">⏳ Your payment is submitted and pending approval. You cannot modify the team now.</p>
         {% else %}
             <p>No pending join requests at the moment.</p>
         {% endif %}
@@ -268,12 +270,14 @@
             {% endfor %}
     </ul>
     <section >
-        {%if registered%}
+        {% if registered %}
     <p>Team Registration status: <span style="color:lightgreen;font-weight:bold">Registered</span></p>
-    {%else%}
+        {% elif is_pending %}
+    <p>Team Registration status: <span style="color:orange;font-weight:bold">Pending</span></p>
+        {% else %}
     <p>Team Registration status: <span style="color:red;font-weight:bold">Not Registered</span></p>
+        {% endif %}
     </section>
-    {%endif%}
 </div>
 {% endif %}
 

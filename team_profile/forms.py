@@ -21,6 +21,7 @@ class PaymentProofForm(forms.ModelForm):
     def clean_payment_screenshot(self):
         file = self.cleaned_data.get("payment_screenshot")
         if file:
-            if not file.name.lower().endswith(".png"):
-                raise forms.ValidationError("Only .png files are allowed for payment proof.")
+            ext = file.name.lower().split('.')[-1]
+            if ext not in ['png', 'jpg', 'jpeg']:
+                raise forms.ValidationError("Only .png, .jpg, and .jpeg files are allowed for payment proof.")
         return file

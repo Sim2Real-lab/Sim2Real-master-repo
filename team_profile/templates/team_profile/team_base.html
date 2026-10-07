@@ -8,7 +8,7 @@ Team Management
 {% block content %}
 <style>
     /* Tech Background Pattern */
-    body {
+    .chatgpt-main {
         background-image: url('{% static "assets/image.png" %}') !important;
         background-size: cover !important;
         background-position: center !important;
@@ -17,21 +17,13 @@ Team Management
         background-color: #f4f7fb !important;
     }
 
-    /* Hide the top rover banner on team pages */
-    body > .container-fluid:first-of-type, .top-panel, .hero-section, .banner-container, img[src*="rover"] {
+    /* Hide the top panel on team pages */
+    .top-panel {
         display: none !important;
     }
 
-    /* Neutralize legacy wrappers */
-    .container, .content-wrapper, main, .main-content, .card, .row {
-        background-color: transparent !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        border: none !important;
-    }
-
-    /* Standard White Card Container (Matching Query Form) */
-    .team-card-container, .container {
+    /* Standard White Card Container */
+    .team-card-container {
         background-color: #ffffff !important;
         width: 100% !important;
         max-width: 850px !important;
