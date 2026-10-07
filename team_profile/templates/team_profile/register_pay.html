@@ -167,11 +167,17 @@
       <div class="p-3 bg-light border rounded-3 shadow-sm">
         <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
         <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
-        {% if payment_config and payment_config.qr_code %}
-        <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
-        {% else %}
-        <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
-        {% endif %}
+        <div id="qrCodeContainer" style="display: none;">
+          {% if payment_config and payment_config.qr_code %}
+          <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
+          {% else %}
+          <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
+          {% endif %}
+        </div>
+        <div id="qrHiddenMessage" class="text-muted small border rounded-3 p-4 mb-2 bg-white">
+          <i class="fa-solid fa-lock mb-2 fs-3 text-warning"></i><br>
+          Please accept the T&C above to reveal the QR code
+        </div>
         <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
         <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">Fee: ₹{{ payment_config.amount|default:"500"|floatformat:0 }} / team</div>
         <div class="text-danger fw-bold mt-2 fs-5">❗ Excluding GST. 18% GST will be added.</div>
@@ -241,6 +247,8 @@
     const complianceCb = document.getElementById('complianceCheckbox');
     const controlledInputs = document.querySelectorAll('.form-controlled-input');
     const controlledBtns = document.querySelectorAll('.form-controlled-btn');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+    const qrHiddenMessage = document.getElementById('qrHiddenMessage');
 
     function toggleFormElements() {
       const isChecked = complianceCb ? complianceCb.checked : true;
@@ -250,6 +258,10 @@
       controlledBtns.forEach(btn => {
         btn.disabled = !isChecked;
       });
+      if (qrCodeContainer && qrHiddenMessage) {
+        qrCodeContainer.style.display = isChecked ? 'block' : 'none';
+        qrHiddenMessage.style.display = isChecked ? 'none' : 'block';
+      }
     }
 
     if (complianceCb) {
@@ -258,6 +270,12 @@
       
       // Listen for changes
       complianceCb.addEventListener('change', toggleFormElements);
+    } else {
+      // If no checkbox (e.g., NITK student logic or already checked), just show it
+      if (qrCodeContainer && qrHiddenMessage) {
+        qrCodeContainer.style.display = 'block';
+        qrHiddenMessage.style.display = 'none';
+      }
     }
   });
 </script>
