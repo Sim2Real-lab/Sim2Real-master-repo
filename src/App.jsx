@@ -37,8 +37,9 @@ function App() {
           )}
         >
           <div className="flex justify-between items-center max-w-7xl mx-auto">
-            <a href="/" className="font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity">
-              SIM2REAL
+            <a href="/" className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity">
+              <img src={`${import.meta.env.BASE_URL}assets/sim2real_icon.jpeg`} alt="Sim2Real Icon" className="h-8 w-8 object-contain rounded-md" />
+              <span>SIM2REAL</span>
             </a>
             <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
               <a href="#timeline" className="hover:text-primary transition-colors">Time Line</a>

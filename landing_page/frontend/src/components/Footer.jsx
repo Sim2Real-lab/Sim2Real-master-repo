@@ -24,9 +24,16 @@ export const Footer = () => {
             <div className="flex flex-col gap-8">
               <h4 className="font-sans text-xs md:text-sm font-extrabold uppercase tracking-[0.4em] text-black/40 mb-6">Quick Links</h4>
               <div className="flex flex-col gap-6">
-                 {['Event Schedule', 'Prizes', 'NITK Official', 'Sponsor Us', 'Sim2Real - 1st Edition', 'Our Team'].map((link) => (
-                 <a key={link} href="#" className="font-sans text-[11px] md:text-xs font-semibold text-black/80 hover:text-[#0066FF] uppercase tracking-[0.3em] transition-colors relative z-20">
-                    {link}
+                 {[
+                   { name: 'Event Schedule', href: '#timeline' },
+                   { name: 'Prizes', href: '#prizes' },
+                   { name: 'NITK Official', href: 'https://www.nitk.ac.in' },
+                   // { name: 'Sponsor Us', href: '#' },
+                   // { name: 'Sim2Real - 1st Edition', href: '#' },
+                   // { name: 'Our Team', href: '#' }
+                 ].map((link) => (
+                 <a key={link.name} href={link.href} target={link.name === 'NITK Official' ? "_blank" : "_self"} rel={link.name === 'NITK Official' ? "noopener noreferrer" : ""} className="font-sans text-[11px] md:text-xs font-semibold text-black/80 hover:text-[#0066FF] uppercase tracking-[0.3em] transition-colors relative z-20">
+                    {link.name}
                  </a>
                  ))}
               </div>

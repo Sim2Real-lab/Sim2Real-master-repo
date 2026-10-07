@@ -169,8 +169,8 @@ export const PrizesBrochure = () => {
           </div>
 
           {/* Middle: The Centered Text */}
-          <div className="w-full flex justify-center pointer-events-none">
-            <p className="font-sans text-[12px] md:text-[14px] font-bold text-zinc-500 uppercase tracking-[0.3em] whitespace-nowrap text-center">
+          <div className="w-full flex justify-center pointer-events-none px-4">
+            <p className="font-sans text-[12px] md:text-[14px] font-bold text-zinc-500 uppercase tracking-[0.3em] text-center">
               Get the full rulebook, speaker list, competition guidelines, and more in our comprehensive event brochure.
             </p>
           </div>
