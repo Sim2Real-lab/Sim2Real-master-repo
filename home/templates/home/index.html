@@ -766,6 +766,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-dark chatgpt-dropdown-menu" aria-labelledby="userMenuBtn">
           <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fa-solid fa-user me-2 text-primary"></i> My Profile</a></li>
+          <li><a class="dropdown-item" href="/"><i class="fa-solid fa-house me-2 text-info"></i> Homepage</a></li>
           {% if user.led_team %}
           <li><hr class="dropdown-divider border-secondary opacity-25"></li>
           <li><a class="dropdown-item" href="{% url 'manage_requests' %}"><i class="fas fa-cogs me-2"></i>Manage Team</a></li>
