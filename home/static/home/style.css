@@ -267,15 +267,8 @@ h2 {
     border: 1px solid rgba(255, 255, 255, 0.12); /* Slightly more visible border */
     border-radius: 15px;
     box-shadow: 2px 4px 10px rgba(0,0,0,0.2); /* Stronger shadow/glow */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: 100%; /* Ensure cards in a row have equal height */
     border-color: var(--accent-blue);
-    
-}
-.card:hover {
-    border: 2px solid #1769E0 !important;
-    border-color: #030a58;
-    background: #ffffff !important;
 }
 
 .card-body {
