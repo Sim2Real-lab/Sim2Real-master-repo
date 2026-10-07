@@ -15,8 +15,26 @@ def main_landing_page_view(request):
     """
     Renders the new main landing page (index.html).
     """
-    # No specific data needed for the main landing page, but you can add it if sections become dynamic.
-    return render(request, 'landing_page/index.html')
+    is_registered = False
+    profile_completed = False
+    
+    if request.user.is_authenticated:
+        try:
+            from user_profile.models import UserProfile
+            profile = UserProfile.objects.get(user=request.user)
+            if profile.is_complete():
+                profile_completed = True
+        except:
+            pass
+        
+        team = request.user.team.first()
+        if team and team.is_registered():
+            is_registered = True
+
+    return render(request, 'landing_page/index.html', {
+        'is_registered': is_registered,
+        'profile_completed': profile_completed
+    })
 
 def landing_page_sponsor_view(request):
     """
