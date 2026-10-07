@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Hero } from "./components/Hero";
 import { Timeline } from "./components/Timeline";
 import { PrizesBrochure } from "./components/PrizesBrochure";
@@ -6,9 +6,10 @@ import { Testimonials } from "./components/Testimonials";
 import { FAQ } from "./components/FAQ";
 import { ContactMap } from "./components/ContactMap";
 import { Footer } from "./components/Footer";
-import { DroneScene } from "./components/DroneScene";
 import { CanvasErrorBoundary } from "./components/CanvasErrorBoundary";
 import { cn } from "./lib/utils";
+
+const DroneScene = lazy(() => import('./components/DroneScene').then(m => ({ default: m.DroneScene })));
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,16 +25,16 @@ function App() {
   return (
     <>
       <CanvasErrorBoundary>
-        <DroneScene />
+        <Suspense fallback={null}>
+          <DroneScene />
+        </Suspense>
       </CanvasErrorBoundary>
 
       <main className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
         <nav
           className={cn(
-            "fixed top-0 w-full p-6 z-50 transition-all duration-300",
-            scrolled
-              ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm text-foreground py-4"
-              : "bg-transparent border-transparent text-foreground py-6"
+            "fixed top-0 w-full p-6 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm text-foreground",
+            scrolled ? "py-4" : "py-6"
           )}
         >
           <div className="flex justify-between items-center max-w-7xl mx-auto">

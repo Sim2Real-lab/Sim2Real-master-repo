@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import Spline from '@splinetool/react-spline';
+import { useState, useCallback, lazy, Suspense } from 'react';
+const Spline = lazy(() => import('@splinetool/react-spline'));
 import { GSAPReveal } from './GSAPReveal';
 import { FadeIn } from './FadeIn';
 import { Countdown } from './Countdown';
@@ -141,9 +141,11 @@ export const Hero = () => {
         {/* WATERMARK REMOVAL: We make the container taller than the parent so the watermark overflows at the bottom and is hidden by the parent's overflow-hidden! 
             We shift it up by 80px so the robot remains perfectly centered. */}
         <div className="absolute top-[-80px] left-0 w-full h-[calc(100%+160px)] filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
-          <Spline 
-            scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
-          />
+          <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-primary/50 text-sm">Loading 3D Model...</div>}>
+            <Spline 
+              scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
+            />
+          </Suspense>
         </div>
         
       </div>
