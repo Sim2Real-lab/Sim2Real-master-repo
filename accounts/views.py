@@ -26,6 +26,8 @@ from .models import EmailVerificationToken, PasswordResetOTP
 from .decorators import is_2fa_verified_for_session, mark_2fa_verified_in_session, clear_2fa_session
 
 def _print_terminal_link(title: str, user: User, link: str, email: str = None):
+    if not getattr(settings, 'DEBUG', False):
+        return
     user_email = email or user.email or f"{user.username}@example.com"
     msg = (
         "\n=======================================================\n"

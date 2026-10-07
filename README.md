@@ -1,93 +1,161 @@
-
-
-https://github.com/user-attachments/assets/e3e45f2a-aa2f-4225-b0e7-0e49761a4b28
-
 # Sim2Real
 
-Sim2Real is a modern, immersive web application that bridges the gap between simulation and reality. Featuring a stunning 3D drone scene, interactive timeline, and dynamic animations, this platform is designed to provide an engaging user experience for exploring event details, prizes, brochures, and more.
+Sim2Real is a full-stack, end-to-end competition management platform designed to bridge the gap between simulation and reality. Built with a high-performance **Django** backend and a dynamic **React 19 / Three.js** frontend, the platform delivers an immersive 3D landing experience alongside powerful participant management, payment verification, submission grading, and staff administration portals.
+
+---
 
 ## Tech Stack
-*   **Core:** React 19, TypeScript
-*   **Build Tool:** Vite
-*   **Styling:** Tailwind CSS v4, clsx, tailwind-merge
-*   **3D/Graphics:** Three.js, React Three Fiber, React Three Drei, Spline (@splinetool/react-spline)
-*   **Animations:** GSAP (GreenSock Animation Platform)
-*   **Icons:** Lucide React
 
-## Core Features
-*   **Interactive 3D Drone Scene:** Built with React Three Fiber and Three.js, providing an engaging, high-performance 3D background experience.
-*   **Interactive Timeline:** A dynamic timeline component tracking event milestones smoothly.
-*   **Prizes & Brochure Sections:** Beautifully designed UI sections highlighting competition rewards and informational materials.
-*   **Testimonials & FAQ:** User-friendly interfaces for reviews and frequently asked questions.
-*   **Contact Map:** Integrated contact information for easy navigation and queries.
-*   **Responsive & Animated Design:** Fully optimized for both desktop and mobile viewing with seamless scroll-based GSAP animations.
+### Frontend (Landing Page & 3D Interactive UI)
+* **Framework & Build:** React 19, Vite
+* **Styling & Layout:** Tailwind CSS v4, clsx, tailwind-merge
+* **3D Graphics & Physics:** Three.js, React Three Fiber (`@react-three/fiber`), React Three Drei (`@react-three/drei`), Spline (`@splinetool/react-spline`)
+* **Animations:** GSAP (GreenSock Animation Platform)
+* **Icons:** Lucide React
+
+### Backend (Core Application & Admin API)
+* **Framework:** Django 5.1, Django REST Framework, SimpleJWT
+* **Static File Management:** WhiteNoise (`CompressedStaticFilesStorage`)
+* **Form Handling & UI:** Django Crispy Forms (Bootstrap 4)
+* **WSGI Production Server:** Gunicorn
+* **Database:** SQLite (default / dev) / PostgreSQL (production compatible)
+* **Security & Auth:** Email verification tokens, email-based 2FA, OTP Password Reset, Google reCAPTCHA
+
+---
+
+## Key Features
+
+### 1. Immersive 3D Landing Page
+* **Interactive 3D Drone Scene:** Custom WebGL scene built with React Three Fiber and Three.js.
+* **Scroll-based GSAP Animations:** Dynamic timeline and feature reveals tracking event milestones.
+* **Competition Showcase:** Detailed breakdowns for prizes, track problem statements, brochures, and sponsor tiers.
+* **General Inquiry Form:** Integrated user query system with Google reCAPTCHA protection.
+* **SEO Optimization:** Automated `robots.txt` and `sitemap.xml` endpoints.
+
+### 2. User Authentication & Security
+* **User Accounts:** Signup with email verification token activation.
+* **Enhanced Security:** Two-Factor Authentication (2FA) via email verification links.
+* **Password Recovery:** OTP (One-Time Password) reset workflow.
+* **Role-Based Access:** Distinct permissions and portals for **Participants** and **Organizers (Staff)**.
+
+### 3. Participant Portal & Team Management
+* **Team Registration:** Create teams, send member invitations, and select competition tracks.
+* **Payment Upload:** Direct submission of payment screenshots and transaction IDs.
+* **Real-time Status:** Live verification status badges and rejection feedback handling.
+* **Submission Portal:** Upload project files and assets within designated submission windows.
+* **Support Ticket System:** Submit queries and track organizer responses in real time.
+
+### 4. Organizer / Staff Administration Portal
+* **Analytics Dashboard:** Real-time metrics on total participants, registered teams, verified payments, pending submissions, and open queries.
+* **Payment Verification Center:** Review payment proofs, approve/reject teams with custom rejection reasons, and configure payee details and QR codes.
+* **Track & Problem Statement Manager:** Dynamically update tracks, problem statement sections, and downloadable resources.
+* **Submission Window & Grading Engine:** Create submission windows, set deadlines, toggle window visibility, and grade team submissions.
+* **Batch Email Announcements:** Send announcements asynchronously in batches to all registered participants.
+* **Test & Quiz Engine:** Build timed tests, manage questions, and review participant attempts.
+* **User & Team Management:** Search and filter users/teams by college, branch, event year, or payment state, with full CSV export capabilities.
+
+---
 
 ## Getting Started
 
 ### Prerequisites
-Make sure you have Node.js installed on your machine.
+* **Python** 3.10 or higher
+* **Node.js** 18 or higher (with `npm`)
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd sim2real
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-### Running the Application
-To start the development server, run:
+### 1. Clone & Navigate
 ```bash
+git clone <repository-url>
+cd sim2real
+```
+
+### 2. Local Backend Setup
+```bash
+# Create virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Run migrations
+python manage.py migrate
+
+# Create a superuser / organizer account
+python manage.py createsuperuser
+```
+
+### 3. Local Frontend Setup
+```bash
+# Install Node dependencies
+npm install
+
+# Start Vite dev server
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser to view the application.
 
-### Building for Production
-To build the project for production, run:
+### 4. Run Development Servers
+* **Frontend (Vite):** Runs at `http://localhost:5173`
+* **Backend (Django):** Run `python manage.py runserver` at `http://127.0.0.1:8000`
+
+---
+
+## Production Deployment
+
+### 1. Configure Environment Variables
+Copy `.env.example` to `.env` and fill in your production credentials:
+```bash
+cp .env.example .env
+```
+Key production configurations in `.env`:
+* `DEBUG=False`
+* `SECRET_KEY=your_secure_random_key`
+* `ALLOWED_HOSTS=sim2real.nitk.ac.in,yourdomain.com`
+* `CSRF_TRUSTED_ORIGINS=https://sim2real.nitk.ac.in`
+* `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` (SMTP credentials)
+* `RECAPTCHA_SECRET_KEY`
+
+### 2. Build Frontend Bundle
+Compile the React application bundle into Django's static & template directories:
 ```bash
 npm run build
 ```
 
-### Linting
-To run ESLint and check for code issues:
+### 3. Collect Static Assets & Run Migrations
 ```bash
-npm run lint
+python manage.py migrate
+python manage.py collectstatic --noinput
 ```
+
+### 4. Start Production Server
+Launch Gunicorn:
+```bash
+gunicorn simreal.wsgi:application --bind 0.0.0.0:8000
+```
+
+---
+
+## Project Structure
+
+```
+Sim2Real-master-repo/
+├── accounts/            # User authentication, 2FA, OTP & verification logic
+├── user_profile/        # User profile models and views
+├── team_profile/        # Team creation, member invites & payment submissions
+├── staff_home/          # Organizer admin portal, grading, payments & announcements
+├── landing_page/        # Django app serving static/React landing page & query API
+├── queries/             # Support query models and context processors
+├── home/                # Participant dashboard & sidebar logic
+├── simreal/             # Core Django configuration, settings & root URL routing
+├── src/                 # React 19 frontend source code (3D scene, components, UI)
+├── public/              # Static assets for frontend
+├── staticfiles/         # Collected production static assets (WhiteNoise)
+├── index.html           # Main HTML template for Vite
+├── vite.config.js       # Vite configuration with custom bundle move plugin
+├── requirements.txt     # Python backend dependencies
+└── package.json         # Node.js frontend dependencies
+```
+
+---
 
 ## License
 This project is private and proprietary.
-
-
-## Production Configuration (Email Setup)
-This section is strictly for production use when setting up the email announcement system.
-
-Currently, the `staff_home/email_utils.py` is configured for **local/dev mode**, which intercepts announcements and prints them directly to the terminal instead of sending actual emails.
-
-When deploying to production, open `staff_home/email_utils.py` and replace the development print logic in `_send_with_retry` with the following snippet to enable actual SMTP email sending:
-
-```python
-# --- PRODUCTION MODE SNIPPET ---
-# Uncomment this block and remove the print statements above for production
-retries = 0
-while retries < MAX_RETRIES:
-    try:
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@sim2real.com'),
-            recipient_list=[recipient_email],
-            fail_silently=False,
-        )
-        break  # Success, exit loop
-    except Exception as e:
-        retries += 1
-        logger.error(f"Failed to send email to {recipient_email}. Retry {retries}/{MAX_RETRIES}. Error: {e}")
-        if retries < MAX_RETRIES:
-            time.sleep(1)
-```

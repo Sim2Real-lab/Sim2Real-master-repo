@@ -9,3 +9,4 @@ python-dateutil==2.9.0
 pytz==2024.2
 python-dotenv
 pillow==10.4.0
+whitenoise>=6.0.0
