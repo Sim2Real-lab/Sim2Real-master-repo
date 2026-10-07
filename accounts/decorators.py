@@ -58,9 +58,10 @@ def is_2fa_verified_for_session(request, user):
         return True
 
     # 2. Check signed cookie (with max_age enforcement)
+    cookie_name = f'twofa_verified_user_{user.pk}'
     try:
         cookie_val = request.get_signed_cookie(
-            'twofa_verified_user',
+            cookie_name,
             max_age=SESSION_2FA_MAX_AGE,
             default=None
         )
@@ -89,8 +90,9 @@ def mark_2fa_verified_in_session(request, response, user):
     request.session.modified = True
 
     payload = f"{user.pk}:{fingerprint}"
+    cookie_name = f'twofa_verified_user_{user.pk}'
     response.set_signed_cookie(
-        'twofa_verified_user',
+        cookie_name,
         payload,
         max_age=SESSION_2FA_MAX_AGE,
         httponly=True,
@@ -100,11 +102,14 @@ def mark_2fa_verified_in_session(request, response, user):
 
 
 
-def clear_2fa_session(response):
+def clear_2fa_session(response, user=None):
     """
     Remove the 2FA session cookie from the response.
     """
-    response.delete_cookie('twofa_verified_user')
+    response.delete_cookie('twofa_verified_user')  # Clear legacy cookie
+    if user and user.pk:
+        cookie_name = f'twofa_verified_user_{user.pk}'
+        response.delete_cookie(cookie_name)
     return response
 
 
