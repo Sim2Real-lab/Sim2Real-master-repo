@@ -182,7 +182,7 @@
       <div class="p-3 bg-light border rounded-3">
         <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-list-check text-primary me-2"></i>Instructions</h6>
         <ol class="text-muted small ps-3 mb-0">
-          <li class="mb-2">Complete payment of <strong>₹{{ payment_config.amount|default:"500"|floatformat:0 }}</strong> to the QR code / Payee name shown.</li>
+          <li class="mb-2">Complete payment of <strong>₹{% widthratio payment_config.amount|default:"500" 100 118 %}</strong> (Fee + 18% GST) to the QR code / Payee name shown.</li>
           <li class="mb-2">Copy the 12-digit <strong>UPI Reference Number / Transaction ID</strong> from your UPI app receipt.</li>
           <li class="mb-2">Take a clear <strong>screenshot</strong> of the completed payment page.</li>
           <li>Enter the Transaction ID and upload the screenshot image below.</li>
