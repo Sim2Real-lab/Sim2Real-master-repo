@@ -7,6 +7,8 @@
   <body>
     <script>
       window.IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+      window.IS_REGISTERED = "{{ is_registered|yesno:'true,false' }}" === "true";
+      window.PROFILE_COMPLETED = "{{ profile_completed|yesno:'true,false' }}" === "true";
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

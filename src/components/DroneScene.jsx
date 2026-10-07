@@ -42,14 +42,13 @@ useEffect(() => {
           trigger: '#timeline',
           start: 'top 85%',
           endTrigger: '#footer',
-          end: 'top bottom',
+          end: 'top bottom-=150px',
           scrub: 1.5,
         },
       });
 
       timeline
         // Phase 1: Lock to the LEFT side. 
-        // Increased duration to 55 to hold it here until the "Stay tuned..." text passes.
         .to(proxy.current, {
           x: -5, 
           y: 0, 
@@ -63,7 +62,6 @@ useEffect(() => {
         })
         
         // Phase 2: Move to EXACT MIDDLE. 
-        // Restored your -2.5 value which is the true center for your camera.
         .to(proxy.current, {
           x: -2.5, 
           y: 0, 
@@ -77,7 +75,7 @@ useEffect(() => {
         })
         
         // Phase 3: Hold & Exit. 
-        // y is pushed to 20 to guarantee absolute clearance over the contact text.
+        // Start the exit immediately after Phase 2 (removed the +=40 delay) so it leaves right before Event Brochure
         .to(proxy.current, {
           y: 80, 
           scale: 0.01, 
@@ -86,7 +84,10 @@ useEffect(() => {
           rotZ: 0, 
           ease: 'power2.in', 
           duration: 20,
-        }, "+=40"); 
+        }, "+=0")
+        
+        // Padding: Keep the timeline running invisibly so Phase 1 & 2 scroll timings remain completely untouched
+        .to({}, { duration: 40 }); 
       
       setTimeout(() => {
         ScrollTrigger.refresh();

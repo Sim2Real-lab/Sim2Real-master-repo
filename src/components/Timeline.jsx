@@ -1,43 +1,16 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { useRef } from 'react';
 
 const TIMELINE_DATA = [
   { date: '7th October 2026 00:00AM IST to 14th October 2026 11:59PM IST', title: 'Registration', desc: 'Event Registration Starts. Click here to Register' },
   { date: '14th October 2026 5:30AM IST', title: 'Setup and Simulate Round Starts', desc: 'The problem statement is given and the Simulation Round Starts' },
-  { date: 'Sept 25, 2025, 09:00 IST', title: 'Submission', desc: 'Submission of the Simulation of Problem statement.' },
-  { date: 'Sept 25, 2025, 16:00 IST', title: 'Shortlist', desc: 'Results for the simulation round will be out.' },
-  { date: 'Sept 27, 2025, 11:00 IST', title: 'Real-World Deployment', desc: 'Transition projects from simulation to hardware with mentorship support.' },
-  { date: 'Sept 28, 2025, 15:00 IST', title: 'Closing & Awards', desc: 'Showcase your final outcomes, win prizes, and celebrate innovation.' },
+  { date: 'October 17, 2026, 09:00 IST', title: 'Submission', desc: 'Submission of the Simulation of Problem statement.' },
+  { date: 'October 20, 2026, 16:00 IST', title: 'Shortlist', desc: 'Results for the simulation round will be out.' },
+  { date: 'October 25, 2026, 11:00 IST', title: 'Real-World Deployment', desc: 'Transition projects from simulation to hardware with mentorship support.' },
+  { date: 'October 30, 2026, 15:00 IST', title: 'Closing & Awards', desc: 'Showcase your final outcomes, win prizes, and celebrate innovation.' },
 ];
 
 export const Timeline = () => {
   const sectionRef = useRef(null);
-
-  useEffect(() => {
-    if (!sectionRef.current) return;
-
-    const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray('.timeline-node');
-      cards.forEach((card) => {
-        gsap.from(card, {
-          y: 50,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top bottom-=50',
-            toggleActions: 'play none none reverse',
-          },
-        });
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
 
   return (
     <section

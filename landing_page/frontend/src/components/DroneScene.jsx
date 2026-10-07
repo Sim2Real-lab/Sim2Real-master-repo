@@ -79,13 +79,13 @@ useEffect(() => {
         // Phase 3: Hold & Exit. 
         // y is pushed to 20 to guarantee absolute clearance over the contact text.
         .to(proxy.current, {
-          y: 80, 
+          y: 40, 
           scale: 0.01, 
           rotX: -0.2, 
           rotY: 0.8, 
           rotZ: 0, 
           ease: 'power2.in', 
-          duration: 20,
+          duration: 1,
         }, "+=40"); 
       
       setTimeout(() => {

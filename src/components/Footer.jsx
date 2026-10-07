@@ -24,9 +24,19 @@ export const Footer = () => {
             <div className="flex flex-col gap-8">
               <h4 className="font-sans text-xs md:text-sm font-extrabold uppercase tracking-[0.4em] text-black/40 mb-6">Quick Links</h4>
               <div className="flex flex-col gap-6">
-                 {['Event Schedule', 'Prizes', 'NITK Official', 'Sponsor Us', 'Sim2Real - 1st Edition', 'Our Team'].map((link) => (
-                 <a key={link} href="#" className="font-sans text-[11px] md:text-xs font-semibold text-black/80 hover:text-[#0066FF] uppercase tracking-[0.3em] transition-colors relative z-20">
-                    {link}
+                 {[
+                   { name: 'Event Schedule', href: '#' },
+                   { name: 'Prizes', href: '#' },
+                   { name: 'NITK Official', href: '#' },
+                   { name: 'Sponsor Us', href: '#' },
+                   { name: 'Sim2Real - 1st Edition', href: '#' },
+                   { name: 'Our Team', href: '#' },
+                   { name: 'Terms and Conditions', href: `${import.meta.env.BASE_URL}assets/Sim2Real_2026_Terms_and_Conditions.pdf` },
+                   { name: 'Privacy Policy', href: `${import.meta.env.BASE_URL}assets/Sim2Real_2026_Privacy_Policy.pdf` },
+                   { name: 'Code of Conduct', href: `${import.meta.env.BASE_URL}assets/Sim2Real_2026_Code_of_Conduct.pdf` },
+                 ].map((link) => (
+                 <a key={link.name} href={link.href} target={link.href !== '#' ? "_blank" : "_self"} rel={link.href !== '#' ? "noopener noreferrer" : ""} className="font-sans text-[11px] md:text-xs font-semibold text-black/80 hover:text-[#0066FF] uppercase tracking-[0.3em] transition-colors relative z-20">
+                    {link.name}
                  </a>
                  ))}
               </div>

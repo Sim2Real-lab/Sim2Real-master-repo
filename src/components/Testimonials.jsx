@@ -115,14 +115,14 @@ export const Testimonials = () => {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           
-          <div className="flex-1 w-full max-w-4xl overflow-hidden p-6 -m-6 rounded-[2.5rem]">
+          <div className="flex-1 w-full max-w-4xl overflow-hidden py-6 -my-6 rounded-[2.5rem]">
             <div 
               className="flex transition-transform duration-700 ease-in-out h-full"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {TESTIMONIALS.map((t, index) => (
                 <div key={index} className="w-full flex-shrink-0 px-2 py-2">
-                  <div className="testimonial-card flex flex-col justify-between h-full p-12 md:p-16 bg-white/60 backdrop-blur-xl border-2 border-black/80 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group">
+                  <div className="testimonial-card flex flex-col justify-between h-full p-12 md:p-16 bg-white/60 backdrop-blur-xl border border-black/80 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group">
                     <div className="absolute top-10 text-primary/10 font-display text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
                       "
                     </div>

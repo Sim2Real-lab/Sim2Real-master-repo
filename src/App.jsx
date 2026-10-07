@@ -47,6 +47,28 @@ function App() {
               <a href="#testimonials" className="hover:text-primary transition-colors">Testimonials</a>
               <a href="#faq" className="hover:text-primary transition-colors">FAQ</a>
               <a href="#queries" className="hover:text-primary transition-colors">Queries</a>
+              
+              {!window.IS_REGISTERED && (
+                <div className="flex items-center gap-1">
+                  {!window.IS_AUTHENTICATED ? (
+                    <div title="Sign In to Participate!" className="opacity-50 blur-[1px] cursor-not-allowed">
+                      <span className="font-bold text-primary">Register!</span>
+                    </div>
+                  ) : (
+                    <a href={window.PROFILE_COMPLETED ? "/user/team/manage/" : "/user/profile/"} className="font-bold text-primary hover:opacity-80 transition-colors">
+                      Register!
+                    </a>
+                  )}
+                  
+                  <div className="relative flex items-center cursor-help text-gray-500 hover:text-primary transition-colors" title="By registering you automatically comply to T & C, Privacy Policy And Code of Conduct">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex gap-4 items-center">
               {window.IS_AUTHENTICATED ? (

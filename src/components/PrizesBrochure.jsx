@@ -12,9 +12,9 @@ const PRIZES = [
 ];
 
 const JUDGES = [
-  { name: 'Dr. Jane Smith', role: 'Professor of AI', image: 'https://i.pravatar.cc/300?img=47' },
-  { name: 'John Doe', role: 'Industry Specialist', image: 'https://i.pravatar.cc/300?img=11' },
-  { name: 'Alice Cooper', role: 'Chief Engineer', image: 'https://i.pravatar.cc/300?img=32' }
+  { image: 'https://i.pravatar.cc/300?img=47' },
+  { image: 'https://i.pravatar.cc/300?img=11' },
+  { image: 'https://i.pravatar.cc/300?img=32' }
 ];
 
 /* HELPER COMPONENT: Physically stacks letters vertically */
@@ -139,6 +139,9 @@ export const PrizesBrochure = () => {
           <h2 className="text-4xl md:text-6xl font-display font-bold mb-12 tracking-tight text-white mix-blend-exclusion relative z-30 pointer-events-none">
             Meet Our Judges
           </h2>
+          <p className="text-foreground/60 max-w-2xl mx-auto font-sans leading-relaxed mb-12">
+             Judges and Speakers to be revealed soon!
+          </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto relative z-20">
             {JUDGES.map((judge, i) => (
@@ -147,14 +150,8 @@ export const PrizesBrochure = () => {
                 className="judge-card flex flex-col items-center p-8 bg-white/40 backdrop-blur-xl border border-white/40 rounded-3xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-900/10"
               >
                 <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-md">
-                  <img src={judge.image} alt={judge.name} className="w-full h-full object-cover" />
+                  <img src={judge.image} alt="Judge" className="w-full h-full object-cover blur-xl" />
                 </div>
-                <h3 className="font-display font-bold text-foreground text-xl md:text-2xl tracking-tight mb-2">
-                  {judge.name}
-                </h3>
-                <p className="font-sans text-primary font-semibold text-xs md:text-sm tracking-wider uppercase text-center">
-                  {judge.role}
-                </p>
               </div>
             ))}
           </div>
@@ -162,34 +159,33 @@ export const PrizesBrochure = () => {
       </div> 
       {/* END CENTERED CONTAINER */}
 
-     {/* 2. THE EXTREME EDGE BROCHURE SECTION */}
-      {/* Added relative positioning to anchor the centered text */}
-      <div id="brochure" className="w-full px-4 md:px-12 mt-16 relative z-20 flex justify-between items-start">
-        
-        {/* Left Side: Antimetal Blue, Stacked Vertically */}
-        <div className="flex gap-4 md:gap-8 text-[#0066FF] font-display font-extrabold text-[4vw] uppercase select-none">
-          <VerticalText word="EVENT" />
-          <VerticalText word="BROCHURE" />
-        </div>
+      {/* 2. BROCHURE SECTION */}
+      <div id="brochure" className="w-full px-4 md:px-12 mt-16 relative z-20 flex justify-center">
+        <div className="w-full max-w-7xl flex flex-col items-center justify-center gap-8 border-[1px] border-black rounded-[5rem] py-16 px-16 md:px-32">
+          
+          {/* Top: Event Brochure */}
+          <div className="text-[#0066FF] font-display font-extrabold text-[4vw] uppercase select-none">
+            EVENT BROCHURE
+          </div>
 
-    {/* NEW: The Absolute Centered Text (Single line, spaced, grey, bold) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none">
-          <p className="font-sans text-[12px] md:text-[14px] font-bold text-zinc-500 uppercase tracking-[0.3em] whitespace-nowrap">
-            Get the full rulebook, speaker list, competition guidelines, and more in our comprehensive event brochure.
-          </p>
-        </div>
+          {/* Middle: The Centered Text */}
+          <div className="w-full flex justify-center pointer-events-none">
+            <p className="font-sans text-[12px] md:text-[14px] font-bold text-zinc-500 uppercase tracking-[0.3em] whitespace-nowrap text-center">
+              Get the full rulebook, speaker list, competition guidelines, and more in our comprehensive event brochure.
+            </p>
+          </div>
 
-        {/* Right Side: Black, Clickable Button, Stacked Vertically */}
-        <a 
-          href="/sim2real-brochure.pdf" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex gap-4 md:gap-8 text-[#1a1a1a] font-display font-extrabold text-[4vw] uppercase cursor-pointer hover:text-[#0066FF] transition-colors duration-300"
-        >
-          <VerticalText word="DOWNLOAD" />
-          <VerticalText word="PDF" />
-        </a>
-        
+          {/* Bottom: Download PDF Link */}
+          <a 
+            href="/sim2real-brochure.pdf" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[#1a1a1a] font-display font-extrabold text-[4vw] uppercase cursor-pointer hover:text-[#0066FF] transition-colors duration-300"
+          >
+            DOWNLOAD PDF
+          </a>
+          
+        </div>
       </div>
     </section>
   );
