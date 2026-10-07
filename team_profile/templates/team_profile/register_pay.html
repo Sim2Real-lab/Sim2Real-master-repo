@@ -4,6 +4,20 @@
 {% block content %}
 <div class="team-card-container mx-auto" style="max-width: 850px;">
   
+  {% if not team.is_verified %}
+  <div class="alert alert-light border shadow-sm rounded-3 p-3 mb-4">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="complianceCheckbox" style="cursor: pointer; transform: scale(1.1); margin-top: 0.3em;">
+      <label class="form-check-label text-dark" for="complianceCheckbox" style="cursor: pointer;">
+        By registering you are complying to the 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">T&C</a>, 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">Privacy Policy</a>, and 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">Code of Conduct</a>.
+      </label>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Header Banner -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
     <div>
@@ -124,13 +138,13 @@
           {% csrf_token %}
           <div class="mb-3">
             <label for="id_payment_ref" class="form-label fw-semibold text-dark">Transaction ID / UPI Reference Number</label>
-            <input type="text" name="payment_ref" id="id_payment_ref" class="form-control" value="{{ team.payment_ref|default:'' }}" placeholder="e.g. 329182749102" required>
+            <input type="text" name="payment_ref" id="id_payment_ref" class="form-control form-controlled-input" value="{{ team.payment_ref|default:'' }}" placeholder="e.g. 329182749102" required disabled>
           </div>
           <div class="mb-3">
             <label for="id_payment_screenshot" class="form-label fw-semibold text-dark">Upload New Payment Screenshot</label>
-            <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control" accept="image/*">
+            <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control form-controlled-input" accept="image/*" disabled>
           </div>
-          <button type="submit" class="btn btn-primary fw-semibold px-4 py-2 rounded-2">
+          <button type="submit" class="btn btn-primary fw-semibold px-4 py-2 rounded-2 form-controlled-btn" disabled>
             <i class="fa-solid fa-rotate me-1"></i> Update Payment Details
           </button>
         </form>
@@ -154,9 +168,9 @@
         <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
         <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
         {% if payment_config and payment_config.qr_code %}
-        <img src="{{ payment_config.qr_code.url }}" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
+        <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
         {% else %}
-        <img src="{% static 'assets/upi_qr.jpg' %}" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
+        <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
         {% endif %}
         <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
         <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">Fee: ₹{{ payment_config.amount|default:"500"|floatformat:0 }} / team</div>
@@ -187,26 +201,26 @@
       {% if is_nitk_team %}
       <div class="mb-3">
         <label for="id_roll_number" class="form-label fw-semibold text-dark">Roll Number / Reference ID</label>
-        <input type="text" name="roll_number" id="id_roll_number" class="form-control" value="{{ team.payment_ref|default:'' }}" placeholder="Enter Student Roll Number" required>
+        <input type="text" name="roll_number" id="id_roll_number" class="form-control form-controlled-input" value="{{ team.payment_ref|default:'' }}" placeholder="Enter Student Roll Number" required disabled>
       </div>
       <div class="mb-3">
         <label for="id_payment_screenshot" class="form-label fw-semibold text-dark">Upload Student ID Card Screenshot</label>
-        <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control" accept="image/*" required>
+        <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control form-controlled-input" accept="image/*" required disabled>
       </div>
       {% else %}
       <div class="mb-3">
         <label for="id_payment_ref" class="form-label fw-semibold text-dark">UPI Transaction ID / Reference Number</label>
-        <input type="text" name="payment_ref" id="id_payment_ref" class="form-control" value="{{ team.payment_ref|default:'' }}" placeholder="e.g. 329182749102" required>
+        <input type="text" name="payment_ref" id="id_payment_ref" class="form-control form-controlled-input" value="{{ team.payment_ref|default:'' }}" placeholder="e.g. 329182749102" required disabled>
         <div class="form-text">Found in your payment app receipt (12-digit UPI Ref/UTR).</div>
       </div>
       <div class="mb-3">
         <label for="id_payment_screenshot" class="form-label fw-semibold text-dark">Payment Screenshot Image</label>
-        <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control" accept="image/*" required>
+        <input type="file" name="payment_screenshot" id="id_payment_screenshot" class="form-control form-controlled-input" accept="image/*" required disabled>
         <div class="form-text">Attach a screenshot image showing the successful transaction.</div>
       </div>
       {% endif %}
 
-      <button type="submit" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-2 w-100">
+      <button type="submit" class="btn btn-primary fw-semibold px-4 py-2.5 rounded-2 w-100 form-controlled-btn" disabled>
         <i class="fa-solid fa-paper-plane me-2"></i> Submit for Organizer Approval
       </button>
     </form>
@@ -220,5 +234,31 @@
   </div>
 
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const complianceCb = document.getElementById('complianceCheckbox');
+    const controlledInputs = document.querySelectorAll('.form-controlled-input');
+    const controlledBtns = document.querySelectorAll('.form-controlled-btn');
+
+    function toggleFormElements() {
+      const isChecked = complianceCb ? complianceCb.checked : true;
+      controlledInputs.forEach(input => {
+        input.disabled = !isChecked;
+      });
+      controlledBtns.forEach(btn => {
+        btn.disabled = !isChecked;
+      });
+    }
+
+    if (complianceCb) {
+      // Set initial state based on checkbox
+      toggleFormElements();
+      
+      // Listen for changes
+      complianceCb.addEventListener('change', toggleFormElements);
+    }
+  });
+</script>
 
 {% endblock %}
