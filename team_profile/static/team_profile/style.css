@@ -464,7 +464,7 @@ h1 {
 .team-start-card {
     width: 560px;
     max-width: calc(100% - 30px);
-    margin: 185px auto 40px;
+    margin: 0 auto;
     padding: 38px 45px;
     box-sizing: border-box;
 
@@ -597,7 +597,7 @@ h1 {
 @media (max-width: 650px) {
 
     .team-start-card {
-        margin: 100px 15px 30px;
+        margin: 20px auto;
         padding: 30px 20px;
     }
 

@@ -6,19 +6,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <style>
-  /* Eliminate scrolling for the small register card */
+  /* Center the card container perfectly both horizontally and vertically */
   .chatgpt-scroll-view {
     padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow-y: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+  .chatgpt-scroll-view > .container-fluid {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
   .main-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
+    padding: 20px 15px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  .team-start-card {
+    margin: 0 auto !important;
   }
 </style>
 
@@ -28,7 +45,7 @@
 {% block top_panel %}{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+<div class="w-100 d-flex justify-content-center align-items-center">
   {% if not user.team.exists %}
   <div class="team-start-card">
 
