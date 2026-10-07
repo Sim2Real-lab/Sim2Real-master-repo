@@ -17,6 +17,7 @@ from queries.models import Query
 @login_required
 @user_view
 @profile_updated
+@never_cache
 def home_view(request):
     team = request.user.team.first()
     registered = team.is_registered() if team else False

@@ -274,11 +274,7 @@ h2 {
 }
 .card:hover {
     border: 2px solid #1769E0 !important;
-    transform: translateY(-3px);
     border-color: #030a58;
-    box-shadow:
-        0 8px 20px rgba(23, 105, 224, 0.18) !important;
-
     background: #ffffff !important;
 }
 
@@ -1199,6 +1195,35 @@ body {
 
     transform: translateY(-1px) !important;
 }
+/* =========================================
+   FORCE OVERRIDE: Remove all jumping/glowing from dashboard cards
+   ========================================= */
+.main-content-area .card,
+.main-content-area .card:hover,
+.main-content-area .card *,
+.main-content-area .card *:hover,
+.card.feature-card:hover,
+.card.announcements-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Let the buttons have a subtle background change but NO jump or glow */
+.main-content-area .card button,
+.main-content-area .card .btn {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.main-content-area .card button:hover,
+.main-content-area .card .btn:hover {
+    background-color: #EAF3FF !important;
+    color: #123A70 !important;
+    border-color: #1769E0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
 /* =========================================
    NEW SIM2REAL ROVER HERO
    ========================================= */
