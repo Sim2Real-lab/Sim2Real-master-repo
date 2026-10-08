@@ -5,8 +5,6 @@ const START_DATE = new Date('2026-09-12T00:00:00+05:30').getTime();
 const END_DATE = new Date('2026-10-14T23:59:59+05:30').getTime();
 
 export const Countdown = () => {
-  const [timeData, setTimeData] = useState(() => calculateTimeLeft());
-
   function calculateTimeLeft() {
     const now = new Date().getTime();
     
@@ -35,6 +33,8 @@ export const Countdown = () => {
       }
     };
   }
+
+  const [timeData, setTimeData] = useState(() => calculateTimeLeft());
 
   useEffect(() => {
     const timer = setInterval(() => {
