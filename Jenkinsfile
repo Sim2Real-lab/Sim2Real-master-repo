@@ -495,6 +495,8 @@ pipeline {
 
         success {
             script {
+                def commitHash = env.GIT_COMMIT ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
                 echo ""
                 echo "========================================"
                 echo "JENKINS BUILD SUCCESSFUL"
@@ -507,7 +509,7 @@ pipeline {
                     echo "Type:       CI"
                 }
 
-                echo "Commit:     ${env.GIT_COMMIT}"
+                echo "Commit:     ${commitHash}"
                 echo "Build:      #${env.BUILD_NUMBER}"
 
                 echo ""
@@ -518,13 +520,15 @@ pipeline {
 
         failure {
             script {
+                def commitHash = env.GIT_COMMIT ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
                 echo ""
                 echo "========================================"
                 echo "JENKINS BUILD FAILED"
                 echo "========================================"
 
                 echo "Build:      #${env.BUILD_NUMBER}"
-                echo "Commit:     ${env.GIT_COMMIT}"
+                echo "Commit:     ${commitHash}"
 
                 if (params.RELEASE_TAG?.trim()) {
                     echo "Release:    ${params.RELEASE_TAG}"
