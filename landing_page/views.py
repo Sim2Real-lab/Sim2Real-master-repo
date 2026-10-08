@@ -66,6 +66,12 @@ def general_query_submit_view(request):
     Uses the GeneralQuery model and verifies Google reCAPTCHA.
     """
     if request.method == 'POST':
+        # Must be signed in to submit a query
+        if not request.user.is_authenticated:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'requires_login': True, 'message': 'Please sign in to submit a query.'})
+            return redirect(f"/accounts/login/?next={reverse('landing_page:main_landing_page')}#queries")
+
         name = request.POST.get('name')
         contact_email = request.POST.get('contact_email')
         institution_name = request.POST.get('institution_name')
@@ -97,12 +103,26 @@ def general_query_submit_view(request):
 
         # If CAPTCHA passed, save the query
         try:
-            GeneralQuery.objects.create(
+            general_query = GeneralQuery.objects.create(
                 name=name,
                 contact_email=contact_email,
                 institution_name=institution_name,
                 message=message_text
             )
+
+            # Notify organizer using the existing email utility
+            from staff_home.email_utils import send_query_received_email
+            import types
+            query_proxy = types.SimpleNamespace(
+                query_type='general',
+                ticket=general_query.pk,
+                contact=institution_name or '',
+                email=contact_email,
+                message=message_text,
+                name=name,
+            )
+            send_query_received_email(query_proxy)
+
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': "Your query has been sent successfully! We'll get back to you soon."})
             messages.success(request, "Your query has been sent successfully! We'll get back to you soon.")
