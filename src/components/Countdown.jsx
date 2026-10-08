@@ -4,37 +4,37 @@ import { useState, useEffect } from 'react';
 const START_DATE = new Date('2026-09-12T00:00:00+05:30').getTime();
 const END_DATE = new Date('2026-10-14T23:59:59+05:30').getTime();
 
+function calculateTimeLeft() {
+  const now = new Date().getTime();
+  
+  let target = START_DATE;
+  let label = "Registration Closes In";
+  
+  if (now >= START_DATE) {
+    target = END_DATE;
+    label = "Registration Closes In";
+  }
+
+  const difference = target - now;
+
+  if (difference <= 0) {
+    return { isClosed: true, label: "Registration Closed" };
+  }
+
+  return {
+    isClosed: false,
+    label,
+    timeLeft: {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((difference % (1000 * 60)) / 1000),
+    }
+  };
+}
+
 export const Countdown = () => {
   const [timeData, setTimeData] = useState(() => calculateTimeLeft());
-
-  function calculateTimeLeft() {
-    const now = new Date().getTime();
-    
-    let target = START_DATE;
-    let label = "Registration Closes In";
-    
-    if (now >= START_DATE) {
-      target = END_DATE;
-      label = "Registration Closes In";
-    }
-
-    const difference = target - now;
-
-    if (difference <= 0) {
-      return { isClosed: true, label: "Registration Closed" };
-    }
-
-    return {
-      isClosed: false,
-      label,
-      timeLeft: {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((difference % (1000 * 60)) / 1000),
-      }
-    };
-  }
 
   useEffect(() => {
     const timer = setInterval(() => {
