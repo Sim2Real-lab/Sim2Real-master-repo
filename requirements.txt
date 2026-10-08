@@ -10,3 +10,4 @@ pytz==2024.2
 python-dotenv
 pillow==10.4.0
 whitenoise>=6.0.0
+psycopg[binary]>=3.2,<4
