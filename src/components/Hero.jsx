@@ -64,21 +64,12 @@ export const Hero = () => {
                   {/* 1. Register Now */}
                   {!window.IS_REGISTERED && (
                     <div className="flex items-center gap-2">
-                      {!window.IS_AUTHENTICATED ? (
-                        <div
-                          title="Sign In to Participate!"
-                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary opacity-50 blur-[2px] cursor-not-allowed select-none inline-block uppercase"
-                        >
-                          Register Now!
-                        </div>
-                      ) : (
-                        <a
-                          href="/user/team/"
-                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase"
-                        >
-                          Register Now!
-                        </a>
-                      )}
+                      <a
+                        href={window.IS_AUTHENTICATED ? "/user/team/" : "/accounts/signup/"}
+                        className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase"
+                      >
+                        Register Now!
+                      </a>
 
                       <div
                         className="relative flex items-center cursor-help text-gray-500 hover:text-primary transition-colors"
