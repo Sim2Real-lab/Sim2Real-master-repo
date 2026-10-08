@@ -493,43 +493,47 @@ pipeline {
 
 
         success {
-            echo ""
-            echo "========================================"
-            echo "JENKINS BUILD SUCCESSFUL"
-            echo "========================================"
+            script {
+                echo ""
+                echo "========================================"
+                echo "JENKINS BUILD SUCCESSFUL"
+                echo "========================================"
 
-            if (params.RELEASE_TAG?.trim()) {
-                echo "Type:       PRODUCTION RELEASE"
-                echo "Release:    ${params.RELEASE_TAG}"
-            } else {
-                echo "Type:       CI"
+                if (params.RELEASE_TAG?.trim()) {
+                    echo "Type:       PRODUCTION RELEASE"
+                    echo "Release:    ${params.RELEASE_TAG}"
+                } else {
+                    echo "Type:       CI"
+                }
+
+                echo "Commit:     ${env.GIT_COMMIT}"
+                echo "Build:      #${env.BUILD_NUMBER}"
+
+                echo ""
+                echo "========================================"
             }
-
-            echo "Commit:     ${env.GIT_COMMIT}"
-            echo "Build:      #${env.BUILD_NUMBER}"
-
-            echo ""
-            echo "========================================"
         }
 
 
         failure {
-            echo ""
-            echo "========================================"
-            echo "JENKINS BUILD FAILED"
-            echo "========================================"
+            script {
+                echo ""
+                echo "========================================"
+                echo "JENKINS BUILD FAILED"
+                echo "========================================"
 
-            echo "Build:      #${env.BUILD_NUMBER}"
-            echo "Commit:     ${env.GIT_COMMIT}"
+                echo "Build:      #${env.BUILD_NUMBER}"
+                echo "Commit:     ${env.GIT_COMMIT}"
 
-            if (params.RELEASE_TAG?.trim()) {
-                echo "Release:    ${params.RELEASE_TAG}"
+                if (params.RELEASE_TAG?.trim()) {
+                    echo "Release:    ${params.RELEASE_TAG}"
+                }
+
+                echo ""
+                echo "Check the failed stage above."
+                echo ""
+                echo "========================================"
             }
-
-            echo ""
-            echo "Check the failed stage above."
-            echo ""
-            echo "========================================"
         }
 
 
