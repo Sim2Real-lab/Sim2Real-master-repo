@@ -17,7 +17,21 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv("/opt/sim2real/shared/.env")
+# Load environment variables safely from production shared .env or local .env
+env_candidates = [
+    os.environ.get("ENV_FILE"),
+    "/opt/sim2real/shared/.env",
+    BASE_DIR / ".env",
+]
+
+for env_path in env_candidates:
+    if env_path and os.path.exists(env_path):
+        try:
+            if os.access(env_path, os.R_OK):
+                load_dotenv(env_path)
+                break
+        except Exception:
+            pass
 
 
 # Quick-start development settings - unsuitable for production
