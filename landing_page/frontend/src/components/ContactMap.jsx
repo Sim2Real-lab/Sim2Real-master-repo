@@ -16,9 +16,12 @@ function getCookie(name) {
   return cookieValue;
 }
 
+const isAuthenticated = window.IS_AUTHENTICATED === true;
+
 export const ContactMap = () => {
   const [formData, setFormData] = useState({ name: '', contact_email: '', institution_name: '', message: '' });
   const [statusMsg, setStatusMsg] = useState('');
+  const [showLoginPrompt, setShowLoginPrompt] = useState(!isAuthenticated);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,7 +36,7 @@ export const ContactMap = () => {
     for (const key in formData) {
       formPayload.append(key, formData[key]);
     }
-    formPayload.append('g-recaptcha-response', 'mock-token-for-now'); // Note: Real reCAPTCHA required
+    formPayload.append('g-recaptcha-response', 'mock-token-for-now');
 
     try {
       const res = await fetch('/queries/submit/', {
@@ -45,9 +48,13 @@ export const ContactMap = () => {
         body: formPayload
       });
       const data = await res.json();
-      setStatusMsg(data.message);
-      if (data.success) {
-        setFormData({ name: '', contact_email: '', institution_name: '', message: '' });
+      if (data.requires_login) {
+        setShowLoginPrompt(true);
+      } else {
+        setStatusMsg(data.message);
+        if (data.success) {
+          setFormData({ name: '', contact_email: '', institution_name: '', message: '' });
+        }
       }
     } catch (err) {
       setStatusMsg('An error occurred while submitting.');
@@ -57,6 +64,7 @@ export const ContactMap = () => {
   };
 
   return (
+
     <section id="queries" className="relative py-32 bg-[#f4f5f7] flex flex-col pt-32 pb-0 overflow-hidden">
       
       {/* Background Mesh (shared with Testimonials aesthetic) */}
@@ -68,93 +76,124 @@ export const ContactMap = () => {
         </h2>
         
         <div className="bg-white/60 backdrop-blur-xl border border-white/40 p-8 md:p-12 rounded-3xl shadow-xl shadow-blue-900/5">
-          <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          {showLoginPrompt ? (
+            /* --- Sign-in gate --- */
+            <div className="flex flex-col items-center justify-center gap-6 py-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-zinc-100 flex items-center justify-center mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <p className="text-lg font-semibold text-foreground">Sign in to submit a query</p>
+              <p className="text-sm text-foreground/60 max-w-sm">
+                You need to be signed in to reach out to us. Please log in or create an account to continue.
+              </p>
+              <div className="flex gap-4 mt-2">
+                <a
+                  href="/accounts/login/"
+                  className="px-8 py-3 bg-zinc-900 text-white font-bold text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300"
+                >
+                  Sign In
+                </a>
+                <a
+                  href="/accounts/signup/"
+                  className="px-8 py-3 border border-zinc-300 text-zinc-800 font-bold text-sm rounded-full hover:scale-95 hover:bg-zinc-100 transition-all duration-300"
+                >
+                  Sign Up
+                </a>
+              </div>
+            </div>
+          ) : (
+            /* --- Query form (authenticated users only) --- */
+            <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex flex-col gap-3">
+                  <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Name</label>
+                  <input 
+                    type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
+                    placeholder="Jane Doe" 
+                  />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Email</label>
+                  <input 
+                    type="email" 
+                    name="contact_email"
+                    value={formData.contact_email}
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
+                    placeholder="jane@example.com" 
+                  />
+                </div>
+              </div>
+              
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Name</label>
+                <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Institution</label>
                 <input 
                   type="text" 
-                  name="name"
-                  value={formData.name}
+                  name="institution_name"
+                  value={formData.institution_name}
                   onChange={handleChange}
-                  required
                   className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
-                  placeholder="Jane Doe" 
+                  placeholder="NITK Surathkal" 
                 />
               </div>
+
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Email</label>
-                <input 
-                  type="email" 
-                  name="contact_email"
-                  value={formData.contact_email}
+                <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Message</label>
+                <textarea 
+                  name="message"
+                  value={formData.message}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
-                  placeholder="jane@example.com" 
+                  className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner resize-none min-h-[140px]" 
+                  placeholder="How can we help?" 
                 />
               </div>
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Institution</label>
-              <input 
-                type="text" 
-                name="institution_name"
-                value={formData.institution_name}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner" 
-                placeholder="NITK Surathkal" 
-              />
-            </div>
 
-            <div className="flex flex-col gap-3">
-              <label className="text-xs font-bold tracking-wider uppercase text-foreground/60">Message</label>
-              <textarea 
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                className="w-full rounded-xl border border-slate-300 py-3.5 px-4 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all font-sans text-foreground shadow-sm focus:shadow-inner resize-none min-h-[140px]" 
-                placeholder="How can we help?" 
-              />
-            </div>
+              {statusMsg && <div className="text-sm font-semibold text-[#0066FF] p-3 bg-blue-50 rounded-lg">{statusMsg}</div>}
 
-            {statusMsg && <div className="text-sm font-semibold text-[#0066FF] p-3 bg-blue-50 rounded-lg">{statusMsg}</div>}
-
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mt-2">
-              
-              {/* CSS Only ReCaptcha Mockup */}
-              <div className="flex items-center justify-between bg-white border border-slate-300 p-3 rounded-lg w-[300px] shadow-sm select-none">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 border-2 border-slate-300 rounded-[4px] relative bg-white cursor-pointer hover:border-slate-400 group flex items-center justify-center">
-                    <input type="checkbox" className="opacity-0 absolute inset-0 cursor-pointer peer" />
-                    <svg className="w-5 h-5 text-green-500 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mt-2">
+                
+                {/* CSS Only ReCaptcha Mockup */}
+                <div className="flex items-center justify-between bg-white border border-slate-300 p-3 rounded-lg w-[300px] shadow-sm select-none">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 border-2 border-slate-300 rounded-[4px] relative bg-white cursor-pointer hover:border-slate-400 group flex items-center justify-center">
+                      <input type="checkbox" className="opacity-0 absolute inset-0 cursor-pointer peer" />
+                      <svg className="w-5 h-5 text-green-500 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-sm text-foreground/80 font-medium">I'm not a robot</span>
                   </div>
-                  <span className="text-sm text-foreground/80 font-medium">I'm not a robot</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 opacity-40 flex items-center justify-center mb-1">
-                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-[#0066FF]">
-                        <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
-                     </svg>
+                  <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 opacity-40 flex items-center justify-center mb-1">
+                       <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-[#0066FF]">
+                          <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
+                       </svg>
+                    </div>
+                    <span className="text-[9px] text-foreground/40 font-semibold tracking-tighter">reCAPTCHA</span>
+                    <span className="text-[8px] text-foreground/40 tracking-tighter">Privacy - Terms</span>
                   </div>
-                  <span className="text-[9px] text-foreground/40 font-semibold tracking-tighter">reCAPTCHA</span>
-                  <span className="text-[8px] text-foreground/40 tracking-tighter">Privacy - Terms</span>
                 </div>
+
+                <button disabled={isSubmitting} type="submit" className="px-10 py-4 bg-zinc-900 text-white font-sans font-bold tracking-tight text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300 shadow-none disabled:opacity-50">
+                  {isSubmitting ? 'SUBMITTING...' : 'SUBMIT QUERY'}
+                </button>
               </div>
-
-              <button disabled={isSubmitting} type="submit" className="px-10 py-4 bg-zinc-900 text-white font-sans font-bold tracking-tight text-sm rounded-full hover:scale-95 hover:bg-zinc-800 transition-all duration-300 shadow-none disabled:opacity-50">
-                {isSubmitting ? 'SUBMITTING...' : 'SUBMIT QUERY'}
-              </button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </section>
   );
 };
-
