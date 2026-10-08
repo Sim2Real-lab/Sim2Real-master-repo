@@ -106,6 +106,19 @@ class ResourceForm(forms.ModelForm):
                 if first_track:
                     self.initial["track"] = first_track.id
 
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        if file:
+            max_size = 25 * 1024 * 1024  # 25 MB
+            if file.size > max_size:
+                raise forms.ValidationError("File too large (max 25 MB).")
+            import os
+            ext = os.path.splitext(file.name)[1].lower()
+            valid_extensions = ['.pdf', '.doc', '.docx', '.zip', '.png', '.jpg', '.jpeg']
+            if ext not in valid_extensions:
+                raise forms.ValidationError(f"Unsupported file format '{ext}'. Allowed: {', '.join(valid_extensions)}")
+        return file
+
 class BrochureForm(forms.ModelForm):
     class Meta:
         model = Brochure
@@ -113,9 +126,24 @@ class BrochureForm(forms.ModelForm):
 
     def clean_file(self):
         file = self.cleaned_data.get('file')
-        max_size = 50 * 1024 * 1024  # 50 MB
+        if not file:
+            return file
+
+        max_size = 25 * 1024 * 1024  # 25 MB
         if file.size > max_size:
-            raise forms.ValidationError("File too large (max 50 MB).")
+            raise forms.ValidationError("File too large (max 25 MB).")
+
+        import os
+        ext = os.path.splitext(file.name)[1].lower()
+        if ext != '.pdf':
+            raise forms.ValidationError("Only PDF files (.pdf) are allowed for the brochure.")
+
+        file.seek(0)
+        header = file.read(4)
+        file.seek(0)
+        if header != b'%PDF':
+            raise forms.ValidationError("Invalid file content. The uploaded file is not a valid PDF document.")
+
         return file
 
 class SubmissionWindowForm(forms.ModelForm):
