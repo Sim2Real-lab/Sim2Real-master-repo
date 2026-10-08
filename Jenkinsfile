@@ -49,7 +49,7 @@ pipeline {
                 sh '''
                     set -eu
 
-                    npm ci
+                    npm i
                 '''
             }
         }
