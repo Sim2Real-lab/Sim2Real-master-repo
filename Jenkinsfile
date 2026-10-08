@@ -56,9 +56,8 @@ pipeline {
 
         stage('Frontend Lint') {
             steps {
-                set -eu
-
                 sh '''
+                    set -eu
                     npm run lint
                 '''
             }
