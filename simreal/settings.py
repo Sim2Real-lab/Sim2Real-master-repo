@@ -175,11 +175,11 @@ EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "sim2real.helpdesk@gmail.com")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "no-reply@sim2real.com")
-SERVER_EMAIL = os.environ.get("SERVER_EMAIL", EMAIL_HOST_USER or "root@sim2real.com")
-ORGANIZER_EMAIL = os.environ.get("ORGANIZER_EMAIL", "support@sim2real.com")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "sim2real.helpdesk@gmail.com")
+SERVER_EMAIL = os.environ.get("SERVER_EMAIL", EMAIL_HOST_USER or "sim2real.helpdesk@gmail.com")
+ORGANIZER_EMAIL = os.environ.get("ORGANIZER_EMAIL", "sim2real.helpdesk@gmail.com")
 RECAPTCHA_SECRET_KEY = os.environ.get("RECAPTCHA_SECRET_KEY", "")
 
 LOGIN_URL = '/accounts/login/'
