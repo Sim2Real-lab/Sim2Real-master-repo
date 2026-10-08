@@ -12,6 +12,7 @@ import { cn } from "./lib/utils";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,26 +42,44 @@ function App() {
               <img src={`${import.meta.env.BASE_URL}assets/sim2real_icon.jpeg`} alt="Sim2Real Icon" className="h-8 w-8 object-contain rounded-md" />
               <span>SIM2REAL</span>
             </a>
-            <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
-              <a href="#timeline" className="hover:text-primary transition-colors">Time Line</a>
-              <a href="#prizes" className="hover:text-primary transition-colors">Prizes</a>
-              <a href="#brochure" className="hover:text-primary transition-colors">Brochure</a>
-              <a href="#testimonials" className="hover:text-primary transition-colors">Testimonials</a>
-              <a href="#faq" className="hover:text-primary transition-colors">FAQ</a>
-              <a href="#queries" className="hover:text-primary transition-colors">Queries</a>
-              
+            {/* Hamburger Icon */}
+            <button
+              className="md:hidden z-50 p-2 text-foreground focus:outline-none"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+
+            {/* Desktop and Mobile Menu Container */}
+            <div className={cn(
+              "w-full md:w-auto md:flex gap-8 text-sm font-medium tracking-tight items-center transition-all duration-300 ease-in-out absolute top-[100%] left-0 md:static md:bg-transparent bg-white/95 md:border-none border-b border-gray-200 shadow-lg md:shadow-none p-6 md:p-0 flex-col md:flex-row",
+              isMenuOpen ? "flex" : "hidden"
+            )}>
+              <a href="#timeline" className="hover:text-primary transition-colors py-2 md:py-0" onClick={() => setIsMenuOpen(false)}>Time Line</a>
+              <a href="#prizes" className="hover:text-primary transition-colors py-2 md:py-0" onClick={() => setIsMenuOpen(false)}>Prizes</a>
+              <a href="#brochure" className="hover:text-primary transition-colors py-2 md:py-0" onClick={() => setIsMenuOpen(false)}>Brochure</a>
+              <a href="#testimonials" className="hover:text-primary transition-colors py-2 md:py-0" onClick={() => setIsMenuOpen(false)}>Testimonials</a>
+              <a href="#faq" className="hover:text-primary transition-colors py-2 md:py-0" onClick={() => setIsMenuOpen(false)}>FAQ</a>
+              <a href="#queries" className="hover:text-primary transition-colors py-2 md:py-0" onClick={() => setIsMenuOpen(false)}>Queries</a>
+
               {!window.IS_REGISTERED && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2 py-2 md:py-0">
                   {!window.IS_AUTHENTICATED ? (
                     <div title="Sign In to Participate!" className="opacity-50 blur-[1px] cursor-not-allowed">
                       <span className="font-bold text-primary">Register!</span>
                     </div>
                   ) : (
-                    <a href={window.PROFILE_COMPLETED ? "/user/team/manage/" : "/user/profile/"} className="font-bold text-primary hover:opacity-80 transition-colors">
+                    <a href={window.PROFILE_COMPLETED ? "/user/team/manage/" : "/user/profile/"} className="font-bold text-primary hover:opacity-80 transition-colors py-2 md:py-0">
                       Register!
                     </a>
                   )}
-                  
+
                   <div className="relative flex items-center cursor-help text-gray-500 hover:text-primary transition-colors" title="By registering you automatically comply to T & C, Privacy Policy And Code of Conduct">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
@@ -70,22 +89,23 @@ function App() {
                   </div>
                 </div>
               )}
-            </div>
-            <div className="flex gap-4 items-center">
-              {window.IS_AUTHENTICATED ? (
-                <a href="/user" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
-                  Go to Dashboard
-                </a>
-              ) : (
-                <>
-                  <a href="/accounts/login/" className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
-                    Sign In
+
+              <div className="flex gap-4 items-center w-full md:w-auto mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-none border-gray-200">
+                {window.IS_AUTHENTICATED ? (
+                  <a href="/user" className="w-full md:w-auto text-center text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
+                    Go to Dashboard
                   </a>
-                  <a href="/accounts/signup/" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
-                    Sign Up
-                  </a>
-                </>
-              )}
+                ) : (
+                  <>
+                    <a href="/accounts/login/" className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
+                      Sign In
+                    </a>
+                    <a href="/accounts/signup/" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none whitespace-nowrap">
+                      Sign Up
+                    </a>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </nav>
@@ -96,7 +116,7 @@ function App() {
           <Timeline />
         </section>
 
-        <section id="content-area" className="min-h-[350vh] ">
+        <section id="content-area" className="flex flex-col w-full overflow-hidden">
           <PrizesBrochure />
           <Testimonials />
           <FAQ />

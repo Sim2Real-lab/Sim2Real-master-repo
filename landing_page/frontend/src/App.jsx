@@ -12,6 +12,7 @@ import { cn } from "./lib/utils";
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {

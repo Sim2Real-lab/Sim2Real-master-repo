@@ -47,7 +47,7 @@ export const FAQ = () => {
   }, []);
 
   return (
-    <section id="faq" className="py-32 bg-[#f4f5f7] relative" ref={containerRef}>
+    <section id="faq" className="py-16 md:py-32 bg-[#f4f5f7] relative" ref={containerRef}>
       {/* FIX 1: Changed to w-full with px-4 md:px-12 to push to extreme edges.
       */}
       <div className="w-full px-4 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-start relative z-10">

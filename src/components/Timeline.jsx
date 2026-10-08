@@ -25,7 +25,10 @@ export const Timeline = () => {
           
         </div>
 
-        <div className="w-full md:col-span-8 lg:col-span-7 flex flex-col pt-32 pb-32">
+        <div className="w-full md:col-span-8 lg:col-span-7 flex flex-col pt-16 md:pt-32 pb-16 md:pb-32">
+          {/* MOBILE DRONE SPACER: Reserves space ABOVE the heading for the 3D robot on narrow screens */}
+          <div className="flex justify-center md:hidden w-full h-[250px] sm:h-[300px] mb-8 relative pointer-events-none" aria-hidden="true"></div>
+
           <div className="mb-16">
             <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-foreground">
               Event Schedule

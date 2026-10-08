@@ -87,7 +87,7 @@ export const Testimonials = () => {
 
   return (
     // FIX 1: Stripped 'relative' and 'overflow-hidden' to match the Prizes section exactly
-    <section id="testimonials" className="py-32 bg-[#f4f5f7]" ref={sectionRef}>
+    <section id="testimonials" className="py-16 md:py-32 bg-[#f4f5f7]" ref={sectionRef}>
       
       {/* Premium Blurred Mesh Background */}
       <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-blue-300/30 rounded-full blur-[120px] mix-blend-multiply opacity-50 -translate-y-1/2 pointer-events-none"></div>
@@ -110,7 +110,7 @@ export const Testimonials = () => {
           
           <button 
             onClick={prevTestimonial}
-            className={`flex-shrink-0 p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+            className={`flex-shrink-0 p-2 md:p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
@@ -121,17 +121,17 @@ export const Testimonials = () => {
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {TESTIMONIALS.map((t, index) => (
-                <div key={index} className="w-full flex-shrink-0 px-2 py-2">
-                  <div className="testimonial-card flex flex-col justify-between h-full p-12 md:p-16 bg-white/60 backdrop-blur-xl border border-black/80 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group">
-                    <div className="absolute top-10 text-primary/10 font-display text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
+                <div key={index} className="w-full flex-shrink-0 px-1 md:px-2 py-2">
+                  <div className="testimonial-card flex flex-col justify-between h-full p-6 md:p-16 bg-white/60 backdrop-blur-xl border border-black/80 rounded-3xl shadow-xl shadow-blue-900/5 transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 cursor-pointer relative group">
+                    <div className="absolute top-4 md:top-10 text-primary/10 font-display text-6xl md:text-8xl leading-none rotate-180 selection:bg-transparent -ml-2 select-none pointer-events-none">
                       "
                     </div>
-                    <p className="text-xl md:text-3xl font-sans text-foreground/80 leading-relaxed font-semibold z-10 relative mb-12 tracking-tight min-h-[160px]">
+                    <p className="text-lg md:text-3xl font-sans text-foreground/80 leading-relaxed font-semibold z-10 relative mb-8 md:mb-12 tracking-tight min-h-[160px]">
                       <SplitQuote text={t.quote} />
                     </p>
                     <div className="mt-auto relative z-10">
-                      <div className="font-bold font-sans text-foreground text-xl tracking-tight">{t.author}</div>
-                      <div className="text-sm font-semibold text-primary mt-1 uppercase tracking-wider">{t.role}</div>
+                      <div className="font-bold font-sans text-foreground text-lg md:text-xl tracking-tight">{t.author}</div>
+                      <div className="text-xs md:text-sm font-semibold text-primary mt-1 uppercase tracking-wider">{t.role}</div>
                     </div>
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export const Testimonials = () => {
 
           <button 
             onClick={nextTestimonial}
-            className={`flex-shrink-0 p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === TESTIMONIALS.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
+            className={`flex-shrink-0 p-2 md:p-4 rounded-full bg-slate-900 text-white shadow-xl hover:bg-slate-800 hover:scale-110 hover:shadow-2xl transition-all z-30 ${currentIndex === TESTIMONIALS.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 cursor-pointer'}`}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </button>

@@ -30,68 +30,83 @@ export function DroneScene() {
   const droneRef = useRef(null);
   const gsapCtx = useRef(null);
 
-const proxy = useRef({
-    x: -5, y: 6, z:0, rotX: 0.8, rotY: 0, rotZ: 0 , scale: 0.02,
+const initialY = typeof window !== 'undefined' && window.innerWidth < 1024 ? 30 : 6;
+  const proxy = useRef({
+    x: -5, y: initialY, z:0, rotX: 0.8, rotY: 0, rotZ: 0 , scale: 0.02,
   });
 
 useEffect(() => {
     gsapCtx.current = gsap.context(() => {
+      let mm = gsap.matchMedia();
       
-      const timeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#timeline',
-          start: 'top 85%',
-          endTrigger: '#footer',
-          end: 'top bottom-=150px',
-          scrub: 1.5,
-        },
+      // 1. DESKTOP >= 1024px - ORIGINAL BEHAVIOR
+      mm.add("(min-width: 1024px)", () => {
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#timeline',
+            start: 'top 85%',
+            endTrigger: '#footer',
+            end: 'top bottom-=150px',
+            scrub: 1.5,
+          },
+        });
+
+        timeline
+          .to(proxy.current, { x: -5, y: 0, z: 0, scale: 0.01, rotX: 0.3, rotY: 0.15, rotZ: 0.15, ease: 'none', duration: 55 })
+          .to(proxy.current, { x: -2.5, y: 0, z: 0, scale: 0.02, rotX: 0.3, rotY: 0.3, rotZ: -0.05, ease: 'power2.inOut', duration: 20 })
+          .to(proxy.current, { y: 80, scale: 0.01, rotX: -0.2, rotY: 0.8, rotZ: 0, ease: 'power2.in', duration: 20 }, "+=0")
+          .to({}, { duration: 40 }); 
       });
 
-      timeline
-        // Phase 1: Lock to the LEFT side. 
-        .to(proxy.current, {
-          x: -5, 
-          y: 0, 
-          z: 0, 
-          scale: 0.01, 
-          rotX: 0.3, 
-          rotY: 0.15, 
-          rotZ: 0.15, 
-          ease: 'none', 
-          duration: 55, 
-        })
-        
-        // Phase 2: Move to EXACT MIDDLE. 
-        .to(proxy.current, {
-          x: -2.5, 
-          y: 0, 
-          z: 0, 
-          scale: 0.02, 
-          rotX: 0.3, 
-          rotY: 0.3, 
-          rotZ: -0.05, 
-          ease: 'power2.inOut', 
-          duration: 20, 
-        })
-        
-        // Phase 3: Hold & Exit. 
-        // Start the exit immediately after Phase 2 (removed the +=40 delay) so it leaves right before Event Brochure
-        .to(proxy.current, {
-          y: 80, 
-          scale: 0.01, 
-          rotX: -0.2, 
-          rotY: 0.8, 
-          rotZ: 0, 
-          ease: 'power2.in', 
-          duration: 20,
-        }, "+=0")
-        
-        // Padding: Keep the timeline running invisibly so Phase 1 & 2 scroll timings remain completely untouched
-        .to({}, { duration: 40 }); 
+      // 2. TABLET 768px - 1023px
+      mm.add("(min-width: 768px) and (max-width: 1023px)", () => {
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#timeline',
+            start: 'top 85%',
+            endTrigger: '#footer',
+            end: 'top bottom-=150px',
+            scrub: 1.5,
+          },
+        });
+
+        timeline
+          .to(proxy.current, { x: -3.0, y: 0, z: 0, scale: 0.008, rotX: 0.3, rotY: 0.15, rotZ: 0.15, ease: 'none', duration: 55 })
+          .to(proxy.current, { x: -1.5, y: 0, z: 0, scale: 0.015, rotX: 0.3, rotY: 0.3, rotZ: -0.05, ease: 'power2.inOut', duration: 20 })
+          .to(proxy.current, { y: 80, scale: 0.005, rotX: -0.2, rotY: 0.8, rotZ: 0, ease: 'power2.in', duration: 20 }, "+=0")
+          .to({}, { duration: 40 }); 
+      });
+
+      // 4. MOBILE < 768px
+      mm.add("(max-width: 767px)", () => {
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#timeline',
+            start: 'top 85%',
+            endTrigger: '#footer',
+            end: 'top bottom-=150px',
+            scrub: 1.5,
+          },
+        });
+
+        timeline
+          .to(proxy.current, { x: -1.1, y: 0, z: -1, scale: 0.011, rotX: 0.3, rotY: 0.15, rotZ: 0.15, ease: 'none', duration: 55 })
+          .to(proxy.current, { x: -0.85, y: 0, z: -0.5, scale: 0.013, rotX: 0.3, rotY: 0.3, rotZ: -0.05, ease: 'power2.inOut', duration: 20 })
+          .to(proxy.current, { y: 80, scale: 0.003, rotX: -0.2, rotY: 0.8, rotZ: 0, ease: 'power2.in', duration: 20 }, "+=0")
+          .to({}, { duration: 40 }); 
+      });
       
-      setTimeout(() => {
+      // Dynamically track React layout shifts (like Hero sequenceStep expands at 1.8s) 
+      // preventing the timeline trigger from being permanently miscalculated at load.
+      const ro = new ResizeObserver(() => {
         ScrollTrigger.refresh();
-      }, 500);
+      });
+      ro.observe(document.body);
+
+      return () => {
+        ro.disconnect();
+        mm.revert();
+      };
     });
 
     return () => gsapCtx.current?.revert();

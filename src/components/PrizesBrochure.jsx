@@ -76,7 +76,7 @@ export const PrizesBrochure = () => {
   }, []);
 
   return (
-    <section id="prizes" className="py-32 bg-[#f4f5f7] relative">
+    <section id="prizes" className="py-16 md:py-32 bg-[#f4f5f7] relative">
       {/* 1. THE CENTERED PRIZES CONTAINER */}
       <div className="max-w-6xl mx-auto px-6 flex flex-col items-center" ref={containerRef}>
         
