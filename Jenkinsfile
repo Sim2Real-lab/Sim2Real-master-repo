@@ -12,6 +12,7 @@ pipeline {
 
     environment {
         CI_VENV = "${WORKSPACE}@tmp/ci-venv"
+        RELEASE_TAG = "${params.RELEASE_TAG ?: ''}"
     }
 
     options {
@@ -45,7 +46,7 @@ pipeline {
 
                     git fetch --all --tags --prune
 
-                    if [ -n "${RELEASE_TAG}" ]; then
+                    if [ -n "${RELEASE_TAG:-}" ]; then
 
                         echo "Production release requested:"
                         echo "  ${RELEASE_TAG}"
@@ -122,7 +123,7 @@ pipeline {
                     echo "VERIFY SOURCE"
                     echo "========================================"
 
-                    if [ -n "${RELEASE_TAG}" ]; then
+                    if [ -n "${RELEASE_TAG:-}" ]; then
 
                         ACTUAL_COMMIT="$(git rev-parse HEAD)"
                         TAG_COMMIT="$(git rev-parse "${RELEASE_TAG}^{commit}")"
@@ -192,7 +193,7 @@ pipeline {
 
                     echo ""
                     echo "Release:"
-                    if [ -n "${RELEASE_TAG}" ]; then
+                    if [ -n "${RELEASE_TAG:-}" ]; then
                         echo "${RELEASE_TAG}"
                     else
                         echo "CI"
@@ -394,7 +395,7 @@ pipeline {
                     echo "========================================"
 
                     echo "Release:"
-                    echo "${RELEASE_TAG}"
+                    echo "${RELEASE_TAG:-}"
 
                     echo ""
                     echo "Commit:"
@@ -439,7 +440,7 @@ pipeline {
 
                     echo ""
                     echo "Release:"
-                    echo "${RELEASE_TAG}"
+                    echo "${RELEASE_TAG:-}"
 
                     echo ""
                     echo "Commit:"
@@ -454,7 +455,7 @@ pipeline {
                     echo ""
 
                     sudo /usr/local/sbin/sim2real-deploy \
-                        "${RELEASE_TAG}"
+                        "${RELEASE_TAG:-}"
 
                     echo ""
                     echo "========================================"
