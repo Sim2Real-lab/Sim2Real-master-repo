@@ -82,7 +82,7 @@
         <form class="sign-up-htm" method="post" action="{% url 'signup' %}">
           {% csrf_token %}
           <div class="group">
-            <label for="username" class="label">Username</label>
+            <label for="username" class="label">Email</label>
             <input name="username" id="username" type="text" class="input"
               value="{{ request.POST.username|default:'' }}" required>
           </div>
