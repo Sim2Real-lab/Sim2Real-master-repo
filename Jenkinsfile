@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        CI_VENV = "${WORKSPACE}@tmp/ci-venv"
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -30,13 +34,12 @@ pipeline {
                 sh '''
                     set -eu
 
-                    rm -rf .ci-venv
+                    rm -rf "$CI_VENV"
 
-                    python3 -m venv .ci-venv
-                    . .ci-venv/bin/activate
+                    python3 -m venv "$CI_VENV"
 
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
+                    "$CI_VENV/bin/python" -m pip install --upgrade pip
+                    "$CI_VENV/bin/pip" install -r requirements.txt
                 '''
             }
         }
@@ -46,16 +49,16 @@ pipeline {
                 sh '''
                     set -eu
 
-                    npm i
+                    npm ci
                 '''
             }
         }
 
         stage('Frontend Lint') {
             steps {
-                sh '''
-                    set -eu
+                set -eu
 
+                sh '''
                     npm run lint
                 '''
             }
@@ -66,9 +69,7 @@ pipeline {
                 sh '''
                     set -eu
 
-                    . .ci-venv/bin/activate
-
-                    python manage.py check
+                    "$CI_VENV/bin/python" manage.py check
                 '''
             }
         }
@@ -78,9 +79,7 @@ pipeline {
                 sh '''
                     set -eu
 
-                    . .ci-venv/bin/activate
-
-                    python manage.py test
+                    "$CI_VENV/bin/python" manage.py test
                 '''
             }
         }
@@ -99,7 +98,7 @@ pipeline {
     post {
         always {
             sh '''
-                rm -rf .ci-venv
+                rm -rf "$CI_VENV"
                 rm -rf node_modules
             '''
         }
