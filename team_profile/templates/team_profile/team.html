@@ -1,82 +1,481 @@
 {% extends 'home/index.html' %}
 {% load static %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'team_profile/style.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% block title %}Team Management | SIM2REAL{% endblock %}
 
+{% block extra_css %}
 <style>
-  /* Center the card container perfectly both horizontally and vertically */
-  .chatgpt-scroll-view {
-    padding: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    min-height: 100% !important;
-    height: 100% !important;
-    overflow-y: auto !important;
+  .team-dashboard-wrap {
+    max-width: 960px;
+    margin: 0 auto;
   }
-  .chatgpt-scroll-view > .container-fluid {
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
+  .card-glass {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 42, 91, 0.08);
+    box-shadow: 0 4px 20px rgba(15, 42, 91, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .main-content-area {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 20px 15px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+  .card-glass:hover {
+    box-shadow: 0 8px 30px rgba(15, 42, 91, 0.08);
   }
-  .team-start-card {
-    margin: 0 auto !important;
+  .join-code-box {
+    background: #f0f6ff;
+    border: 1px dashed #1769E0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .policy-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .nav-pills .nav-link.active {
+    background-color: #1769E0 !important;
+    color: #fff !important;
+  }
+  .nav-pills .nav-link {
+    color: #0b2a5b;
+    font-weight: 600;
   }
 </style>
-
 {% endblock %}
 
-{# Hide the SIM2REAL 2026 banner — only show the team card #}
-{% block top_panel %}{% endblock %}
-
 {% block content %}
-<div class="w-100 d-flex justify-content-center align-items-center">
-  {% if not user.team.exists %}
-  <div class="team-start-card">
-
-    <div class="team-icon">
-        <i class="fa fa-users"></i>
+<div class="team-dashboard-wrap py-2">
+  
+  <!-- Page Title Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b; font-size: 1.75rem;">
+        <i class="fa-solid fa-users text-primary me-2"></i>Team Management
+      </h2>
+      <p class="text-muted mb-0" style="font-size: 0.9rem;">
+        Manage your team members, track selection, and competition registration.
+      </p>
     </div>
-
-    <h2>Ready to Compete?</h2>
-
-    <p class="team-subtitle">
-        You're not part of any team yet.
-    </p>
-
-    <p class="team-description">
-        Create a new team or join an existing one to get started
-        and participate in the competition.
-    </p>
-
-    <div class="team-actions">
-        <a href="{% url 'create_team' %}" class="create-team-btn">
-            <i class="fa fa-plus"></i>
-            Create Team
-        </a>
-
-        <a href="{% url 'join_team' %}" class="join-team-btn">
-            <i class="fa fa-users"></i>
-            Join Team
-        </a>
+    {% if team %}
+    <div>
+      {% if registered %}
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
+          <i class="fa-solid fa-circle-check me-1"></i> Team Registered
+        </span>
+      {% elif is_pending %}
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 fs-6 rounded-pill">
+          <i class="fa-solid fa-clock me-1"></i> Registration Pending Approval
+        </span>
+      {% else %}
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i> Not Registered
+        </span>
+      {% endif %}
     </div>
-
+    {% endif %}
   </div>
+
+  {% if not team %}
+    <!-- ========================================================= -->
+    <!-- USER NOT IN TEAM: CREATE TEAM / JOIN TEAM UNIFIED VIEW -->
+    <!-- ========================================================= -->
+
+    {% if existing_request %}
+      <div class="alert alert-warning border-warning shadow-sm rounded-3 p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <i class="fa-solid fa-clock me-2"></i>
+            You have a pending request to join team <strong>{{ existing_request.team.name }}</strong>.
+          </div>
+          <form method="post" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cancel_request">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              <i class="fa-solid fa-xmark me-1"></i> Cancel Request
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="row g-4">
+      <!-- Create Team Card -->
+      <div class="col-lg-6">
+        <div class="card card-glass p-4 h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
+              <i class="fa-solid fa-plus fs-4"></i>
+            </div>
+            <div>
+              <h4 class="fw-bold mb-0 text-dark">Create a New Team</h4>
+              <span class="text-muted small">Become team leader & invite members</span>
+            </div>
+          </div>
+
+          <form method="post" class="mt-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_team">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-dark">Team Name</label>
+              <input type="text" name="name" class="form-control" placeholder="Enter team name" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-dark">Choose Competition Track</label>
+              <select name="track" class="form-select" required>
+                <option value="" selected disabled>-- Select Track --</option>
+                {% for trk in tracks %}
+                  <option value="{{ trk.id }}">{{ trk.name }}</option>
+                {% endfor %}
+              </select>
+              <div class="form-text small">Select between <strong>Sim2Real</strong> or <strong>Sim2Real Ideathon</strong>.</div>
+            </div>
+
+            <!-- Compliance Checkbox with Hyperlinks -->
+            <div class="policy-box mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="agree_policy" id="createAgreePolicy" required style="transform: scale(1.15); margin-top: 0.25em;">
+                <label class="form-check-label text-dark small" for="createAgreePolicy">
+                  By registering, you agree to comply with the 
+                  <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Code of Conduct</a>, 
+                  <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Privacy Policy</a>, and 
+                  <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Terms & Conditions</a>.
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold">
+              <i class="fa-solid fa-rocket me-1"></i> Create Team
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Join Team Card -->
+      <div class="col-lg-6">
+        <div class="card card-glass p-4 h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info">
+              <i class="fa-solid fa-key fs-4"></i>
+            </div>
+            <div>
+              <h4 class="fw-bold mb-0 text-dark">Join an Existing Team</h4>
+              <span class="text-muted small">Enter join code provided by your leader</span>
+            </div>
+          </div>
+
+          <form method="post" class="mt-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="join_team">
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold text-dark">Team Join Code</label>
+              <input type="text" name="join_code" class="form-control" placeholder="e.g. ab74907c-9fba-4cdc-a3a6-fefcbc5912f7" required>
+              <div class="form-text small">Ask your team leader for their unique UUID join code.</div>
+            </div>
+
+            <div class="alert alert-light border small text-muted mb-4">
+              <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+              Sending a request will notify the team leader. You will be added once they accept.
+            </div>
+
+            <button type="submit" class="btn btn-outline-primary w-100 py-2 rounded-pill fw-semibold" {% if existing_request %}disabled{% endif %}>
+              <i class="fa-solid fa-paper-plane me-1"></i> Request to Join Team
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  {% else %}
+    <!-- ========================================================= -->
+    <!-- USER IN TEAM: FULL UNIFIED TEAM DASHBOARD -->
+    <!-- ========================================================= -->
+
+    <!-- Team Info Header Card -->
+    <div class="card card-glass p-4 mb-4">
+      <div class="row align-items-center g-3">
+        <div class="col-md-7">
+          <h3 class="fw-bold text-dark mb-1">
+            Team Name: <span class="text-primary">{{ team.name }}</span>
+          </h3>
+          <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+              <i class="fa-solid fa-layer-group me-1"></i> Track: {{ team.track.name|default:"Not Selected" }}
+            </span>
+            {% if is_leader and not team_locked %}
+            <!-- Track Change Modal Trigger -->
+            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 ms-1" data-bs-toggle="modal" data-bs-target="#changeTrackModal">
+              <i class="fa-solid fa-pen-to-square me-1"></i>Change Track
+            </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-md-5">
+          <div class="join-code-box d-flex align-items-center justify-content-between gap-2">
+            <div>
+              <div class="text-muted small fw-semibold">TEAM JOIN CODE</div>
+              <div class="fw-bold text-dark text-truncate" style="max-width: 220px;" id="joinCodeText">{{ team.join_code }}</div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm rounded-3" onclick="copyJoinCode()" id="copyBtn">
+              <i class="fa-solid fa-copy me-1"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <!-- Members List Card -->
+      <div class="col-lg-7">
+        <div class="card card-glass p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-dark mb-0">
+              <i class="fa-solid fa-user-group text-primary me-2"></i>Current Members ({{ team.members.count }}/3)
+            </h5>
+            {% if team.members.count < 2 %}
+              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Min 2 required to register</span>
+            {% else %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Requirements met</span>
+            {% endif %}
+          </div>
+
+          <div class="list-group list-group-flush border-top border-bottom mb-3">
+            {% for member in members %}
+              <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-1 bg-transparent">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-weight: 700;">
+                    {{ member.username|slice:":1"|upper }}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark mb-0">{{ member.username }}</div>
+                    <div class="text-muted small">{{ member.email }}</div>
+                  </div>
+                </div>
+                <div>
+                  {% if member == team.leader %}
+                    <span class="badge bg-primary rounded-pill px-3 py-1"><i class="fa-solid fa-crown me-1"></i> Leader</span>
+                  {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1">Member</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Pending Join Requests (Leader View Inline) -->
+          {% if is_leader %}
+            <div class="mt-3">
+              <h6 class="fw-bold text-dark mb-2">
+                <i class="fa-solid fa-clock-rotate-left me-1 text-warning"></i> Pending Join Requests ({{ pending_requests.count }})
+              </h6>
+
+              {% if pending_requests %}
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th class="text-end">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for req in pending_requests %}
+                        <tr>
+                          <td class="fw-semibold">{{ req.user.username }}</td>
+                          <td class="text-muted small">{{ req.user.email }}</td>
+                          <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                              <form method="post" class="m-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="accept_request">
+                                <input type="hidden" name="request_id" value="{{ req.id }}">
+                                <button type="submit" class="btn btn-sm btn-success py-1 px-2" title="Accept member">
+                                  <i class="fa-solid fa-check"></i> Accept
+                                </button>
+                              </form>
+                              <form method="post" class="m-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="decline_request">
+                                <input type="hidden" name="request_id" value="{{ req.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Decline member">
+                                  <i class="fa-solid fa-xmark"></i> Decline
+                                </button>
+                              </form>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-muted small mb-0">No pending join requests at the moment.</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Registration & Policy Acceptance Card -->
+      <div class="col-lg-5">
+        <div class="card card-glass p-4 h-100 d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="fw-bold text-dark mb-3">
+              <i class="fa-solid fa-file-signature text-primary me-2"></i>Event Compliance & Registration
+            </h5>
+
+            <!-- Compliance Policy Status -->
+            <div class="policy-box mb-4">
+              <h6 class="fw-bold text-dark mb-2">Code of Conduct & Policies</h6>
+              <div class="mb-2 small text-muted">
+                Read our official guidelines:
+                <div class="mt-1 d-flex flex-wrap gap-2">
+                  <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">
+                    <i class="fa-solid fa-file-pdf me-1"></i>Code of Conduct
+                  </a>
+                  <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">
+                    <i class="fa-solid fa-shield-halved me-1"></i>Privacy Policy
+                  </a>
+                  <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">
+                    <i class="fa-solid fa-scale-balanced me-1"></i>T&C
+                  </a>
+                </div>
+              </div>
+
+              {% if policy_accepted_at %}
+                <div class="alert alert-success border-success p-2 small mb-0 rounded-3 mt-3">
+                  <i class="fa-solid fa-circle-check me-1"></i>
+                  <strong>Accepted:</strong> {{ policy_accepted_at|date:"M d, Y • H:i" }}
+                </div>
+              {% else %}
+                {% if is_leader %}
+                  <form method="post" class="mt-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="accept_policy">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dashAgreePolicy" required style="transform: scale(1.1); margin-top: 0.25em;">
+                      <label class="form-check-label text-dark small" for="dashAgreePolicy">
+                        I confirm that our team accepts all competition policies and Code of Conduct.
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary w-100 rounded-pill mt-1">
+                      Accept Policy & Save
+                    </button>
+                  </form>
+                {% else %}
+                  <div class="alert alert-warning border-warning p-2 small mb-0 rounded-3 mt-3">
+                    <i class="fa-solid fa-clock me-1"></i> Awaiting team leader policy acceptance.
+                  </div>
+                {% endif %}
+              {% endif %}
+            </div>
+
+            <!-- Pre-registration Checklist -->
+            <div class="mb-4">
+              <h6 class="fw-bold text-dark mb-2">Pre-Registration Requirements:</h6>
+              <ul class="list-unstyled small mb-0">
+                <li class="mb-2">
+                  {% if team.members.count >= 2 %}
+                    <i class="fa-solid fa-circle-check text-success me-2"></i>
+                  {% else %}
+                    <i class="fa-solid fa-circle-xmark text-danger me-2"></i>
+                  {% endif %}
+                  At least 2 members in team (Current: {{ team.members.count }}/3)
+                </li>
+                <li class="mb-2">
+                  {% if team.track %}
+                    <i class="fa-solid fa-circle-check text-success me-2"></i>
+                  {% else %}
+                    <i class="fa-solid fa-circle-xmark text-danger me-2"></i>
+                  {% endif %}
+                  Competition Track Selected ({{ team.track.name|default:"None" }})
+                </li>
+                <li>
+                  {% if policy_accepted_at %}
+                    <i class="fa-solid fa-circle-check text-success me-2"></i>
+                  {% else %}
+                    <i class="fa-solid fa-circle-xmark text-danger me-2"></i>
+                  {% endif %}
+                  Compliance Policies Accepted
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Registration Button -->
+          <div>
+            {% if is_leader %}
+              {% if registered %}
+                <button class="btn btn-success w-100 py-2 rounded-pill fw-semibold" disabled>
+                  <i class="fa-solid fa-circle-check me-1"></i> Event Registration Complete
+                </button>
+              {% elif is_pending %}
+                <a href="{% url 'payment_page' %}" class="btn btn-warning w-100 py-2 rounded-pill fw-semibold">
+                  <i class="fa-solid fa-clock me-1"></i> View Payment Approval Status
+                </a>
+              {% else %}
+                <a href="{% url 'register_for_event' %}" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold {% if team.members.count < 2 or not policy_accepted_at %}disabled{% endif %}">
+                  <i class="fa-solid fa-credit-card me-1"></i> Proceed to Registration & Payment
+                </a>
+              {% endif %}
+            {% else %}
+              <div class="text-center text-muted small">
+                Only team leaders can proceed to event registration.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
   {% endif %}
 </div>
+
+<!-- Modal to Change Competition Track (Leader Only) -->
+{% if is_leader and not team_locked %}
+<div class="modal fade" id="changeTrackModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-dark">Change Competition Track</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_track">
+        <div class="modal-body">
+          <label class="form-label fw-semibold text-dark">Select New Track</label>
+          <select name="track_id" class="form-select" required>
+            {% for trk in tracks %}
+              <option value="{{ trk.id }}" {% if team.track == trk %}selected{% endif %}>{{ trk.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+function copyJoinCode() {
+  const code = document.getElementById('joinCodeText').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied!';
+    btn.classList.replace('btn-primary', 'btn-success');
+    setTimeout(() => {
+      btn.innerHTML = '<i class="fa-solid fa-copy me-1"></i> Copy';
+      btn.classList.replace('btn-success', 'btn-primary');
+    }, 2000);
+  });
+}
+</script>
 {% endblock %}

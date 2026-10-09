@@ -4,15 +4,25 @@
 {% block content %}
 <div class="team-card-container mx-auto" style="max-width: 850px;">
   
-  {% if not team.is_verified %}
+  {% if team.policy_accepted_at %}
+  <div class="alert alert-success border-success shadow-sm rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between">
+    <div>
+      <i class="fa-solid fa-circle-check text-success me-2 fs-5"></i>
+      <strong>Policies & Code of Conduct Accepted:</strong> {{ team.policy_accepted_at|date:"M d, Y • H:i" }}
+    </div>
+    <div>
+      <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="btn btn-sm btn-outline-success">View Code of Conduct</a>
+    </div>
+  </div>
+  {% else %}
   <div class="alert alert-light border shadow-sm rounded-3 p-3 mb-4">
     <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="complianceCheckbox" style="cursor: pointer; transform: scale(1.1); margin-top: 0.3em;">
+      <input class="form-check-input" type="checkbox" id="complianceCheckbox" name="agree_terms" required style="cursor: pointer; transform: scale(1.1); margin-top: 0.3em;">
       <label class="form-check-label text-dark" for="complianceCheckbox" style="cursor: pointer;">
-        By registering you are complying to the 
-        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">T&C</a>, 
-        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">Privacy Policy</a>, and 
-        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">Code of Conduct</a>.
+        By registering you agree to the 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Terms & Conditions</a>, 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Privacy Policy</a>, and 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Code of Conduct</a>.
       </label>
     </div>
   </div>

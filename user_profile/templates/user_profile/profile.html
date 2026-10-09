@@ -718,6 +718,58 @@
 
     <div class="sidebar-nav-container" id="sidebarNavContainer">
       
+      {% if is_organiser or user.is_staff %}
+      <!-- Organiser Sidebar Navigation -->
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Primary Hub</div>
+        <a href="{% url 'staff_dashboard' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-chart-pie nav-icon"></i>
+          <span class="sidebar-nav-text">Overview</span>
+        </a>
+        <a href="{% url 'verify_payments' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-credit-card nav-icon"></i>
+          <span class="sidebar-nav-text">Verify Payments</span>
+          <span class="nav-badge">Finance</span>
+        </a>
+        <a href="{% url 'respond_queries' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-life-ring nav-icon"></i>
+          <span class="sidebar-nav-text">Support Queries</span>
+        </a>
+        <a href="{% url 'manage_submissions' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-file-arrow-up nav-icon"></i>
+          <span class="sidebar-nav-text">Manage Submissions</span>
+        </a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Users & Teams</div>
+        <a href="{% url 'user_data' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-address-card nav-icon"></i>
+          <span class="sidebar-nav-text">Check Users</span>
+        </a>
+        <a href="{% url 'check_registration' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-people-group nav-icon"></i>
+          <span class="sidebar-nav-text">Check Teams</span>
+        </a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Content & Materials</div>
+        <a href="{% url 'manage_problem_statement' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-file-lines nav-icon"></i>
+          <span class="sidebar-nav-text">Problem Statement</span>
+        </a>
+        <a href="{% url 'upload_brochure' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-book-open nav-icon"></i>
+          <span class="sidebar-nav-text">Upload Brochure</span>
+        </a>
+        <a href="{% url 'announcement_list' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-bullhorn nav-icon"></i>
+          <span class="sidebar-nav-text">Announcements</span>
+        </a>
+      </div>
+      {% else %}
+      <!-- Participant Sidebar Navigation -->
       <div class="sidebar-group">
         <div class="sidebar-group-title">Primary Hub</div>
         <a href="{% url 'home' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
@@ -725,17 +777,10 @@
           <span class="sidebar-nav-text">Dashboard</span>
         </a>
         
-        {% if user_in_team %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
+        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' or request.resolver_match.url_name == 'create_team_with_code' %}active{% endif %}">
           <i class="fa-solid fa-users nav-icon"></i>
-          <span class="sidebar-nav-text">Team Management</span>
+          <span class="sidebar-nav-text">Manage Team</span>
         </a>
-        {% else %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
-          <i class="fa-solid fa-user-plus nav-icon"></i>
-          <span class="sidebar-nav-text">Register</span>
-        </a>
-        {% endif %}
         
         {% if user_team and user_team.members.count >= 2 %}
         <a href="{% url 'payment_page' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'payment_page' %}active{% endif %}">
@@ -767,6 +812,7 @@
           <span class="sidebar-nav-text">Queries-Ask Us</span>
         </a>
       </div>
+      {% endif %}
 
     </div>
 
@@ -780,7 +826,7 @@
           </div>
           <div class="user-info-text">
             <div class="user-display-name">{{ user.username|default:"Participant" }}</div>
-            <div class="user-role-tag">User Dashboard</div>
+            <div class="user-role-tag">{% if is_organiser or user.is_staff %}Staff Dashboard{% else %}User Dashboard{% endif %}</div>
           </div>
           <i class="fa-solid fa-ellipsis user-more-dots"></i>
         </button>

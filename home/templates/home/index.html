@@ -705,17 +705,10 @@
           <span class="sidebar-nav-text">Dashboard</span>
         </a>
         
-        {% if user_in_team %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
+        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' or request.resolver_match.url_name == 'create_team' or request.resolver_match.url_name == 'join_team' %}active{% endif %}">
           <i class="fa-solid fa-users nav-icon"></i>
-          <span class="sidebar-nav-text">Team Management</span>
+          <span class="sidebar-nav-text">Manage Team</span>
         </a>
-        {% else %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
-          <i class="fa-solid fa-user-plus nav-icon"></i>
-          <span class="sidebar-nav-text">Register</span>
-        </a>
-        {% endif %}
         
         {% if user_team and user_team.members.count >= 2 %}
         <a href="{% url 'payment_page' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'payment_page' %}active{% endif %}">

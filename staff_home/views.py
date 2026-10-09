@@ -454,11 +454,14 @@ def create_announcement(request):
             announcement = form.save(commit=False)
             announcement.created_by = request.user
             announcement.save()
-            print(f"Announcement saved: {announcement}")
-            return redirect('make_announcments')  # Replace with your actual redirect
+            messages.success(request, "Announcement published successfully!")
+            return redirect('announcement_list')
+        else:
+            messages.error(request, "Error publishing announcement. Please check form inputs.")
+            return redirect('announcement_list')
     else:
         form = AnnouncmentForm()
-    return render(request, 'staff_home/announcment.html', {'form': form})
+    return render(request, 'staff_home/announcement_list.html', {'form': form, 'Announcments': Announcments.objects.order_by('-created_at')})
 
 
 @login_required

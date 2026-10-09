@@ -15,6 +15,7 @@ class Team(models.Model):
     rejection_reason = models.TextField(blank=True, null=True)
     track = models.ForeignKey('staff_home.Track', on_delete=models.SET_NULL, null=True, blank=True, related_name="teams")
     event_year = models.IntegerField(default=2026)
+    policy_accepted_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when team accepted policies and code of conduct")
 
     def is_registered(self):
         return self.is_paid and self.is_verified
