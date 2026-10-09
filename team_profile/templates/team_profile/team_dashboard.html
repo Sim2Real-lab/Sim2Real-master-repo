@@ -120,7 +120,7 @@
     <h3>Team Members:</h3>
     <ul>
       {% for member in members %}
-        <li>{{ member.username }} {% if member == team.leader %} (Leader) {% endif %}</li>
+        <li>{{ member.email }} {% if member == team.leader %} (Leader) {% endif %}</li>
       {% endfor %}
     </ul>
 
@@ -130,7 +130,7 @@
         {% csrf_token %}
         {% for req in pending_requests %}
           <div>
-            <strong>{{ req.user.username }}</strong>
+            <strong>{{ req.user.email }}</strong>
             <button type="submit" name="action" value="accept" formaction="?manage_request_action=1" formmethod="post" onclick="return confirm('Accept this request?');">Accept</button>
             <button type="submit" name="action" value="decline" formaction="?manage_request_action=1" formmethod="post" onclick="return confirm('Decline this request?');">Decline</button>
             <input type="hidden" name="request_id" value="{{ req.id }}">
@@ -146,7 +146,7 @@
     <h3>Members:</h3>
     <ul>
       {% for member in members %}
-        <li>{{ member.username }}</li>
+        <li>{{ member.email }}</li>
       {% endfor %}
     </ul>
 

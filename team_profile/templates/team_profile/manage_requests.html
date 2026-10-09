@@ -67,7 +67,7 @@
         <h2>Pending Join Requests</h2>
         {% if requests %}
             {% for req in requests %}
-                <p>{{ req.user.username }}</p>
+                <p>{{ req.user.email }}</p>
                 <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="request_id" value="{{ req.id }}">
