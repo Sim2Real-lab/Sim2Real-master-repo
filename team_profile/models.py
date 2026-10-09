@@ -22,9 +22,10 @@ class Team(models.Model):
     def is_outsider(self):
         for member in self.members.all():
             try:
-                if member.userprofile.college != "National Institute of Technology Karnataka":
+                profile = getattr(member, 'userprofile', None)
+                if not profile or not profile.is_nitk_user():
                     return True
-            except AttributeError:
+            except Exception:
                 return True  # treat users without profile as outsider
         return False
 

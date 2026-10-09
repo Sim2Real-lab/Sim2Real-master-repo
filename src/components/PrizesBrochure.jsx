@@ -101,7 +101,7 @@ export const PrizesBrochure = () => {
             {/* 2. Analog Devices */}
             <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-all duration-300 w-72 h-48">
               <img 
-                src="/static/assets/analog_devices_logo.svg" 
+                src="/static/assets/analog_devices_logo.png" 
                 alt="Analog Devices Logo" 
                 className="h-20 w-auto object-contain"
               />
@@ -110,7 +110,7 @@ export const PrizesBrochure = () => {
             {/* 3. Arcesium */}
             <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-all duration-300 w-72 h-48">
               <img 
-                src="/static/assets/arcesium_logo.svg" 
+                src="/static/assets/arcesium_logo.png" 
                 alt="Arcesium Logo" 
                 className="h-20 w-auto object-contain"
               />

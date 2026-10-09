@@ -23,10 +23,12 @@ def team_profile_views(request):
     
     # 1. Determine user's current team state
     team = None
-    if hasattr(user, 'led_team'):
+    try:
         team = user.led_team
-    elif user.team.exists():
-        team = user.team.first()
+    except Exception:
+        team = user.team.first() if user.team.exists() else None
+
+    is_leader = bool(team and team.leader == user)
 
     # 2. Handle POST Actions
     if request.method == 'POST':
@@ -85,7 +87,7 @@ def team_profile_views(request):
 
         # Manage Join Requests POST (for Leaders)
         elif action in ['accept_request', 'decline_request']:
-            if not hasattr(user, 'led_team'):
+            if not is_leader:
                 messages.error(request, "Only team leaders can manage join requests.")
                 return redirect('teamprofile')
             req_id = request.POST.get('request_id')
@@ -108,7 +110,7 @@ def team_profile_views(request):
 
         # Update Competition Track POST (for Leaders)
         elif action == 'update_track':
-            if not hasattr(user, 'led_team'):
+            if not is_leader:
                 messages.error(request, "Only team leaders can update the track.")
                 return redirect('teamprofile')
             if team.is_paid:
@@ -143,6 +145,7 @@ def team_profile_views(request):
             team = accepted_req.team
             accepted_req.delete()
             messages.success(request, f"Your request was accepted! You are now a member of '{team.name}'.")
+            is_leader = bool(team and team.leader == user)
 
     tracks = Track.objects.exclude(name='Default Track').order_by('order', 'name')
     if not tracks.exists():
@@ -152,9 +155,9 @@ def team_profile_views(request):
 
     context = {
         'team': team,
-        'is_leader': hasattr(user, 'led_team') if team else False,
+        'is_leader': is_leader,
         'members': team.members.all() if team else [],
-        'pending_requests': team.requests.filter(status='pending') if (team and hasattr(user, 'led_team')) else [],
+        'pending_requests': team.requests.filter(status='pending') if (team and is_leader) else [],
         'existing_request': existing_request,
         'create_form': TeamCreationForm(),
         'join_form': JoinCodeForm(),
@@ -213,11 +216,15 @@ def register_for_event(request):
     - Must have at least 2 members
     - Must have accepted Code of Conduct & Policies
     """
-    if not hasattr(request.user, 'led_team'):
+    team = None
+    try:
+        team = request.user.led_team
+    except Exception:
+        team = None
+
+    if not team:
         messages.error(request, "Only team leaders can register.")
         return redirect('teamprofile')
-
-    team = request.user.led_team
 
     if team.members.count() < 2:
         messages.error(request, "You need at least 2 members in your team to register.")
@@ -244,7 +251,13 @@ def payment_view(request):
     - View status: Pending Approval, Approved/Verified, or Rejected with reason
     - Compliance Checkbox enforcement
     """
-    if not hasattr(request.user, 'led_team'):
+    team = None
+    try:
+        team = request.user.led_team
+    except Exception:
+        team = None
+
+    if not team:
         messages.error(request, "You don't lead any team. Form or join a team first.")
         return redirect('teamprofile')
 

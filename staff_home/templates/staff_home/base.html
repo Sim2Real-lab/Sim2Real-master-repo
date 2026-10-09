@@ -838,7 +838,11 @@
           <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown"
             aria-expanded="false">
             <div class="user-avatar-wrap d-flex align-items-center justify-content-center">
-              <i class="fa-solid fa-user-tie text-primary" style="font-size: 1.8rem;"></i>
+              {% if user.userprofile and user.userprofile.photo %}
+                <img src="{{ user.userprofile.photo.url }}" alt="Profile" class="user-avatar">
+              {% else %}
+                <i class="fa-solid fa-user-tie text-primary" style="font-size: 1.8rem;"></i>
+              {% endif %}
               <span class="user-status-dot"></span>
             </div>
             <div class="user-info-text">

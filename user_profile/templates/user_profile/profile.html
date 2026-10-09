@@ -821,7 +821,13 @@
       <div class="dropdown">
         <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
           <div class="user-avatar-wrap">
-            <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            {% if profile and profile.photo %}
+              <img src="{{ profile.photo.url }}" alt="Profile" class="user-avatar">
+            {% elif user.userprofile and user.userprofile.photo %}
+              <img src="{{ user.userprofile.photo.url }}" alt="Profile" class="user-avatar">
+            {% else %}
+              <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            {% endif %}
             <span class="user-status-dot" style="background-color: #2da44e;"></span>
           </div>
           <div class="user-info-text">
