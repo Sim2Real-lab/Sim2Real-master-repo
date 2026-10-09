@@ -1,19 +1,26 @@
 {% extends 'staff_home/base.html' %}
+{% load static %}
 
 {% block title %}Edit Announcement | SIM2REAL{% endblock %}
 
 {% block extra_styles %}
 <style>
   .edit-announcement-wrapper {
-    max-width: 850px;
+    max-width: 900px;
     margin: 0 auto;
+    padding-top: 10px;
   }
   .edit-card {
     background: #ffffff;
     border: 1px solid #d8e5f5;
     border-radius: 16px;
-    box-shadow: 0 4px 18px rgba(15, 55, 110, 0.05);
+    box-shadow: 0 4px 20px rgba(15, 55, 110, 0.06);
     padding: 32px;
+  }
+  .edit-card .form-select,
+  .edit-card .form-control {
+    border-radius: 10px !important;
+    padding: 10px 14px;
   }
 </style>
 {% endblock %}
@@ -23,10 +30,12 @@
   
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-3">
-      <a href="{% url 'announcement_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+      <a href="{% url 'announcement_list' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
         <i class="fa-solid fa-arrow-left me-1"></i> Back to Announcements
       </a>
-      <h3 class="fw-bold mb-0" style="color: #0b2a5b;">Edit Announcement</h3>
+      <h3 class="fw-bold mb-0" style="color: #0b2a5b;">
+        <i class="fa-solid fa-pen-to-square text-primary me-2"></i>Edit Announcement
+      </h3>
     </div>
   </div>
 
@@ -35,19 +44,23 @@
       {% csrf_token %}
       <div class="row g-3">
         <div class="col-12">
-          <label for="id_message" class="form-label fw-semibold text-secondary small">Announcement Message</label>
+          <label for="id_message" class="form-label fw-semibold text-dark small">Announcement Message</label>
           <textarea name="message" id="id_message" class="form-control rounded-3" rows="4" required>{{ form.message.value|default:'' }}</textarea>
         </div>
         <div class="col-md-4 col-12">
-          <label for="id_category" class="form-label fw-semibold text-secondary small">Target Category</label>
-          {{ form.category }}
+          <label for="id_category" class="form-label fw-semibold text-dark small">Target Category</label>
+          <select name="category" id="id_category" class="form-select rounded-3" required>
+            <option value="GENERAL" {% if form.category.value == 'GENERAL' %}selected{% endif %}>General (Everyone)</option>
+            <option value="REGISTERED" {% if form.category.value == 'REGISTERED' %}selected{% endif %}>Registered Teams Only</option>
+            <option value="NOT_REGISTERED" {% if form.category.value == 'NOT_REGISTERED' %}selected{% endif %}>Non-Registered Users Only</option>
+          </select>
         </div>
         <div class="col-md-4 col-12">
-          <label for="id_valid_till" class="form-label fw-semibold text-secondary small">Valid Till</label>
+          <label for="id_valid_till" class="form-label fw-semibold text-dark small">Valid Till</label>
           <input type="date" name="valid_till" id="id_valid_till" class="form-control rounded-3" value="{{ form.valid_till.value|date:'Y-m-d' }}" required>
         </div>
         <div class="col-md-4 col-12">
-          <label for="id_schedule_for_later" class="form-label fw-semibold text-secondary small">Schedule Date</label>
+          <label for="id_schedule_for_later" class="form-label fw-semibold text-dark small">Schedule Date (Optional)</label>
           <input type="date" name="schedule_for_later" id="id_schedule_for_later" class="form-control rounded-3" value="{{ form.schedule_for_later.value|date:'Y-m-d' }}">
         </div>
         <div class="col-12 d-flex justify-content-end gap-2 mt-4">

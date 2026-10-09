@@ -16,12 +16,12 @@ class AnnouncmentForm(forms.ModelForm):
         ]
 
         widgets = {
-            'schedule_for_later': forms.DateInput(
-                attrs={'type': 'date'}
-            ),
-            'valid_till': forms.DateInput(
-                attrs={'type': 'date'}
-            ),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Type announcement message...'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'schedule_for_later': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'valid_till': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'manual_visibility': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'manual_validity': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
