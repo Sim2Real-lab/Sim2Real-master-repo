@@ -8,6 +8,7 @@ import { FAQ } from "./components/FAQ";
 import { ContactMap } from "./components/ContactMap";
 import { Footer } from "./components/Footer";
 import { Ideathon } from "./components/Ideathon";
+import { Preloader } from "./components/Preloader";
 import { usePageTransition } from "./hooks/usePageTransition";
 import { CanvasErrorBoundary } from "./components/CanvasErrorBoundary";
 import { cn } from "./lib/utils";
