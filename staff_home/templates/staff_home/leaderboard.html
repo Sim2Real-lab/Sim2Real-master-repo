@@ -1,0 +1,134 @@
+{% extends 'staff_home/base.html' %}
+{% load static %}
+
+{% block title %}Round 1 Leaderboard & Scoring | Sim2Real 2026{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- Header Banner -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b;">
+        <i class="fa-solid fa-trophy text-warning me-2"></i>Round 1 (Simulation) Leaderboard & Qualification
+      </h2>
+      <p class="text-muted mb-0 small">
+        Grade Round 1 submissions, set qualification status, and automatically route teams to Round 2 or Sim2Real Ideathon.
+      </p>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white p-3">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-4">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search by team name or leader email..." value="{{ query }}">
+      </div>
+      <div class="col-md-3">
+        <select name="track" class="form-select form-select-sm">
+          <option value="">All Problem Tracks</option>
+          {% for trk in tracks %}
+            <option value="{{ trk.id }}" {% if filter_track == trk.id|stringformat:"s" %}selected{% endif %}>{{ trk.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All Round 1 Statuses</option>
+          {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if filter_status == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 fw-semibold">
+          <i class="fa-solid fa-filter me-1"></i> Filter
+        </button>
+        {% if query or filter_track or filter_status %}
+          <a href="{% url 'leaderboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-xmark"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Teams Leaderboard Table -->
+  <div class="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+        <thead class="table-dark" style="background-color: #0b2a5b;">
+          <tr>
+            <th style="width: 50px;">Rank</th>
+            <th>Team Name</th>
+            <th>Track</th>
+            <th>Members</th>
+            <th>Submission</th>
+            <th>Round 1 Score</th>
+            <th>Round 1 Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for team in teams %}
+            <tr>
+              <td class="fw-bold text-muted text-center">#{{ forloop.counter }}</td>
+              <td>
+                <div class="fw-bold text-dark">{{ team.name }}</div>
+                <div class="text-muted small">Leader: {{ team.leader.email }}</div>
+              </td>
+              <td>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
+                  <i class="fa-solid fa-layer-group me-1"></i>{{ team.track.name|default:"Not Selected" }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill">
+                  {{ team.members.count }}/4 members
+                </span>
+              </td>
+              <td>
+                {% with sub=team.submissions.first %}
+                  {% if sub %}
+                    <a href="{{ sub.link }}" target="_blank" class="btn btn-xs btn-outline-primary rounded-2 py-1 px-2" style="font-size: 0.8rem;">
+                      <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Link
+                    </a>
+                  {% else %}
+                    <span class="text-muted small"><i class="fa-solid fa-minus"></i> No Submission</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td style="width: 130px;">
+                <form method="post" id="form-team-{{ team.id }}" class="d-flex align-items-center gap-1 m-0">
+                  {% csrf_token %}
+                  <input type="hidden" name="update_round1_status" value="1">
+                  <input type="hidden" name="team_id" value="{{ team.id }}">
+                  <input type="number" step="0.1" name="round1_score" class="form-control form-control-sm text-center fw-bold" value="{{ team.round1_score|default:'0' }}" style="width: 80px;">
+              </td>
+              <td style="width: 240px;">
+                  <select name="round1_status" class="form-select form-select-sm fw-semibold" style="font-size: 0.82rem;">
+                    {% for val, label in status_choices %}
+                      <option value="{{ val }}" {% if team.round1_status == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+              </td>
+              <td class="text-end">
+                  <button type="submit" class="btn btn-sm btn-primary py-1 px-3 rounded-pill fw-semibold">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Save
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="fa-solid fa-inbox fs-3 mb-2 d-block"></i>
+                No teams match the current criteria.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

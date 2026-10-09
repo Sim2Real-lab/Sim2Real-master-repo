@@ -72,8 +72,10 @@ def team_profile_views(request):
                 code = form.cleaned_data['join_code']
                 try:
                     target_team = Team.objects.get(join_code=code)
-                    if target_team.is_full():
-                        messages.error(request, "This team is already full (max 3 members).")
+                    if target_team.is_verified or target_team.is_registered():
+                        messages.error(request, "This team is verified/approved. Addition of new members is locked.")
+                    elif target_team.is_full():
+                        messages.error(request, "This team is already full (max 4 members).")
                     elif JoinRequest.objects.filter(user=user, team=target_team).exists():
                         messages.info(request, "You have already sent a request to join this team.")
                     else:
@@ -99,8 +101,10 @@ def team_profile_views(request):
             req_id = request.POST.get('request_id')
             join_req = get_object_or_404(JoinRequest, id=req_id, team=team)
             if action == 'accept_request':
-                if team.is_full():
-                    messages.error(request, "Cannot accept: Team is already full.")
+                if team.is_verified or team.is_registered():
+                    messages.error(request, "This team is verified/approved. Member additions are locked.")
+                elif team.is_full():
+                    messages.error(request, "Cannot accept: Team is already full (max 4 members).")
                 else:
                     join_req.status = 'accepted'
                     join_req.save()
@@ -119,8 +123,8 @@ def team_profile_views(request):
             if not is_leader:
                 messages.error(request, "Only team leaders can update the track.")
                 return redirect('teamprofile')
-            if team.is_paid:
-                messages.error(request, "Team is locked after registration/payment.")
+            if team.is_verified or team.is_registered() or team.is_paid:
+                messages.error(request, "Problem statement track is locked once team is approved/verified.")
                 return redirect('teamprofile')
             track_id = request.POST.get('track_id')
             if track_id:
@@ -173,7 +177,7 @@ def team_profile_views(request):
         'tracks': tracks,
         'registered': team.is_registered() if team else False,
         'is_pending': (team.is_paid and not team.is_verified) if team else False,
-        'team_locked': team.is_paid if team else False,
+        'team_locked': (team.is_verified or team.is_paid) if team else False,
         'policy_accepted_at': team.policy_accepted_at if team else None,
         'reg_config': reg_config,
         'is_track_open': is_track_open,

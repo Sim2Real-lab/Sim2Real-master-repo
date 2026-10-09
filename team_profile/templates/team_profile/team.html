@@ -199,6 +199,56 @@
     <!-- USER IN TEAM: FULL UNIFIED TEAM DASHBOARD -->
     <!-- ========================================================= -->
 
+    <!-- Round 1 (Simulation) Live Qualification Status Banner -->
+    <div class="card card-glass p-4 mb-4 border-start border-4 
+      {% if team.round1_status == 'qualified_r2' or team.round1_status == 'moved_waitlist_r2' %}border-success bg-success-subtle bg-opacity-10
+      {% elif team.round1_status == 'disqualified' %}border-danger bg-danger-subtle bg-opacity-10
+      {% elif team.round1_status == 'waitlist' %}border-warning bg-warning-subtle bg-opacity-10
+      {% elif team.round1_status == 'moved_ideathon' %}border-info bg-info-subtle bg-opacity-10
+      {% else %}border-primary bg-primary-subtle bg-opacity-10{% endif %}">
+      
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle p-3 text-white d-flex align-items-center justify-content-center shadow-sm"
+            style="width: 48px; height: 48px; font-size: 1.3rem; 
+            background-color: {% if team.round1_status == 'qualified_r2' or team.round1_status == 'moved_waitlist_r2' %}#198754{% elif team.round1_status == 'disqualified' %}#dc3545{% elif team.round1_status == 'waitlist' %}#ffc107{% elif team.round1_status == 'moved_ideathon' %}#0dcaf0{% else %}#0d6efd{% endif %};">
+            <i class="fa-solid {% if team.round1_status == 'qualified_r2' or team.round1_status == 'moved_waitlist_r2' %}fa-trophy{% elif team.round1_status == 'disqualified' %}fa-circle-xmark{% elif team.round1_status == 'waitlist' %}fa-clock{% elif team.round1_status == 'moved_ideathon' %}fa-lightbulb{% else %}fa-spinner fa-spin{% endif %}"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-1 text-dark">
+              Round 1 (Simulation) Live Status: 
+              <span class="{% if team.round1_status == 'qualified_r2' or team.round1_status == 'moved_waitlist_r2' %}text-success{% elif team.round1_status == 'disqualified' %}text-danger{% elif team.round1_status == 'waitlist' %}text-warning-emphasis{% elif team.round1_status == 'moved_ideathon' %}text-info-emphasis{% else %}text-primary{% endif %}">
+                {{ team.get_round1_status_display }}
+              </span>
+            </h5>
+            <p class="mb-0 text-muted small">
+              {% if team.round1_status == 'qualified_r2' %}
+                🎉 Congratulations! Your team has qualified for Round 2. Prepare for the next phase!
+              {% elif team.round1_status == 'moved_waitlist_r2' %}
+                🚀 Great news! Your team has been moved from the Waitlist into Round 2!
+              {% elif team.round1_status == 'moved_ideathon' %}
+                💡 Your team has been moved to the <strong>Sim2Real Ideathon</strong> track! Problem statement track updated.
+              {% elif team.round1_status == 'waitlist' %}
+                ⏳ Your team is currently on the Waitlist for Round 2. Stand by for updates!
+              {% elif team.round1_status == 'disqualified' %}
+                ❌ Your team did not qualify for Round 2. Thank you for your submission!
+              {% else %}
+                ⏳ Round 1 simulation evaluations are currently in progress. Check back soon for live results!
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          {% if team.round1_score > 0 %}
+            <span class="badge bg-dark text-white px-3 py-2 fs-6 rounded-pill">
+              Round 1 Score: {{ team.round1_score|floatformat:1 }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
     <!-- Team Info Header Card -->
     <div class="card card-glass p-4 mb-4">
       <div class="row align-items-center g-3">
@@ -215,20 +265,29 @@
             <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 ms-1" data-bs-toggle="modal" data-bs-target="#changeTrackModal">
               <i class="fa-solid fa-pen-to-square me-1"></i>Change Track
             </button>
+            {% elif team_locked %}
+              <span class="badge bg-secondary-subtle text-secondary ms-1"><i class="fa-solid fa-lock me-1"></i>Track Locked</span>
             {% endif %}
           </div>
         </div>
 
         <div class="col-md-5">
-          <div class="join-code-box d-flex align-items-center justify-content-between gap-2">
-            <div>
-              <div class="text-muted small fw-semibold">TEAM JOIN CODE</div>
-              <div class="fw-bold text-dark text-truncate" style="max-width: 220px;" id="joinCodeText">{{ team.join_code }}</div>
+          {% if not team_locked %}
+            <div class="join-code-box d-flex align-items-center justify-content-between gap-2">
+              <div>
+                <div class="text-muted small fw-semibold">TEAM JOIN CODE</div>
+                <div class="fw-bold text-dark text-truncate" style="max-width: 220px;" id="joinCodeText">{{ team.join_code }}</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm rounded-3" onclick="copyJoinCode()" id="copyBtn">
+                <i class="fa-solid fa-copy me-1"></i> Copy
+              </button>
             </div>
-            <button type="button" class="btn btn-primary btn-sm rounded-3" onclick="copyJoinCode()" id="copyBtn">
-              <i class="fa-solid fa-copy me-1"></i> Copy
-            </button>
-          </div>
+          {% else %}
+            <div class="alert alert-light border small text-muted mb-0">
+              <i class="fa-solid fa-lock text-primary me-1"></i>
+              <strong>Team Locked:</strong> Team approved by organizers. Member addition and track changes are locked.
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -239,12 +298,14 @@
         <div class="card card-glass p-4 h-100">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold text-dark mb-0">
-              <i class="fa-solid fa-user-group text-primary me-2"></i>Current Members ({{ team.members.count }}/3)
+              <i class="fa-solid fa-user-group text-primary me-2"></i>Current Members ({{ team.members.count }}/4)
             </h5>
             {% if team.members.count < 2 %}
               <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Min 2 required to register</span>
+            {% elif team.members.count > 4 %}
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Max 4 members allowed</span>
             {% else %}
-              <span class="badge bg-success-subtle text-success border border-success-subtle">Requirements met</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Requirements met (Min 2, Max 4)</span>
             {% endif %}
           </div>
 

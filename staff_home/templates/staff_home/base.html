@@ -763,6 +763,12 @@
             <i class="fa-solid fa-file-arrow-up nav-icon"></i>
             <span class="sidebar-nav-text">Manage Submissions</span>
           </a>
+          <a href="{% url 'leaderboard' %}"
+            class="sidebar-nav-item {% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}">
+            <i class="fa-solid fa-trophy nav-icon"></i>
+            <span class="sidebar-nav-text">Round 1 Leaderboard</span>
+            <span class="nav-badge">Scoring</span>
+          </a>
         </div>
 
         <!-- Group 2: Participants & Teams -->

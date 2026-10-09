@@ -902,9 +902,72 @@ def manage_registration_config(request):
 
         reg_config.save()
         messages.success(request, "Registration Configuration updated successfully!")
-        return redirect("manage_registration_config")
-
     return render(request, "staff_home/registration_config.html", {
         "reg_config": reg_config,
         "tracks": tracks,
     })
+
+
+@login_required
+@organiser_only
+def leaderboard_view(request):
+    """
+    Leaderboard & Round 1 Qualification / Scoring Panel:
+    - Lists teams with Round 1 submissions, tracks, Round 1 score & qualification status.
+    - POST: Updates Round 1 score and qualification status for a team.
+    - Auto-switches track to Sim2Real Ideathon if status is 'moved_ideathon'.
+    """
+    if request.method == 'POST' and 'update_round1_status' in request.POST:
+        team_id = request.POST.get('team_id')
+        team = get_object_or_404(Team, id=team_id)
+        
+        status = request.POST.get('round1_status', 'pending')
+        score_val = request.POST.get('round1_score', '')
+
+        team.round1_status = status
+        if score_val != '':
+            try:
+                team.round1_score = float(score_val)
+            except ValueError:
+                pass
+        
+        # If moved to Sim2Real Ideathon -> Auto update track to Ideathon
+        if status == 'moved_ideathon':
+            ideathon_track = Track.objects.filter(name__icontains="Ideathon").first()
+            if ideathon_track:
+                team.track = ideathon_track
+                messages.info(request, f"Team '{team.name}' track auto-updated to '{ideathon_track.name}'.")
+
+        team.save()
+        messages.success(request, f"Round 1 status & score updated for team '{team.name}'.")
+        return redirect('leaderboard')
+
+    # Filter & Query teams
+    teams_qs = Team.objects.select_related('leader', 'track').prefetch_related('members', 'submissions__window').order_by('-round1_score', 'name')
+
+    filter_track = request.GET.get('track', '')
+    filter_status = request.GET.get('status', '')
+    query = request.GET.get('q', '').strip()
+
+    if filter_track:
+        teams_qs = teams_qs.filter(track_id=filter_track)
+    if filter_status:
+        teams_qs = teams_qs.filter(round1_status=filter_status)
+    if query:
+        teams_qs = teams_qs.filter(
+            Q(name__icontains=query) |
+            Q(leader__username__icontains=query) |
+            Q(leader__email__icontains=query)
+        )
+
+    tracks = Track.objects.all()
+
+    context = {
+        'teams': teams_qs,
+        'tracks': tracks,
+        'filter_track': filter_track,
+        'filter_status': filter_status,
+        'query': query,
+        'status_choices': Team.ROUND1_STATUS_CHOICES,
+    }
+    return render(request, 'staff_home/leaderboard.html', context)

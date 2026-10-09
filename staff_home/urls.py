@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import list_tests,create_test,edit_test,delete_test,manage_questions,add_question,edit_question,delete_question,view_submissions,view_analysis,staff_dashboard,checkregistration,manage_submissions,toggle_window_visibility,create_window,window_detail,all_users_view,grade_submission,upload_questions,upload_brochure,queries,manage_resources,create_announcement,resolve_query,announcement_list,announcement_edit,verify_payments,view_payment_screenshot,add_section,manage_problem_statement,delete_section,edit_section,add_track,edit_track,delete_track,manage_registration_config
+from .views import list_tests,create_test,edit_test,delete_test,manage_questions,add_question,edit_question,delete_question,view_submissions,view_analysis,staff_dashboard,checkregistration,manage_submissions,toggle_window_visibility,create_window,window_detail,all_users_view,grade_submission,upload_questions,upload_brochure,queries,manage_resources,create_announcement,resolve_query,announcement_list,announcement_edit,verify_payments,view_payment_screenshot,add_section,manage_problem_statement,delete_section,edit_section,add_track,edit_track,delete_track,manage_registration_config,leaderboard_view
 
 urlpatterns = [
     path('', staff_dashboard, name='staff_dashboard'),
+    path('leaderboard/', leaderboard_view, name='leaderboard'),
     path('registration-config/', manage_registration_config, name='manage_registration_config'),
     path('check/registration/', checkregistration, name='check_registration'),
     path('upload/question/', upload_questions, name='upload_questions'),

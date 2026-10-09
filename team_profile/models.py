@@ -17,6 +17,20 @@ class Team(models.Model):
     event_year = models.IntegerField(default=2026)
     policy_accepted_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when team accepted policies and code of conduct")
 
+    ROUND1_STATUS_CHOICES = [
+        ('pending', 'Pending / Under Evaluation'),
+        ('disqualified', 'Disqualified'),
+        ('qualified_r2', 'Qualified for Round 2'),
+        ('waitlist', 'Waitlist'),
+        ('moved_ideathon', 'Moved for Sim2Real Ideathon'),
+        ('moved_waitlist_r2', 'Moved from Waitlist to Round 2'),
+    ]
+
+    round1_status = models.CharField(max_length=50, choices=ROUND1_STATUS_CHOICES, default='pending')
+    round1_score = models.FloatField(default=0.0, null=True, blank=True)
+    round2_status = models.CharField(max_length=50, choices=[('pending', 'Pending'), ('qualified', 'Qualified'), ('disqualified', 'Disqualified')], default='pending')
+    round2_score = models.FloatField(default=0.0, null=True, blank=True)
+
     def is_registered(self):
         return self.is_paid and self.is_verified
     def is_outsider(self):
@@ -31,7 +45,7 @@ class Team(models.Model):
 
 
     def is_full(self):
-        return self.members.count()>=3
+        return self.members.count() >= 4
     
     def __str__(self):
         return self.name
