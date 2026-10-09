@@ -99,40 +99,21 @@ export const PrizesBrochure = () => {
             </div>
 
             {/* 2. Analog Devices */}
-            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-4 hover:scale-105 transition-all duration-300 w-72 h-48">
-              <div className="flex flex-col items-center gap-2">
-                <svg className="w-12 h-12 text-[#001D4A]" viewBox="0 0 100 100" fill="currentColor">
-                  <path d="M50 5 L95 85 L5 85 Z" fill="none" stroke="currentColor" strokeWidth="12" strokeLinejoin="miter"/>
-                  <path d="M35 55 L65 55 L50 25 Z" fill="currentColor"/>
-                </svg>
-                <div className="text-center leading-tight">
-                  <span className="font-sans font-extrabold text-lg md:text-xl tracking-tighter text-[#001D4A] block">
-                    ANALOG DEVICES
-                  </span>
-                  <span className="text-[10px] tracking-widest text-zinc-500 uppercase block mt-0.5">
-                    Ahead of What's Possible™
-                  </span>
-                </div>
-              </div>
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-all duration-300 w-72 h-48">
+              <img 
+                src="/static/assets/analog_devices_logo.svg" 
+                alt="Analog Devices Logo" 
+                className="h-20 w-auto object-contain"
+              />
             </div>
 
             {/* 3. Arcesium */}
-            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-4 hover:scale-105 transition-all duration-300 w-72 h-48">
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <svg className="w-10 h-10 text-[#0066FF]" viewBox="0 0 100 100" fill="none">
-                    <rect x="15" y="15" width="30" height="70" rx="6" fill="#0066FF" />
-                    <rect x="55" y="15" width="30" height="30" rx="6" fill="#0A1329" />
-                    <rect x="55" y="55" width="30" height="30" rx="6" fill="#0066FF" opacity="0.7" />
-                  </svg>
-                  <span className="font-display font-extrabold text-2xl md:text-3xl tracking-tight text-[#0A1329]">
-                    arcesium
-                  </span>
-                </div>
-                <span className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-                  Collaborator & Partner
-                </span>
-              </div>
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-all duration-300 w-72 h-48">
+              <img 
+                src="/static/assets/arcesium_logo.svg" 
+                alt="Arcesium Logo" 
+                className="h-20 w-auto object-contain"
+              />
             </div>
           </div>
         </div>
@@ -215,7 +196,7 @@ export const PrizesBrochure = () => {
 
           {/* Bottom: Download PDF Link */}
           <a 
-            href="/sim2real-brochure.pdf" 
+            href="/media/brochures/Sim2Real_2026_Brochure.pdf" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-[#1a1a1a] font-display font-extrabold text-[4vw] uppercase cursor-pointer hover:text-[#0066FF] transition-colors duration-300"

@@ -103,9 +103,8 @@ export function Preloader({ onComplete }) {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="w-full flex justify-between items-center text-xs font-mono text-zinc-400 px-1">
+        <div className="w-full flex justify-center items-center text-xs font-mono text-zinc-400 px-1">
           <span>{statusText}</span>
-          <span className="text-cyan-400 font-bold">{progress}%</span>
         </div>
       </div>
     </div>

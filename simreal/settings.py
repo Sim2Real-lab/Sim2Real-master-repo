@@ -178,6 +178,9 @@ elif os.path.exists("/opt/sim2real/shared"):
 else:
     MEDIA_ROOT = str(BASE_DIR / 'media')
 
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+
 try:
     os.makedirs(MEDIA_ROOT, exist_ok=True)
 except Exception:

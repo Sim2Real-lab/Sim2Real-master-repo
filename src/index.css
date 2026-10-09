@@ -58,24 +58,24 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   TOP-TO-BOTTOM HORIZONTAL CURTAIN LAYERED STRIPE KEYFRAMES
+   LEFT-TO-RIGHT HORIZONTAL LAYERED STRIPE KEYFRAMES
    ───────────────────────────────────────────────────────────── */
 
-@keyframes stripeCoverDown {
+@keyframes stripeCoverLeftToRight {
   0% {
-    transform: translateY(-102%);
+    transform: translateX(-102%);
   }
   100% {
-    transform: translateY(0%);
+    transform: translateX(0%);
   }
 }
 
-@keyframes stripeRevealDown {
+@keyframes stripeRevealLeftToRight {
   0% {
-    transform: translateY(0%);
+    transform: translateX(0%);
   }
   100% {
-    transform: translateY(102%);
+    transform: translateX(102%);
   }
 }
 
@@ -89,11 +89,11 @@
 }
 
 .animate-stripe-cover {
-  animation: stripeCoverDown var(--stripe-duration) var(--stripe-ease) forwards;
+  animation: stripeCoverLeftToRight var(--stripe-duration) var(--stripe-ease) forwards;
 }
 
 .animate-stripe-reveal {
-  animation: stripeRevealDown var(--stripe-duration) var(--stripe-ease) forwards;
+  animation: stripeRevealLeftToRight var(--stripe-duration) var(--stripe-ease) forwards;
 }
 
 .animate-stripe-shimmer {
