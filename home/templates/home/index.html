@@ -584,7 +584,14 @@
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 35px 30px 60px;
+      padding: 20px 24px 40px !important;
+    }
+    .main-content-area {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+    .main-content-area > section {
+      margin-top: 0 !important;
     }
 
     /* Mobile Backdrop */
@@ -792,7 +799,7 @@
         {% block top_panel %}
         {% endblock %}
 
-<div class="container main-content-area mt-4">
+<div class="container main-content-area mt-0 pt-0">
   {% block content %}
   <!-- Dynamic content relevant to a logged-in hackathon participant -->
   <section class="dashboard-section p-4 rounded-lg shadow-lg">
