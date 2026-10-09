@@ -5,7 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 from .models import JoinRequest, Team
 from .forms import TeamCreationForm, JoinCodeForm, PaymentProofForm
-from staff_home.models import PaymentConfig, Track
+from staff_home.models import PaymentConfig, Track, RegistrationConfig
 from .decorator import user_view, profile_updated
 
 @login_required
@@ -20,6 +20,7 @@ def team_profile_views(request):
     - Handles POST actions: create team, join with code, cancel join request, accept/decline member requests, update track, accept policies.
     """
     user = request.user
+    reg_config = RegistrationConfig.get_config()
     
     # 1. Determine user's current team state
     team = None
@@ -41,9 +42,14 @@ def team_profile_views(request):
                 return redirect('teamprofile')
             form = TeamCreationForm(request.POST)
             if form.is_valid():
+                selected_track = form.cleaned_data.get('track') or reg_config.default_track
+                if not reg_config.is_track_open(selected_track):
+                    messages.error(request, reg_config.closed_message)
+                    return redirect('teamprofile')
+
                 new_team = form.save(commit=False)
                 new_team.leader = user
-                new_team.track = form.cleaned_data.get('track')
+                new_team.track = selected_track
                 new_team.policy_accepted_at = timezone.now()
                 new_team.save()
                 new_team.members.add(user)
@@ -147,11 +153,8 @@ def team_profile_views(request):
             messages.success(request, f"Your request was accepted! You are now a member of '{team.name}'.")
             is_leader = bool(team and team.leader == user)
 
-    tracks = Track.objects.exclude(name='Default Track').order_by('order', 'name')
-    if not tracks.exists():
-        tracks = Track.objects.all()
-
-    existing_request = JoinRequest.objects.filter(user=user, status='pending').order_by('-id').first() if not team else None
+    active_track = team.track if (team and team.track) else reg_config.default_track
+    is_track_open = reg_config.is_track_open(active_track)
 
     context = {
         'team': team,
@@ -159,13 +162,16 @@ def team_profile_views(request):
         'members': team.members.all() if team else [],
         'pending_requests': team.requests.filter(status='pending') if (team and is_leader) else [],
         'existing_request': existing_request,
-        'create_form': TeamCreationForm(),
+        'create_form': TeamCreationForm(initial={'track': reg_config.default_track.id if reg_config.default_track else None}),
         'join_form': JoinCodeForm(),
         'tracks': tracks,
         'registered': team.is_registered() if team else False,
         'is_pending': (team.is_paid and not team.is_verified) if team else False,
         'team_locked': team.is_paid if team else False,
         'policy_accepted_at': team.policy_accepted_at if team else None,
+        'reg_config': reg_config,
+        'is_track_open': is_track_open,
+        'default_track': reg_config.default_track,
     }
     return render(request, 'team_profile/team.html', context)
 
@@ -216,6 +222,7 @@ def register_for_event(request):
     - Must have at least 2 members
     - Must have accepted Code of Conduct & Policies
     """
+    reg_config = RegistrationConfig.get_config()
     team = None
     try:
         team = request.user.led_team
@@ -224,6 +231,10 @@ def register_for_event(request):
 
     if not team:
         messages.error(request, "Only team leaders can register.")
+        return redirect('teamprofile')
+
+    if not reg_config.is_track_open(team.track):
+        messages.error(request, reg_config.closed_message)
         return redirect('teamprofile')
 
     if team.members.count() < 2:

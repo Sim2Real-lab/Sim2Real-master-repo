@@ -12,7 +12,7 @@ import csv
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm,TrackForm
-from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig
+from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig,RegistrationConfig
 
 @login_required
 @organiser_only
@@ -865,3 +865,46 @@ def grade_participant(request, participant_test_id):
         ptest.save()
         return JsonResponse({"success": True, "score": total})
     return JsonResponse({"success": False, "error": "Invalid request"})
+
+
+@login_required
+@organiser_only
+def manage_registration_config(request):
+    """
+    Registration Configuration Control Panel for Organisers:
+    - Master toggle to start & stop registration
+    - Individual toggles for Sim2Real and Sim2Real Ideathon tracks
+    - Default track selection for participant registration
+    - Custom message displayed when registrations are closed
+    """
+    reg_config = RegistrationConfig.get_config()
+    tracks = Track.objects.all().order_by('order', 'name')
+
+    if request.method == "POST":
+        is_registration_open = request.POST.get("is_registration_open") == "on"
+        sim2real_enabled = request.POST.get("sim2real_enabled") == "on"
+        ideathon_enabled = request.POST.get("ideathon_enabled") == "on"
+        default_track_id = request.POST.get("default_track_id")
+        closed_message = request.POST.get("closed_message", "").strip()
+
+        reg_config.is_registration_open = is_registration_open
+        reg_config.sim2real_enabled = sim2real_enabled
+        reg_config.ideathon_enabled = ideathon_enabled
+        if closed_message:
+            reg_config.closed_message = closed_message
+
+        if default_track_id:
+            try:
+                selected_default = Track.objects.get(id=default_track_id)
+                reg_config.default_track = selected_default
+            except Track.DoesNotExist:
+                pass
+
+        reg_config.save()
+        messages.success(request, "Registration Configuration updated successfully!")
+        return redirect("manage_registration_config")
+
+    return render(request, "staff_home/registration_config.html", {
+        "reg_config": reg_config,
+        "tracks": tracks,
+    })

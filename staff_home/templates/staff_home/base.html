@@ -783,6 +783,11 @@
             <i class="fa-solid fa-credit-card nav-icon"></i>
             <span class="sidebar-nav-text">Payment Portal</span>
           </a>
+          <a href="{% url 'manage_registration_config' %}"
+            class="sidebar-nav-item {% if request.resolver_match.url_name == 'manage_registration_config' %}active{% endif %}">
+            <i class="fa-solid fa-sliders nav-icon"></i>
+            <span class="sidebar-nav-text">Registration Control</span>
+          </a>
         </div>
 
         <!-- Group 3: Contest Content -->

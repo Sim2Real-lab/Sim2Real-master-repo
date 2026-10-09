@@ -201,3 +201,39 @@ class PaymentConfig(models.Model):
     def __str__(self):
         return f"Payment Config (₹{self.amount} - {self.payee_name})"
 
+
+class RegistrationConfig(models.Model):
+    is_registration_open = models.BooleanField(default=True, help_text="Master toggle to start/stop all event registrations")
+    sim2real_enabled = models.BooleanField(default=True, help_text="Enable/disable registration for Sim2Real track")
+    ideathon_enabled = models.BooleanField(default=True, help_text="Enable/disable registration for Sim2Real Ideathon track")
+    default_track = models.ForeignKey(Track, on_delete=models.SET_NULL, null=True, blank=True, help_text="Default selected track for new registrations")
+    closed_message = models.TextField(default="Registrations for this track are currently closed by organizers.", help_text="Notice shown when registration is closed")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def get_config(cls):
+        config, _ = cls.objects.get_or_create(id=1)
+        if not config.default_track:
+            sim2real_track = Track.objects.filter(name__icontains="Sim2Real").exclude(name__icontains="Ideathon").first()
+            if not sim2real_track:
+                sim2real_track = Track.objects.first()
+            if sim2real_track:
+                config.default_track = sim2real_track
+                config.save()
+        return config
+
+    def is_track_open(self, track=None):
+        if not self.is_registration_open:
+            return False
+        if not track:
+            return self.is_registration_open
+        track_name = track.name.lower()
+        if "ideathon" in track_name:
+            return self.ideathon_enabled
+        elif "sim2real" in track_name:
+            return self.sim2real_enabled
+        return self.is_registration_open
+
+    def __str__(self):
+        return f"Registration Config (Master Open: {self.is_registration_open})"
+

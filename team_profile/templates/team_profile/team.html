@@ -121,12 +121,18 @@
               <input type="text" name="name" class="form-control" placeholder="Enter team name" required>
             </div>
 
+            {% if not reg_config.is_registration_open or not is_track_open %}
+              <div class="alert alert-danger border-danger shadow-sm rounded-3 p-3 mb-4">
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
+                <strong>Notice:</strong> {{ reg_config.closed_message }}
+              </div>
+            {% endif %}
+
             <div class="mb-3">
               <label class="form-label fw-semibold text-dark">Choose Competition Track</label>
               <select name="track" class="form-select" required>
-                <option value="" selected disabled>-- Select Track --</option>
                 {% for trk in tracks %}
-                  <option value="{{ trk.id }}">{{ trk.name }}</option>
+                  <option value="{{ trk.id }}" {% if default_track and default_track.id == trk.id %}selected{% endif %}>{{ trk.name }}</option>
                 {% endfor %}
               </select>
               <div class="form-text small">Select between <strong>Sim2Real</strong> or <strong>Sim2Real Ideathon</strong>.</div>
@@ -145,7 +151,7 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold">
+            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold" {% if not is_track_open %}disabled{% endif %}>
               <i class="fa-solid fa-rocket me-1"></i> Create Team
             </button>
           </form>
@@ -418,7 +424,7 @@
                   <i class="fa-solid fa-clock me-1"></i> View Payment Approval Status
                 </a>
               {% else %}
-                <a href="{% url 'register_for_event' %}" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold {% if team.members.count < 2 or not policy_accepted_at %}disabled{% endif %}">
+                <a href="{% url 'register_for_event' %}" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold {% if team.members.count < 2 or not policy_accepted_at or not is_track_open %}disabled{% endif %}">
                   <i class="fa-solid fa-credit-card me-1"></i> Proceed to Registration & Payment
                 </a>
               {% endif %}
