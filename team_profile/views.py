@@ -261,7 +261,6 @@ def payment_view(request):
         messages.error(request, "You don't lead any team. Form or join a team first.")
         return redirect('teamprofile')
 
-    team = request.user.led_team
     is_nitk_team = not team.is_outsider()
 
     if request.method == 'POST':
