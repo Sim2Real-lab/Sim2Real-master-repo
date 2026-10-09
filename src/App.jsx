@@ -1,11 +1,14 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { Hero } from "./components/Hero";
+import { About } from "./components/About";
 import { Timeline } from "./components/Timeline";
 import { PrizesBrochure } from "./components/PrizesBrochure";
 import { Testimonials } from "./components/Testimonials";
 import { FAQ } from "./components/FAQ";
 import { ContactMap } from "./components/ContactMap";
 import { Footer } from "./components/Footer";
+import { Ideathon } from "./components/Ideathon";
+import { usePageTransition } from "./components/PageTransitionContext";
 import { CanvasErrorBoundary } from "./components/CanvasErrorBoundary";
 import { cn } from "./lib/utils";
 
@@ -13,17 +16,59 @@ const DroneScene = lazy(() => import('./components/DroneScene').then(m => ({ def
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  const [preloaderFinished, setPreloaderFinished] = useState(false);
+  const { startTransition } = usePageTransition();
+
+  const [currentView, setCurrentView] = useState(() => {
+    const hash = window.location.hash;
+    const path = window.location.pathname;
+    if (hash === "#ideathon" || path.includes("ideathon")) return "ideathon";
+    return "home";
+  });
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      const path = window.location.pathname;
+      if (hash === "#ideathon" || path.includes("ideathon")) {
+        setCurrentView("ideathon");
+      } else {
+        setCurrentView("home");
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("hashchange", handleHashChange);
+    };
   }, []);
+
+  const navigateToHome = () => {
+    startTransition(() => {
+      window.location.hash = "";
+      setCurrentView("home");
+    });
+  };
+
+  const navigateToIdeathon = (e) => {
+    e?.preventDefault();
+    startTransition(() => {
+      window.location.hash = "ideathon";
+      setCurrentView("ideathon");
+    });
+  };
 
   return (
     <>
+      {!preloaderFinished && (
+        <Preloader onComplete={() => setPreloaderFinished(true)} />
+      )}
+
       <CanvasErrorBoundary>
         <Suspense fallback={null}>
           <DroneScene />
@@ -38,17 +83,135 @@ function App() {
           )}
         >
           <div className="flex justify-between items-center max-w-7xl mx-auto">
-            <a href="/" className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity">
+            <a
+              href="/"
+              onClick={(e) => {
+                if (currentView === "ideathon") {
+                  e.preventDefault();
+                  navigateToHome();
+                }
+              }}
+              className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity"
+            >
               <img src={`${import.meta.env.BASE_URL}assets/sim2real_icon.jpeg`} alt="Sim2Real Icon" className="h-8 w-8 object-contain rounded-md" />
               <span>SIM2REAL</span>
             </a>
             <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
-              <a href="#timeline" className="hover:text-primary transition-colors">Time Line</a>
-              <a href="#prizes" className="hover:text-primary transition-colors">Prizes</a>
-              <a href="#brochure" className="hover:text-primary transition-colors">Brochure</a>
-              <a href="#testimonials" className="hover:text-primary transition-colors">Testimonials</a>
-              <a href="#faq" className="hover:text-primary transition-colors">FAQ</a>
-              <a href="#queries" className="hover:text-primary transition-colors">Queries</a>
+              <a
+                href="#about"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                About
+              </a>
+              <a
+                href="#timeline"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("timeline")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Time Line
+              </a>
+              <a
+                href="#prizes"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("prizes")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Prizes
+              </a>
+              <a
+                href="#ideathon"
+                onClick={navigateToIdeathon}
+                className={cn(
+                  "font-semibold transition-colors",
+                  currentView === "ideathon" ? "text-primary border-b-2 border-primary" : "hover:text-primary"
+                )}
+              >
+                Ideathon
+              </a>
+              <a
+                href="#brochure"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("brochure")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Brochure
+              </a>
+              <a
+                href="#testimonials"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("testimonials")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Testimonials
+              </a>
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                FAQ
+              </a>
+              <a
+                href="#queries"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("queries")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Queries
+              </a>
               
               {!window.IS_REGISTERED && (
                 <div className="flex items-center gap-1">
@@ -88,18 +251,26 @@ function App() {
           </div>
         </nav>
 
-        <Hero />
+        {currentView === "ideathon" ? (
+          <Ideathon onGoHome={navigateToHome} />
+        ) : (
+          <>
+            <Hero />
 
-        <section id="timeline">
-          <Timeline />
-        </section>
+            <About />
 
-        <section id="content-area" className="min-h-[350vh] ">
-          <PrizesBrochure />
-          <Testimonials />
-          <FAQ />
-          <ContactMap />
-        </section>
+            <section id="timeline">
+              <Timeline />
+            </section>
+
+            <section id="content-area" className="min-h-[350vh] ">
+              <PrizesBrochure />
+              <Testimonials />
+              <FAQ />
+              <ContactMap />
+            </section>
+          </>
+        )}
 
         <footer id="footer">
           <Footer />

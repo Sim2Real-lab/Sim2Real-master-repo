@@ -338,6 +338,10 @@ def verify_otp_view(request):
 
 
 def logout_view(request):
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass
     auth_logout(request)
+    messages.success(request, "Logged out successfully.")
     return redirect('login')
 
