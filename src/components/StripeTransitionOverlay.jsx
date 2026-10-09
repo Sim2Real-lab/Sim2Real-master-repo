@@ -7,13 +7,19 @@ import React, { useEffect, useState } from "react";
  */
 export function StripeTransitionOverlay({ mode = "idle", onAnimationEnd }) {
   // mode: "cover" (animating in to hide screen), "reveal" (animating out to show screen), or "idle" (hidden)
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  });
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mediaQuery.matches);
+    if (typeof window === "undefined" || !window.matchMedia) return;
 
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handleChange = (e) => setReducedMotion(e.matches);
+
     mediaQuery.addEventListener?.("change", handleChange);
     return () => mediaQuery.removeEventListener?.("change", handleChange);
   }, []);

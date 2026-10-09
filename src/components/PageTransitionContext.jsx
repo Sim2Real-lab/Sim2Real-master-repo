@@ -1,14 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { PageTransitionContext } from "../context/PageTransitionContext";
 import { StripeTransitionOverlay } from "./StripeTransitionOverlay";
-
-const PageTransitionContext = createContext({
-  isTransitioning: false,
-  startTransition: () => {},
-});
 
 export function PageTransitionProvider({ children }) {
   // mode: "initial_cover" | "reveal" | "cover" | "idle"
-  const [overlayMode, setOverlayMode] = useState("cover"); 
+  const [overlayMode, setOverlayMode] = useState("cover");
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [pendingAction, setPendingAction] = useState(null);
 
@@ -51,14 +47,12 @@ export function PageTransitionProvider({ children }) {
   // 4. Global Link Click Interceptor for seamless internal navigation
   useEffect(() => {
     const handleGlobalClick = (e) => {
-      // Find closest anchor tag
       const anchor = e.target.closest("a");
       if (!anchor) return;
 
       const href = anchor.getAttribute("href");
       if (!href) return;
 
-      // Ignore external links, new tabs, downloads, or JS actions
       if (
         anchor.target === "_blank" ||
         e.metaKey ||
@@ -74,9 +68,7 @@ export function PageTransitionProvider({ children }) {
         return;
       }
 
-      // Internal hash or relative route links
       if (href.startsWith("#") || href.startsWith("/")) {
-        // If clicking a section link on the same page, play smooth stripe transition
         if (href.startsWith("#") && href.length > 1) {
           const targetElement = document.querySelector(href);
           if (targetElement) {
@@ -102,8 +94,4 @@ export function PageTransitionProvider({ children }) {
       />
     </PageTransitionContext.Provider>
   );
-}
-
-export function usePageTransition() {
-  return useContext(PageTransitionContext);
 }
