@@ -1,8 +1,9 @@
 from django.urls import path, include
 from accounts.views import logout_view
-from .views import home_view,schedule_view,registration_view,download_brochure,resources_view,announce_view,faq_view,problem_statement_view,user_submission_windows,submit_to_window
+from .views import home_view,schedule_view,registration_view,download_brochure,resources_view,announce_view,faq_view,problem_statement_view,user_submission_windows,submit_to_window,participant_leaderboard_view
 urlpatterns = [
     path('',home_view,name='home'),
+    path('leaderboard/', participant_leaderboard_view, name='participant_leaderboard'),
     path('logout/', logout_view, name='logout'),
     path('user_profile/',include('user_profile.urls'),name="profile"),
     path('events_schedule/',schedule_view,name='schedule'),

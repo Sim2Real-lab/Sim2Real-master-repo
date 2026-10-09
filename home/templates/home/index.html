@@ -742,6 +742,10 @@
           <i class="fa-solid fa-bullhorn nav-icon"></i>
           <span class="sidebar-nav-text">Announcements</span>
         </a>
+        <a href="{% url 'participant_leaderboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'participant_leaderboard' %}active{% endif %}">
+          <i class="fa-solid fa-trophy nav-icon text-warning"></i>
+          <span class="sidebar-nav-text">Leaderboard</span>
+        </a>
         <a href="{% url 'user_query' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'user_query' %}active{% endif %}">
           <i class="fa-solid fa-circle-question nav-icon"></i>
           <span class="sidebar-nav-text">Queries-Ask Us</span>

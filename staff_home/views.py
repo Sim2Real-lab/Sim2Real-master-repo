@@ -942,8 +942,8 @@ def leaderboard_view(request):
         messages.success(request, f"Round 1 status & score updated for team '{team.name}'.")
         return redirect('leaderboard')
 
-    # Filter & Query teams
-    teams_qs = Team.objects.select_related('leader', 'track').prefetch_related('members', 'submissions__window').order_by('-round1_score', 'name')
+    # Filter & Query teams (Only paid/registered teams appear on the leaderboard)
+    teams_qs = Team.objects.filter(is_paid=True).select_related('leader', 'track').prefetch_related('members', 'submissions__window').order_by('-round1_score', 'name')
 
     filter_track = request.GET.get('track', '')
     filter_status = request.GET.get('status', '')

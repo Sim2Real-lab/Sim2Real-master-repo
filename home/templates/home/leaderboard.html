@@ -1,0 +1,126 @@
+{% extends 'home/index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- Header Banner -->
+  <div class="card card-glass p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h3 class="fw-bold text-dark mb-1">
+          <i class="fa-solid fa-trophy text-warning me-2"></i>Official Event Leaderboard
+        </h3>
+        <p class="text-muted mb-0 small">
+          Live Round 1 (Simulation) scores and qualification status for registered teams.
+        </p>
+      </div>
+      <div>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fs-6">
+          <i class="fa-solid fa-shield-check me-1"></i> Registered Teams Only
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card card-glass p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search team by name..." value="{{ query }}">
+      </div>
+      <div class="col-md-5">
+        <select name="track" class="form-select form-select-sm">
+          <option value="">All Problem Statement Tracks</option>
+          {% for trk in tracks %}
+            <option value="{{ trk.id }}" {% if filter_track == trk.id|stringformat:"s" %}selected{% endif %}>{{ trk.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 fw-semibold">
+          <i class="fa-solid fa-filter me-1"></i> Filter
+        </button>
+        {% if query or filter_track %}
+          <a href="{% url 'participant_leaderboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-xmark"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Leaderboard Table Card -->
+  <div class="card card-glass p-0 overflow-hidden mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size: 0.93rem;">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center" style="width: 70px;">Rank</th>
+            <th>Team Name</th>
+            <th>Track</th>
+            <th>Members</th>
+            <th class="text-center">Round 1 Score</th>
+            <th>Round 1 Qualification Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in teams %}
+            <tr>
+              <td class="text-center fw-bold">
+                {% if forloop.counter == 1 %}
+                  <span class="badge bg-warning text-dark fs-6 rounded-circle" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">🥇</span>
+                {% elif forloop.counter == 2 %}
+                  <span class="badge bg-secondary text-white fs-6 rounded-circle" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">🥈</span>
+                {% elif forloop.counter == 3 %}
+                  <span class="badge text-white fs-6 rounded-circle" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background-color: #cd7f32;">🥉</span>
+                {% else %}
+                  <span class="text-muted">#{{ forloop.counter }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="fw-bold text-dark">{{ t.name }}</div>
+                <div class="text-muted small">Leader: {{ t.leader.email }}</div>
+              </td>
+              <td>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
+                  <i class="fa-solid fa-layer-group me-1"></i>{{ t.track.name|default:"Not Selected" }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill">
+                  {{ t.members.count }}/4 members
+                </span>
+              </td>
+              <td class="text-center fw-bold text-dark fs-6">
+                {% if t.round1_score > 0 %}
+                  {{ t.round1_score|floatformat:1 }}
+                {% else %}
+                  <span class="text-muted fw-normal small">--</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge px-3 py-1.5 rounded-pill 
+                  {% if t.round1_status == 'qualified_r2' or t.round1_status == 'moved_waitlist_r2' %}bg-success text-white
+                  {% elif t.round1_status == 'disqualified' %}bg-danger text-white
+                  {% elif t.round1_status == 'waitlist' %}bg-warning text-dark
+                  {% elif t.round1_status == 'moved_ideathon' %}bg-info text-dark
+                  {% else %}bg-secondary-subtle text-secondary{% endif %}">
+                  <i class="fa-solid {% if t.round1_status == 'qualified_r2' or t.round1_status == 'moved_waitlist_r2' %}fa-trophy{% elif t.round1_status == 'disqualified' %}fa-circle-xmark{% elif t.round1_status == 'waitlist' %}fa-clock{% elif t.round1_status == 'moved_ideathon' %}fa-lightbulb{% else %}fa-spinner fa-spin{% endif %} me-1"></i>
+                  {{ t.get_round1_status_display }}
+                </span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="fa-solid fa-trophy fs-2 mb-2 d-block text-muted"></i>
+                No registered teams available on the leaderboard yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
