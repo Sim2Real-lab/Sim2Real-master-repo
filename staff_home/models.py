@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
@@ -98,6 +99,22 @@ class Resource(models.Model):
 class Brochure(models.Model):
     file = models.FileField(upload_to="brochures/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.file and hasattr(self.file, 'path'):
+            try:
+                fpath = self.file.path
+                if os.path.exists(fpath):
+                    os.chmod(fpath, 0o644)
+                    dpath = os.path.dirname(fpath)
+                    if os.path.exists(dpath):
+                        os.chmod(dpath, 0o755)
+                    mpath = os.path.dirname(dpath)
+                    if os.path.exists(mpath):
+                        os.chmod(mpath, 0o755)
+            except Exception:
+                pass
 
     def __str__(self):
         return f"Brochure ({self.file.name})"

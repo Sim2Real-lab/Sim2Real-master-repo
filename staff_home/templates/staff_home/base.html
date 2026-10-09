@@ -881,6 +881,32 @@
        ========================================================= -->
     <main class="chatgpt-main">
 
+      <!-- Toast Notifications Container -->
+      {% if messages %}
+      <div class="toast-container p-3" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; pointer-events: none;">
+        {% for message in messages %}
+        <div class="toast show align-items-center border-0 mb-2 shadow-lg 
+          {% if message.tags == 'success' %}bg-success text-white
+          {% elif 'error' in message.tags or 'danger' in message.tags %}bg-danger text-white
+          {% elif 'warning' in message.tags %}bg-warning text-dark
+          {% else %}bg-primary text-white{% endif %}" 
+          role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; border-radius: 12px; min-width: 280px; backdrop-filter: blur(8px);">
+          <div class="d-flex align-items-center justify-content-between p-2 px-3">
+            <div class="toast-body d-flex align-items-center gap-2 p-1 font-semibold" style="font-size: 0.9rem;">
+              <i class="fa-solid 
+                {% if message.tags == 'success' %}fa-circle-check
+                {% elif 'error' in message.tags or 'danger' in message.tags %}fa-circle-exclamation
+                {% elif 'warning' in message.tags %}fa-triangle-exclamation
+                {% else %}fa-circle-info{% endif %} fs-6 me-1"></i>
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close {% if 'warning' in message.tags %}{% else %}btn-close-white{% endif %} ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <!-- Floating Hamburger Toggle (Mobile only) -->
       <button type="button" class="floating-sidebar-btn" id="floatingToggleBtn" onclick="toggleSidebar()"
         aria-label="Toggle Sidebar Navigation" title="Open Navigation">
@@ -1018,6 +1044,21 @@
         e.preventDefault();
         toggleSidebar();
       }
+    });
+
+    // Auto-dismiss Django Toast Notifications after 4 seconds
+    document.addEventListener("DOMContentLoaded", function () {
+      const toastEls = document.querySelectorAll('.toast');
+      toastEls.forEach(function (toastEl) {
+        setTimeout(function () {
+          try {
+            const bsToast = bootstrap.Toast.getInstance(toastEl) || new bootstrap.Toast(toastEl);
+            bsToast.hide();
+          } catch (e) {
+            toastEl.style.display = 'none';
+          }
+        }, 4000);
+      });
     });
   </script>
 

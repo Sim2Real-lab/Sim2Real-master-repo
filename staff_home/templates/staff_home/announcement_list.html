@@ -1064,13 +1064,6 @@
 <h2>Modify Previous Announcements</h2>
 
 <a href="{% url 'make_announcments' %}" class="btn btn-primary mb-3">Create New Announcement</a>
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li class="{{ message.tags }}">{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
 {% if Announcments %}
 <table class="table table-striped">
     <thead>
