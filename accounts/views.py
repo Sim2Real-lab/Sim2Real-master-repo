@@ -87,6 +87,9 @@ def login_view(request):
         auth_username = user_obj.username if user_obj else user_input
         user = authenticate(request, username=auth_username, password=password)
 
+        if user is None and user_obj and user_obj.check_password(password) and not user_obj.is_active:
+            user = user_obj
+
         if user is None:
             return render(request, 'accounts/login.html', {
                 'login_error': 'Invalid username or password'
@@ -105,13 +108,13 @@ def login_view(request):
                 verify_link=verify_link,
                 email_title="Verify Your Sim2Real Account",
                 email_heading="Email Verification Required",
-                email_body_text="Please click the button below to verify your email address and automatically log in to your account.",
+                email_body_text="Please click the button below to verify your email address and log into your account. (Please check your Spam/Junk folder if missing. Note: Account email verification is required only once).",
                 action_button_text="Verify & Log In",
                 subject="Verify your SIM2REAL account"
             )
             
             return render(request, 'accounts/login.html', {
-                'login_error': 'Your account requires email verification. A verification link has been sent to your email (and terminal log).'
+                'login_error': 'Your account is inactive. Email verification is required to log in. A verification link has been sent to your email. (Please check your Spam/Junk folder if missing. Note: Account email verification is required only once).'
             })
 
         # Check if 2FA has already been verified in this session
@@ -130,7 +133,7 @@ def login_view(request):
 
         if active_token and active_token.is_valid() and request.session.get('twofa_sent_for_user') == user.pk:
             return render(request, 'accounts/login.html', {
-                'login_info': 'A 2FA login verification link has been sent to your email (and terminal log). Please click the link to complete your login.'
+                'login_info': 'A 2FA login verification link has been sent to your email. Please click the link to complete your login. (Please check your Spam/Junk folder if missing. Note: Your account needs to be verified only once).'
             })
 
         # User is active -> Trigger Email-Based 2FA Login for the first time in this session
@@ -147,7 +150,7 @@ def login_view(request):
             verify_link=twofa_link,
             email_title="Sim2Real 2FA Login Verification",
             email_heading="Confirm Your Login",
-            email_body_text="A login request was initiated for your account. Click the button below to authorize this sign-in and log into your dashboard.",
+            email_body_text="A login request was initiated for your account. Click the button below to authorize this sign-in and log into your dashboard. (Please check your Spam/Junk folder if missing. Note: Your account needs to be verified only once).",
             action_button_text="Authorize & Log In",
             subject="SIM2REAL 2FA Login Verification Link"
         )
@@ -155,7 +158,7 @@ def login_view(request):
         request.session['twofa_sent_for_user'] = user.pk
 
         return render(request, 'accounts/login.html', {
-            'login_info': 'A 2FA login verification link has been sent to your email (and terminal log). Please click the link to complete your login.'
+            'login_info': 'A 2FA login verification link has been sent to your email. Please click the link to complete your login. (Please check your Spam/Junk folder if missing. Note: Your account needs to be verified only once).'
         })
 
     return render(request, 'accounts/login.html')
@@ -168,7 +171,7 @@ def signup_view(request):
             return redirect('staff_dashboard')
         return redirect('home')
 
-    generic_msg = "If an account exists with this information, an email has been sent. Please check your email."
+    generic_msg = "If an account exists with this information, an email has been sent. Please check your Inbox and Spam/Junk folder. Note: Your account needs to be verified only once."
 
     if request.method == 'POST':
         username = (request.POST.get('username') or request.POST.get('email') or '').strip()
@@ -200,7 +203,7 @@ def signup_view(request):
                 verify_link=verify_link,
                 email_title="Verify Your Sim2Real Account",
                 email_heading="Email Verification Required",
-                email_body_text="Please click the button below to verify your email address and automatically log in to your account.",
+                email_body_text="Please click the button below to verify your email address and log into your account. (Please check your Spam/Junk folder if missing. Note: Account email verification is required only once).",
                 action_button_text="Verify & Log In",
                 subject="Verify your SIM2REAL account"
             )
@@ -226,7 +229,7 @@ def signup_view(request):
                     verify_link=verify_link,
                     email_title="Verify Your Sim2Real Account",
                     email_heading="Welcome to Sim2Real 2026!",
-                    email_body_text="Thank you for creating an account. Please click the button below to verify your email address and automatically log in.",
+                    email_body_text="Thank you for creating an account. Please click the button below to verify your email address and log into your account. (Please check your Spam/Junk folder if missing. Note: Account email verification is required only once).",
                     action_button_text="Verify & Log In",
                     subject="Verify your SIM2REAL account"
                 )

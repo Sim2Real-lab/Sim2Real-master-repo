@@ -92,6 +92,24 @@ class EmailBased2FATest(TestCase):
         self.assertTrue(user.is_active)
         self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
 
+    def test_inactive_account_login_sends_verification_email(self):
+        user = User.objects.create_user(username='inactiveuser', password='Password123!', is_active=False)
+
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        sys.stderr = captured_output
+        try:
+            response = self.client.post(reverse('login'), {
+                'email': 'inactiveuser',
+                'password': 'Password123!'
+            })
+        finally:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+        self.assertContains(response, "Your account is inactive. Email verification is required to log in")
+        self.assertIn("[EMAIL VERIFICATION]", captured_output.getvalue())
+
     def test_email_based_2fa_login_flow(self):
         user = User.objects.create_user(username='login2fauser', password='Password123!', is_active=True)
 
