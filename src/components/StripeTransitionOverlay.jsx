@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 
 /**
  * StripeTransitionOverlay
- * Production-quality, CSS-first full-viewport stripe overlay for initial load & route transitions.
- * Inspired by Visa motion graphics - bold, parallel navy/blue rectangular stripes.
+ * Production-quality, horizontal layered curtain stripe overlay system.
+ * Top-to-bottom staggered horizontal curtains for initial load & page transitions.
  */
 export function StripeTransitionOverlay({ mode = "idle", onAnimationEnd }) {
-  // mode: "cover" (animating in to hide screen), "reveal" (animating out to show screen), or "idle" (hidden)
   const [reducedMotion, setReducedMotion] = useState(() => {
     if (typeof window !== "undefined" && window.matchMedia) {
       return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -27,18 +26,18 @@ export function StripeTransitionOverlay({ mode = "idle", onAnimationEnd }) {
   if (mode === "idle") return null;
 
   const handleAnimationEnd = (e) => {
-    // Only trigger on the last stripe (stripe 4) to ensure entire cascade completes
+    // Trigger on the bottom-most layer (stripe 4) completion
     if (e.target.dataset?.stripeIndex === "4" && onAnimationEnd) {
       onAnimationEnd();
     }
   };
 
-  const stripes = [
-    { bg: "bg-[#0a1329]", delayClass: "stripe-delay-0" }, // Deep Navy
-    { bg: "bg-[#0f1d3a]", delayClass: "stripe-delay-1" }, // Rich Navy
-    { bg: "bg-[#0066FF]", delayClass: "stripe-delay-2" }, // Sim2Real Vibrant Blue
-    { bg: "bg-[#112244]", delayClass: "stripe-delay-3" }, // Dark Slate Navy
-    { bg: "bg-[#080e1e]", delayClass: "stripe-delay-4" }, // Deepest Navy
+  const horizontalStripes = [
+    { bg: "bg-[#0a1329]", top: "top-[0%]", delayClass: "stripe-delay-0" },   // Layer 1 (Top)
+    { bg: "bg-[#0f1d3a]", top: "top-[20%]", delayClass: "stripe-delay-1" },  // Layer 2
+    { bg: "bg-[#0066FF]", top: "top-[40%]", delayClass: "stripe-delay-2" },  // Layer 3 (Brand Blue)
+    { bg: "bg-[#112244]", top: "top-[60%]", delayClass: "stripe-delay-3" },  // Layer 4
+    { bg: "bg-[#080e1e]", top: "top-[80%]", delayClass: "stripe-delay-4" },  // Layer 5 (Bottom)
   ];
 
   const animationClass = mode === "cover" ? "animate-stripe-cover" : "animate-stripe-reveal";
@@ -51,23 +50,23 @@ export function StripeTransitionOverlay({ mode = "idle", onAnimationEnd }) {
         reducedMotion ? "transition-opacity duration-200" : ""
       }`}
     >
-      <div className="relative w-full h-full flex">
-        {stripes.map((stripe, idx) => (
+      <div className="relative w-full h-full">
+        {horizontalStripes.map((stripe, idx) => (
           <div
             key={idx}
             data-stripe-index={idx}
             onAnimationEnd={handleAnimationEnd}
-            className={`h-full w-[21%] -ml-[1%] flex-shrink-0 ${stripe.bg} ${
+            className={`absolute left-0 right-0 w-full h-[20.5%] ${stripe.top} ${stripe.bg} ${
               reducedMotion ? "" : `${animationClass} ${stripe.delayClass}`
             }`}
             style={{
-              boxShadow: "0 0 35px rgba(0,0,0,0.3)",
               willChange: "transform",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
             }}
           />
         ))}
 
-        {/* Center Minimalist Brand Accent during full cover */}
+        {/* Center Minimalist Brand Accent during full curtain cover */}
         {mode === "cover" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <div className="flex flex-col items-center gap-2">

@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
 
 @theme {
-  --color-primary: #0066FF; /* Antimetal blue */
+  --color-primary: #0066FF;
   --font-sans: "Space Grotesk", system-ui, sans-serif;
   --font-display: "Syne", sans-serif;
 }
@@ -14,8 +14,8 @@
     --primary: #0066FF;
     --border: rgba(0, 0, 0, 0.08);
 
-    /* Visa Motion Language Stripe Variables */
-    --stripe-duration: 0.65s;
+    /* Horizontal Layered Curtain Transition Properties */
+    --stripe-duration: 0.55s;
     --stripe-ease: cubic-bezier(0.83, 0, 0.17, 1);
   }
 
@@ -58,24 +58,24 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   STAGGERED STRIPE TRANSITION KEYFRAMES (Visa Inspired)
+   TOP-TO-BOTTOM HORIZONTAL CURTAIN LAYERED STRIPE KEYFRAMES
    ───────────────────────────────────────────────────────────── */
 
-@keyframes stripeCoverLeft {
+@keyframes stripeCoverDown {
   0% {
-    transform: translateX(-105%) skewX(-7deg);
+    transform: translateY(-102%);
   }
   100% {
-    transform: translateX(0%) skewX(0deg);
+    transform: translateY(0%);
   }
 }
 
-@keyframes stripeRevealRight {
+@keyframes stripeRevealDown {
   0% {
-    transform: translateX(0%) skewX(0deg);
+    transform: translateY(0%);
   }
   100% {
-    transform: translateX(105%) skewX(7deg);
+    transform: translateY(102%);
   }
 }
 
@@ -89,11 +89,11 @@
 }
 
 .animate-stripe-cover {
-  animation: stripeCoverLeft var(--stripe-duration) var(--stripe-ease) forwards;
+  animation: stripeCoverDown var(--stripe-duration) var(--stripe-ease) forwards;
 }
 
 .animate-stripe-reveal {
-  animation: stripeRevealRight var(--stripe-duration) var(--stripe-ease) forwards;
+  animation: stripeRevealDown var(--stripe-duration) var(--stripe-ease) forwards;
 }
 
 .animate-stripe-shimmer {
@@ -101,10 +101,10 @@
 }
 
 .stripe-delay-0 { animation-delay: 0s; }
-.stripe-delay-1 { animation-delay: 0.07s; }
-.stripe-delay-2 { animation-delay: 0.14s; }
-.stripe-delay-3 { animation-delay: 0.21s; }
-.stripe-delay-4 { animation-delay: 0.28s; }
+.stripe-delay-1 { animation-delay: 0.08s; }
+.stripe-delay-2 { animation-delay: 0.16s; }
+.stripe-delay-3 { animation-delay: 0.24s; }
+.stripe-delay-4 { animation-delay: 0.32s; }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-stripe-cover,

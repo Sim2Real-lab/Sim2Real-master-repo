@@ -81,20 +81,58 @@ export const PrizesBrochure = () => {
       <div className="max-w-6xl mx-auto px-6 flex flex-col items-center" ref={containerRef}>
         
         {/* OUR COLLABORATORS SECTION */}
-        <div className="text-center mb-24 z-20 relative">
-          <h2 className="text-3xl md:text-5xl font-display font-bold mb-8 tracking-tight text-foreground">
+        <div className="text-center mb-24 z-20 relative w-full">
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-12 tracking-tight text-foreground">
             Our Collaborators
           </h2>
-          <div className="flex justify-center items-center">
-            <div className="p-6 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200/50 flex flex-col items-center gap-3 hover:scale-105 transition-transform duration-300">
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            {/* 1. Engineer NITK */}
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center gap-4 hover:scale-105 transition-all duration-300 w-72 h-48 justify-center">
               <img 
                 src="/static/landing_page/logo.jpeg" 
                 alt="Engineer NITK Logo" 
-                className="h-20 md:h-28 w-auto object-contain rounded-xl"
+                className="h-20 md:h-24 w-auto object-contain rounded-xl"
               />
               <span className="font-display font-bold text-lg md:text-xl tracking-widest text-zinc-900 uppercase">
                 ENGINEER
               </span>
+            </div>
+
+            {/* 2. Analog Devices */}
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-4 hover:scale-105 transition-all duration-300 w-72 h-48">
+              <div className="flex flex-col items-center gap-2">
+                <svg className="w-12 h-12 text-[#001D4A]" viewBox="0 0 100 100" fill="currentColor">
+                  <path d="M50 5 L95 85 L5 85 Z" fill="none" stroke="currentColor" strokeWidth="12" strokeLinejoin="miter"/>
+                  <path d="M35 55 L65 55 L50 25 Z" fill="currentColor"/>
+                </svg>
+                <div className="text-center leading-tight">
+                  <span className="font-sans font-extrabold text-lg md:text-xl tracking-tighter text-[#001D4A] block">
+                    ANALOG DEVICES
+                  </span>
+                  <span className="text-[10px] tracking-widest text-zinc-500 uppercase block mt-0.5">
+                    Ahead of What's Possible™
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Arcesium */}
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-4 hover:scale-105 transition-all duration-300 w-72 h-48">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <svg className="w-10 h-10 text-[#0066FF]" viewBox="0 0 100 100" fill="none">
+                    <rect x="15" y="15" width="30" height="70" rx="6" fill="#0066FF" />
+                    <rect x="55" y="15" width="30" height="30" rx="6" fill="#0A1329" />
+                    <rect x="55" y="55" width="30" height="30" rx="6" fill="#0066FF" opacity="0.7" />
+                  </svg>
+                  <span className="font-display font-extrabold text-2xl md:text-3xl tracking-tight text-[#0A1329]">
+                    arcesium
+                  </span>
+                </div>
+                <span className="text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+                  Collaborator & Partner
+                </span>
+              </div>
             </div>
           </div>
         </div>
