@@ -165,6 +165,46 @@
   <!-- Form for Uploading Transaction ID and Screenshot -->
   {% else %}
   
+  <!-- Proceed for Transaction Banner (Initial State) -->
+  <div id="proceedCard" class="card p-4 border-primary border-2 bg-primary bg-opacity-10 rounded-3 text-center mb-4 shadow-sm">
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle bg-primary text-white p-3 mb-3 shadow" style="width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      <h4 class="fw-bold text-dark mb-1">Proceed to Payment & Transaction</h4>
+      <p class="text-muted mb-3" style="max-width: 580px; font-size: 0.95rem;">
+        Click <strong>Proceed for Transaction</strong> below to reveal the payment QR code and unlock the submission fields. You will have <strong>5 minutes</strong> to complete your transaction and submit your receipt.
+      </p>
+      <button type="button" id="btnProceedTransaction" class="btn btn-primary btn-lg rounded-pill px-5 py-2.5 fw-bold shadow">
+        <i class="fa-solid fa-lock-open me-2"></i> Proceed for Transaction
+      </button>
+    </div>
+  </div>
+
+  <!-- Active 5-Minute Timer Banner -->
+  <div id="timerBanner" class="alert alert-warning border-warning shadow-sm rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between text-dark" style="display: none;">
+    <div class="d-flex align-items-center gap-3">
+      <div class="spinner-grow text-danger spinner-grow-sm" role="status"></div>
+      <div>
+        <span class="fw-bold fs-6"><i class="fa-solid fa-clock me-1 text-danger"></i> Transaction Timer Active</span>
+        <span class="d-block small text-muted">Complete payment and submit your receipt details before the timer expires.</span>
+      </div>
+    </div>
+    <div class="badge bg-danger text-white fs-4 px-3 py-2 rounded-pill font-monospace shadow-sm" id="timerDisplay">
+      05:00
+    </div>
+  </div>
+
+  <!-- Expired Session Alert -->
+  <div id="timerExpiredAlert" class="alert alert-danger border-danger shadow-sm rounded-3 p-4 mb-4 text-center" style="display: none;">
+    <i class="fa-solid fa-hourglass-end fs-2 text-danger mb-2"></i>
+    <h5 class="fw-bold mb-1">5-Minute Payment Window Expired</h5>
+    <p class="mb-3 small text-muted">Your transaction time limit has ended. Click below to restart the payment session and re-enable submission.</p>
+    <button type="button" id="btnRestartTransaction" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">
+      <i class="fa-solid fa-rotate-right me-1"></i> Restart Transaction Timer (5 Mins)
+    </button>
+  </div>
+
   {% if is_nitk_team %}
   <div class="alert alert-info border-info rounded-3 p-3 mb-4">
     <i class="fa-solid fa-graduation-cap text-info me-2 fs-5"></i>
@@ -186,7 +226,7 @@
         </div>
         <div id="qrHiddenMessage" class="text-muted small border rounded-3 p-4 mb-2 bg-white">
           <i class="fa-solid fa-lock mb-2 fs-3 text-warning"></i><br>
-          Please accept the T&C above to reveal the QR code
+          Click 'Proceed for Transaction' above to unlock the QR code & payment form.
         </div>
         <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
         <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">Fee: ₹{{ payment_config.amount|default:"500"|floatformat:0 }} / team</div>
@@ -254,39 +294,130 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const complianceCb = document.getElementById('complianceCheckbox');
+    const proceedCard = document.getElementById('proceedCard');
+    const timerBanner = document.getElementById('timerBanner');
+    const timerExpiredAlert = document.getElementById('timerExpiredAlert');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const btnProceed = document.getElementById('btnProceedTransaction');
+    const btnRestart = document.getElementById('btnRestartTransaction');
+    
     const controlledInputs = document.querySelectorAll('.form-controlled-input');
     const controlledBtns = document.querySelectorAll('.form-controlled-btn');
     const qrCodeContainer = document.getElementById('qrCodeContainer');
     const qrHiddenMessage = document.getElementById('qrHiddenMessage');
 
-    function toggleFormElements() {
-      const isChecked = complianceCb ? complianceCb.checked : true;
+    let countdownInterval = null;
+    const TIMER_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+    function unlockPaymentFields() {
       controlledInputs.forEach(input => {
-        input.disabled = !isChecked;
+        input.disabled = false;
       });
       controlledBtns.forEach(btn => {
-        btn.disabled = !isChecked;
+        btn.disabled = false;
       });
-      if (qrCodeContainer && qrHiddenMessage) {
-        qrCodeContainer.style.display = isChecked ? 'block' : 'none';
-        qrHiddenMessage.style.display = isChecked ? 'none' : 'block';
-      }
+      if (qrCodeContainer) qrCodeContainer.style.display = 'block';
+      if (qrHiddenMessage) qrHiddenMessage.style.display = 'none';
     }
 
-    if (complianceCb) {
-      // Set initial state based on checkbox
-      toggleFormElements();
-      
-      // Listen for changes
-      complianceCb.addEventListener('change', toggleFormElements);
-    } else {
-      // If no checkbox (e.g., NITK student logic or already checked), just show it
-      if (qrCodeContainer && qrHiddenMessage) {
-        qrCodeContainer.style.display = 'block';
-        qrHiddenMessage.style.display = 'none';
-      }
+    function lockPaymentFields() {
+      controlledInputs.forEach(input => {
+        input.disabled = true;
+      });
+      controlledBtns.forEach(btn => {
+        btn.disabled = true;
+      });
+      if (qrCodeContainer) qrCodeContainer.style.display = 'none';
+      if (qrHiddenMessage) qrHiddenMessage.style.display = 'block';
     }
+
+    function updateTimerDisplay(remainingMs) {
+      if (remainingMs <= 0) {
+        if (timerDisplay) timerDisplay.textContent = "00:00";
+        return;
+      }
+      const totalSeconds = Math.floor(remainingMs / 1000);
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      const formatted = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      if (timerDisplay) timerDisplay.textContent = formatted;
+    }
+
+    function startTimer(endTimeMs) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      
+      if (proceedCard) proceedCard.style.display = 'none';
+      if (timerExpiredAlert) timerExpiredAlert.style.display = 'none';
+      if (timerBanner) timerBanner.style.display = 'flex';
+      
+      unlockPaymentFields();
+
+      function tick() {
+        const now = Date.now();
+        const remaining = endTimeMs - now;
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          sessionStorage.removeItem('payment_timer_end');
+          if (timerBanner) timerBanner.style.display = 'none';
+          if (timerExpiredAlert) timerExpiredAlert.style.display = 'block';
+          lockPaymentFields();
+        } else {
+          updateTimerDisplay(remaining);
+        }
+      }
+
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    function initTransactionSession() {
+      const endTimeStr = sessionStorage.getItem('payment_timer_end');
+      if (endTimeStr) {
+        const endTimeMs = parseInt(endTimeStr, 10);
+        if (endTimeMs > Date.now()) {
+          startTimer(endTimeMs);
+          return;
+        } else {
+          sessionStorage.removeItem('payment_timer_end');
+          if (timerExpiredAlert) timerExpiredAlert.style.display = 'block';
+          if (proceedCard) proceedCard.style.display = 'none';
+          lockPaymentFields();
+          return;
+        }
+      }
+      
+      // Initial state: not started
+      lockPaymentFields();
+      if (proceedCard) proceedCard.style.display = 'block';
+      if (timerBanner) timerBanner.style.display = 'none';
+      if (timerExpiredAlert) timerExpiredAlert.style.display = 'none';
+    }
+
+    if (btnProceed) {
+      btnProceed.addEventListener('click', function() {
+        const newEndTime = Date.now() + TIMER_DURATION_MS;
+        sessionStorage.setItem('payment_timer_end', newEndTime);
+        startTimer(newEndTime);
+      });
+    }
+
+    if (btnRestart) {
+      btnRestart.addEventListener('click', function() {
+        const newEndTime = Date.now() + TIMER_DURATION_MS;
+        sessionStorage.setItem('payment_timer_end', newEndTime);
+        startTimer(newEndTime);
+      });
+    }
+
+    // Clear session timer on form submit
+    const forms = document.querySelectorAll('form');
+    forms.forEach(f => {
+      f.addEventListener('submit', function() {
+        sessionStorage.removeItem('payment_timer_end');
+      });
+    });
+
+    initTransactionSession();
   });
 </script>
 

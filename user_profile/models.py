@@ -22,11 +22,12 @@ class UserProfile(models.Model):
 
     def is_nitk_user(self):
         email = self.user.email.lower() if self.user and self.user.email else ""
-        email_domain_check = email.endswith('.nitk.edu.in') or email.endswith('@nitk.edu.in')
-        college_check = bool(
-            self.college and self.college.strip().lower() in ["nitk", "national institute of technology karnataka"]
+        return (
+            email.endswith('@nitk.edu.in') or 
+            email.endswith('.nitk.edu.in') or 
+            email.endswith('@nitk.ac.in') or 
+            email.endswith('.nitk.ac.in')
         )
-        return email_domain_check or college_check
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
