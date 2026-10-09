@@ -81,7 +81,7 @@ class EmailBased2FATest(TestCase):
         self.assertIn("[EMAIL VERIFICATION]", output_str)
         self.assertIn("User: existinguser", output_str)
 
-    def test_email_verification_link_activates_user(self):
+    def test_email_verification_link_activates_and_logs_in_user(self):
         user = User.objects.create_user(username='verifyuser', password='Password123!', is_active=False)
         token_obj, raw_token = EmailVerificationToken.create_token(user, token_type='signup')
 
@@ -90,7 +90,7 @@ class EmailBased2FATest(TestCase):
 
         user.refresh_from_db()
         self.assertTrue(user.is_active)
-        self.assertRedirects(response, reverse('login'))
+        self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
 
     def test_email_based_2fa_login_flow(self):
         user = User.objects.create_user(username='login2fauser', password='Password123!', is_active=True)

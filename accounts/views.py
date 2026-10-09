@@ -20,10 +20,38 @@ from .forms import OTPRequestForm, OTPVerifyForm
 from django.db import transaction
 import random
 from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 import sys
 from .models import EmailVerificationToken, PasswordResetOTP
 from .decorators import is_2fa_verified_for_session, mark_2fa_verified_in_session, clear_2fa_session
+
+def send_rich_verification_email(user, verify_link, email_title, email_heading, email_body_text, action_button_text, subject):
+    recipient_email = user.email or f"{user.username}@example.com"
+    context = {
+        'username': user.username,
+        'verify_link': verify_link,
+        'email_title': email_title,
+        'email_heading': email_heading,
+        'email_body_text': email_body_text,
+        'action_button_text': action_button_text,
+    }
+    html_content = render_to_string('accounts/email_verification.html', context)
+    text_content = f"Hello {user.username},\n\n{email_body_text}\n\nPlease click the link below to proceed:\n{verify_link}\n\nSim2Real 2026 Team"
+
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[recipient_email]
+    )
+    msg.attach_alternative(html_content, "text/html")
+    try:
+        msg.send(fail_silently=True)
+    except Exception as e:
+        print(f"Error sending email: {e}", flush=True)
+
 
 def _print_terminal_link(title: str, user: User, link: str, email: str = None):
     user_email = email or user.email or f"{user.username}@example.com"
@@ -41,6 +69,7 @@ def _print_terminal_link(title: str, user: User, link: str, email: str = None):
     sys.stdout.flush()
     sys.stderr.write(msg)
     sys.stderr.flush()
+
 
 
 @never_cache
@@ -71,6 +100,15 @@ def login_view(request):
                 reverse('verify_email_token', kwargs={'raw_token': raw_token})
             )
             _print_terminal_link("EMAIL VERIFICATION", user, verify_link)
+            send_rich_verification_email(
+                user=user,
+                verify_link=verify_link,
+                email_title="Verify Your Sim2Real Account",
+                email_heading="Email Verification Required",
+                email_body_text="Please click the button below to verify your email address and automatically log in to your account.",
+                action_button_text="Verify & Log In",
+                subject="Verify your SIM2REAL account"
+            )
             
             return render(request, 'accounts/login.html', {
                 'login_error': 'Your account requires email verification. A verification link has been sent to your email (and terminal log).'
@@ -103,12 +141,16 @@ def login_view(request):
 
         _print_terminal_link("EMAIL 2FA LOGIN VERIFICATION LINK", user, twofa_link)
 
-        # Try sending email
-        try:
-            subject = "SIM2REAL 2FA Login Verification Link"
-            send_mail(subject, f"Click the link to complete your login:\n\n{twofa_link}", settings.DEFAULT_FROM_EMAIL, [user.email or f"{user.username}@example.com"], fail_silently=True)
-        except Exception:
-            pass
+        # Send rich 2FA email
+        send_rich_verification_email(
+            user=user,
+            verify_link=twofa_link,
+            email_title="Sim2Real 2FA Login Verification",
+            email_heading="Confirm Your Login",
+            email_body_text="A login request was initiated for your account. Click the button below to authorize this sign-in and log into your dashboard.",
+            action_button_text="Authorize & Log In",
+            subject="SIM2REAL 2FA Login Verification Link"
+        )
 
         request.session['twofa_sent_for_user'] = user.pk
 
@@ -153,6 +195,15 @@ def signup_view(request):
                 reverse('verify_email_token', kwargs={'raw_token': raw_token})
             )
             _print_terminal_link("EMAIL VERIFICATION", existing_user, verify_link)
+            send_rich_verification_email(
+                user=existing_user,
+                verify_link=verify_link,
+                email_title="Verify Your Sim2Real Account",
+                email_heading="Email Verification Required",
+                email_body_text="Please click the button below to verify your email address and automatically log in to your account.",
+                action_button_text="Verify & Log In",
+                subject="Verify your SIM2REAL account"
+            )
             return render(request, 'accounts/signup.html', {'signup_info': generic_msg})
 
         email_address = username if '@' in username else f"{username}@example.com"
@@ -169,11 +220,16 @@ def signup_view(request):
                 )
                 _print_terminal_link("EMAIL VERIFICATION", user, verify_link, email=email_address)
 
-                # Send email quietly
-                try:
-                    send_mail('Verify your SIM2REAL account', f'Verification link:\n\n{verify_link}', settings.DEFAULT_FROM_EMAIL, [email_address], fail_silently=True)
-                except Exception:
-                    pass
+                # Send rich verification email
+                send_rich_verification_email(
+                    user=user,
+                    verify_link=verify_link,
+                    email_title="Verify Your Sim2Real Account",
+                    email_heading="Welcome to Sim2Real 2026!",
+                    email_body_text="Thank you for creating an account. Please click the button below to verify your email address and automatically log in.",
+                    action_button_text="Verify & Log In",
+                    subject="Verify your SIM2REAL account"
+                )
 
         except Exception as e:
             return render(request, 'accounts/signup.html', {'signup_error': f"Error creating user: {str(e)}"})
@@ -189,8 +245,12 @@ def verify_email_view(request, raw_token):
         user = token_obj.user
         user.is_active = True
         user.save(update_fields=['is_active'])
-        messages.success(request, "Your email has been verified successfully! You can now log in.")
-        return redirect('login')
+        auth_login(request, user)
+        messages.success(request, "Account verified & logged in successfully! Welcome to Sim2Real.")
+        redirect_url = 'staff_dashboard' if (hasattr(user, 'userrole') and user.userrole.is_organiser) else 'home'
+        response = redirect(redirect_url)
+        mark_2fa_verified_in_session(request, response, user)
+        return response
     else:
         messages.error(request, "Verification link is invalid, expired, or has already been used.")
         return redirect('login')
@@ -224,8 +284,12 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        messages.success(request, 'Your account has been activated successfully! You can now login.')
-        return redirect('login')
+        auth_login(request, user)
+        messages.success(request, 'Your account has been activated & logged in successfully! Welcome to Sim2Real.')
+        redirect_url = 'staff_dashboard' if (hasattr(user, 'userrole') and user.userrole.is_organiser) else 'home'
+        response = redirect(redirect_url)
+        mark_2fa_verified_in_session(request, response, user)
+        return response
     else:
         messages.error(request, 'Activation link is invalid or has expired.')
         return redirect('login')
@@ -251,9 +315,15 @@ def resend_verification_view(request):
             reverse('activate', kwargs={'uidb64': uid, 'token': token})
         )
 
-        subject = 'Resend - Verify your SIM2REAL account'
-        message = f'Hi again! Click below to verify your account:\n\n{verification_link}'
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+        send_rich_verification_email(
+            user=user,
+            verify_link=verification_link,
+            email_title="Verify Your Sim2Real Account",
+            email_heading="Account Verification Request",
+            email_body_text="You requested a new verification link. Please click below to verify your email address and automatically log in.",
+            action_button_text="Verify & Log In",
+            subject="Resend - Verify your SIM2REAL account"
+        )
 
         messages.success(request, 'Verification email resent. Please check your inbox.')
         return redirect('login')
