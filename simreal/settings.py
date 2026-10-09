@@ -171,7 +171,17 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "/opt/sim2real/shared/media" if os.path.exists("/opt/sim2real/shared") else str(BASE_DIR / 'media'))
+if os.environ.get("MEDIA_ROOT"):
+    MEDIA_ROOT = os.environ.get("MEDIA_ROOT")
+elif os.path.exists("/opt/sim2real/shared"):
+    MEDIA_ROOT = "/opt/sim2real/shared/media"
+else:
+    MEDIA_ROOT = str(BASE_DIR / 'media')
+
+try:
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+except Exception:
+    pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -634,8 +634,21 @@ def manage_resources(request):
 def upload_brochure(request):
     brochure = Brochure.objects.first()  # keep only one
     if request.method == "POST":
+        old_file_path = None
+        if brochure and brochure.file:
+            try:
+                old_file_path = brochure.file.path
+            except Exception:
+                old_file_path = None
+
         form = BrochureForm(request.POST, request.FILES, instance=brochure)
         if form.is_valid():
+            if old_file_path and 'file' in request.FILES:
+                try:
+                    if os.path.isfile(old_file_path):
+                        os.remove(old_file_path)
+                except Exception:
+                    pass
             form.save()
             messages.success(request, "Brochure uploaded successfully.")
             return redirect("upload_brochure")
