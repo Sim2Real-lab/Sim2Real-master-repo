@@ -153,6 +153,12 @@ def team_profile_views(request):
             messages.success(request, f"Your request was accepted! You are now a member of '{team.name}'.")
             is_leader = bool(team and team.leader == user)
 
+    tracks = Track.objects.exclude(name='Default Track').order_by('order', 'name')
+    if not tracks.exists():
+        tracks = Track.objects.all()
+
+    existing_request = JoinRequest.objects.filter(user=user, status='pending').order_by('-id').first() if not team else None
+
     active_track = team.track if (team and team.track) else reg_config.default_track
     is_track_open = reg_config.is_track_open(active_track)
 
