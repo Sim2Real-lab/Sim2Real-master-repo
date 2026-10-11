@@ -93,6 +93,12 @@
         <span class="text-muted d-block small">Status:</span>
         <strong class="text-success fs-6"><i class="fa-solid fa-shield-check me-1"></i>Verified & Unlocked</strong>
       </div>
+      {% if team.applied_coupon %}
+      <div class="col-12 mt-2 pt-2 border-top">
+        <span class="text-muted d-block small">Applied Coupon Code:</span>
+        <span class="badge bg-primary font-monospace">{{ team.applied_coupon.code }}</span> &bull; Target Fee: <strong>₹{{ team.discounted_amount|floatformat:2 }}</strong>
+      </div>
+      {% endif %}
       {% if team.payment_screenshot %}
       <div class="col-12 mt-3 pt-2 border-top">
         <span class="text-muted d-block small mb-2">Uploaded Proof Screenshot:</span>
@@ -127,6 +133,12 @@
           <span class="text-muted d-block small">Approval Status:</span>
           <strong class="text-warning-emphasis fs-6"><i class="fa-solid fa-spinner fa-spin me-1"></i>Under Organizer Review</strong>
         </div>
+        {% if team.applied_coupon %}
+        <div class="col-12 mt-2 pt-2 border-top">
+          <span class="text-muted d-block small">Applied Coupon Code:</span>
+          <span class="badge bg-primary font-monospace">{{ team.applied_coupon.code }}</span> &bull; Target Fee: <strong>₹{{ team.discounted_amount|floatformat:2 }}</strong>
+        </div>
+        {% endif %}
         {% if team.payment_screenshot %}
         <div class="col-12 mt-2 pt-2 border-top">
           <span class="text-muted d-block small mb-2">Submitted Screenshot:</span>
@@ -211,34 +223,126 @@
     <strong>NITK Student Team:</strong> As all team members are NITK students, event registration is free. Please upload your Student ID Card / Roll Number for organizer verification.
   </div>
   {% else %}
-  <div class="row g-4 mb-4 align-items-center">
+
+  <!-- Coupon Code Application Box -->
+  <div class="card p-3 mb-4 rounded-3 border shadow-sm bg-white">
+    {% if team.applied_coupon %}
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; font-size: 1.2rem;">
+            <i class="fa-solid fa-ticket"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="fw-bold text-success fs-6">Coupon Applied:</span>
+              <span class="badge bg-success font-monospace fs-6 px-2 py-1">{{ team.applied_coupon.code }}</span>
+              {% if discount_percentage > 0 %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle">-{{ discount_percentage }}% OFF</span>
+              {% endif %}
+            </div>
+            <div class="small text-muted mt-1">
+              Target Fee: <strong class="text-dark">₹{{ effective_base_amount|floatformat:2 }}</strong> 
+              (Standard fee: <del>₹{{ standard_amount|floatformat:2 }}</del>)
+            </div>
+          </div>
+        </div>
+        <div>
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="remove_coupon" value="1">
+            <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold px-3 py-1.5 rounded-pill">
+              <i class="fa-solid fa-xmark me-1"></i> Remove Coupon
+            </button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div class="row align-items-center g-3">
+        <div class="col-md-5">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 1.1rem;">
+              <i class="fa-solid fa-ticket"></i>
+            </div>
+            <div>
+              <span class="fw-bold text-dark d-block" style="font-size: 0.95rem;">Have a Coupon Code?</span>
+              <small class="text-muted" style="font-size: 0.8rem;">Enter your organizer coupon to reduce registration fee.</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <form method="post" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="apply_coupon" value="1">
+            <input type="text" name="coupon_code" class="form-control text-uppercase font-monospace" placeholder="e.g. S2R-PROMO" required style="font-size: 0.9rem;">
+            <button type="submit" class="btn btn-primary fw-semibold px-3 text-nowrap" style="font-size: 0.9rem;">
+              <i class="fa-solid fa-tag me-1"></i> Apply
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="row g-4 mb-4 align-items-stretch">
     <!-- QR Code Section -->
     <div class="col-md-5 text-center">
-      <div class="p-3 bg-light border rounded-3 shadow-sm">
-        <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
-        <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
-        <div id="qrCodeContainer" style="display: none;">
-          {% if payment_config and payment_config.qr_code %}
-          <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
+      <div class="p-3 bg-light border rounded-3 shadow-sm h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
+          <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
+          <div id="qrCodeContainer" style="display: none;">
+            {% if payment_config and payment_config.qr_code %}
+            <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 200px; object-fit: contain;">
+            {% else %}
+            <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 180px;">
+            {% endif %}
+          </div>
+          <div id="qrHiddenMessage" class="text-muted small border rounded-3 p-4 mb-2 bg-white">
+            <i class="fa-solid fa-lock mb-2 fs-3 text-warning"></i><br>
+            Click 'Proceed for Transaction' above to unlock the QR code & payment form.
+          </div>
+          <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
+        </div>
+
+        <!-- Dynamic Fee Breakdown -->
+        <div class="mt-3 p-3 bg-white rounded-3 border text-start shadow-sm">
+          {% if team.applied_coupon and team.discounted_amount is not None %}
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Standard Fee:</span>
+              <del>₹{{ standard_amount|floatformat:2 }}</del>
+            </div>
+            <div class="d-flex justify-content-between text-success fw-semibold small mb-1">
+              <span>Target Fee (Discounted):</span>
+              <span>₹{{ effective_base_amount|floatformat:2 }}</span>
+            </div>
           {% else %}
-          <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Registration Fee:</span>
+              <span class="fw-semibold text-dark">₹{{ effective_base_amount|floatformat:2 }}</span>
+            </div>
           {% endif %}
+          <div class="d-flex justify-content-between text-muted small mb-1">
+            <span>GST (18%):</span>
+            <span>₹{{ gst_amount|floatformat:2 }}</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold text-dark border-top pt-2 mt-1">
+            <span>Total Payable:</span>
+            <span class="text-primary font-monospace fs-5">₹{{ total_payable|floatformat:2 }}</span>
+          </div>
         </div>
-        <div id="qrHiddenMessage" class="text-muted small border rounded-3 p-4 mb-2 bg-white">
-          <i class="fa-solid fa-lock mb-2 fs-3 text-warning"></i><br>
-          Click 'Proceed for Transaction' above to unlock the QR code & payment form.
-        </div>
-        <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
-        <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">Fee: ₹{{ payment_config.amount|default:"500"|floatformat:0 }} / team</div>
-        <div class="text-danger fw-bold mt-2 fs-5">❗ Excluding GST. 18% GST will be added.</div>
+
       </div>
     </div>
     <!-- Payment Instructions -->
     <div class="col-md-7">
-      <div class="p-3 bg-light border rounded-3">
+      <div class="p-3 bg-light border rounded-3 h-100">
         <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-list-check text-primary me-2"></i>Instructions</h6>
         <ol class="text-muted small ps-3 mb-0">
-          <li class="mb-2">Complete payment of <strong>₹{% widthratio payment_config.amount|default:"500" 100 118 %}</strong> (Fee + 18% GST) to the QR code / Payee name shown.</li>
+          <li class="mb-2">
+            Complete payment of <strong>₹{{ total_payable|floatformat:2 }}</strong> 
+            ({% if team.applied_coupon %}Target Fee ₹{{ effective_base_amount|floatformat:2 }}{% else %}Fee ₹{{ effective_base_amount|floatformat:2 }}{% endif %} + 18% GST) 
+            to the QR code / Payee name shown.
+          </li>
           <li class="mb-2">Copy the 12-digit <strong>UPI Reference Number / Transaction ID</strong> from your UPI app receipt.</li>
           <li class="mb-2">Take a clear <strong>screenshot</strong> of the completed payment page.</li>
           <li>Enter the Transaction ID and upload the screenshot image below.</li>

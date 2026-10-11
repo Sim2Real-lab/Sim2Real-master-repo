@@ -13,6 +13,8 @@ class Team(models.Model):
     payment_screenshot = models.ImageField(upload_to="payments/", blank=True, null=True)
     payment_ref = models.CharField(max_length=50, blank=True, null=True)
     rejection_reason = models.TextField(blank=True, null=True)
+    applied_coupon = models.ForeignKey('staff_home.Coupon', on_delete=models.SET_NULL, null=True, blank=True, related_name="teams")
+    discounted_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Discounted target fee when coupon is applied")
     track = models.ForeignKey('staff_home.Track', on_delete=models.SET_NULL, null=True, blank=True, related_name="teams")
     event_year = models.IntegerField(default=2026)
     policy_accepted_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when team accepted policies and code of conduct")

@@ -237,3 +237,79 @@ class RegistrationConfig(models.Model):
     def __str__(self):
         return f"Registration Config (Master Open: {self.is_registration_open})"
 
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True, help_text="Unique coupon code")
+    target_amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Target final registration fee in INR")
+    ttl_minutes = models.PositiveIntegerField(default=1440, help_text="Time to live in minutes")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(help_text="Calculated expiration timestamp based on TTL")
+    max_uses = models.PositiveIntegerField(default=1, help_text="Maximum allowed successful uses")
+    used_count = models.PositiveIntegerField(default=0, help_text="Count of successful uses")
+    max_failures = models.PositiveIntegerField(default=3, help_text="Maximum allowed failures before coupon locks")
+    failure_count = models.PositiveIntegerField(default=0, help_text="Count of failed attempts / rejected payments")
+    is_active = models.BooleanField(default=True, help_text="Active toggle for coupon")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    description = models.CharField(max_length=255, blank=True, null=True, help_text="Organizer note/description")
+
+    def save(self, *args, **kwargs):
+        if self.code:
+            self.code = self.code.strip().upper()
+        if not self.expires_at:
+            self.expires_at = timezone.now() + datetime.timedelta(minutes=self.ttl_minutes)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        if not self.is_active:
+            return False, "This coupon is currently inactive."
+        if timezone.now() > self.expires_at:
+            return False, "This coupon has expired (TTL exceeded)."
+        if self.failure_count >= self.max_failures:
+            return False, f"This coupon is locked because maximum failure limit ({self.max_failures}) has been reached."
+        if self.used_count >= self.max_uses:
+            return False, "This coupon has already reached its maximum usage limit."
+        return True, "Valid"
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_locked(self):
+        return self.failure_count >= self.max_failures
+
+    @property
+    def is_depleted(self):
+        return self.used_count >= self.max_uses
+
+    @property
+    def status_label(self):
+        if not self.is_active:
+            return "Inactive"
+        if self.is_locked:
+            return "Failure Limit Reached"
+        if self.is_expired:
+            return "Expired"
+        if self.is_depleted:
+            return "Depleted"
+        return "Active"
+
+    def time_remaining_display(self):
+        now = timezone.now()
+        if now > self.expires_at:
+            return "Expired"
+        diff = self.expires_at - now
+        total_seconds = int(diff.total_seconds())
+        days = total_seconds // 86400
+        hours = (total_seconds % 86400) // 3600
+        minutes = (total_seconds % 3600) // 60
+        if days > 0:
+            return f"{days}d {hours}h left"
+        elif hours > 0:
+            return f"{hours}h {minutes}m left"
+        else:
+            return f"{max(minutes, 1)}m left"
+
+    def __str__(self):
+        return f"{self.code} (Target: ₹{self.target_amount})"
+

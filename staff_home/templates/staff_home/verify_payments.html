@@ -86,13 +86,229 @@
     </div>
   </div>
 
+  <!-- Coupon Code & Discount Management Card -->
+  <div class="card shadow-sm border-0 mb-4 bg-white rounded-3">
+    <div class="card-header bg-light border-0 py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="fw-bold mb-0 text-dark" style="color: #0b2a5b;">
+          <i class="fa-solid fa-ticket text-primary me-2"></i>Coupon Code Generator & TTL Management
+        </h5>
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 ms-2">
+          {{ active_coupons_count }} Active
+        </span>
+        <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">
+          {{ coupons|length }} Total
+        </span>
+      </div>
+      <div>
+        <button class="btn btn-sm btn-primary fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#createCouponCollapse" aria-expanded="false" aria-controls="createCouponCollapse">
+          <i class="fa-solid fa-plus me-1"></i> Generate New Coupon
+        </button>
+      </div>
+    </div>
+
+    <!-- Create Coupon Form (Collapse) -->
+    <div class="collapse" id="createCouponCollapse">
+      <div class="card-body p-4 border-top bg-light bg-opacity-50">
+        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-wand-magic-sparkles text-primary me-1"></i> Issue New Discount Coupon</h6>
+        <form method="post" action="{% url 'verify_payments' %}" class="row g-3">
+          {% csrf_token %}
+          <input type="hidden" name="create_coupon" value="1">
+
+          <div class="col-md-3">
+            <label for="id_coupon_code" class="form-label fw-semibold small text-dark">Coupon Code</label>
+            <input type="text" name="code" id="id_coupon_code" class="form-control font-monospace text-uppercase" placeholder="e.g. S2R-PROMO (Leave blank to auto-generate)">
+            <div class="form-text" style="font-size: 0.75rem;">Unique code given to participants.</div>
+          </div>
+
+          <div class="col-md-3">
+            <label for="id_target_amount" class="form-label fw-semibold small text-dark">Target Reduced Fee (₹)</label>
+            <div class="input-group">
+              <span class="input-group-text font-monospace">₹</span>
+              <input type="number" step="0.01" min="0" name="target_amount" id="id_target_amount" class="form-control" placeholder="e.g. 250.00" required>
+            </div>
+            <div class="form-text" style="font-size: 0.75rem;">Standard fee drops to this target amount.</div>
+          </div>
+
+          <div class="col-md-3">
+            <label for="id_ttl_value" class="form-label fw-semibold small text-dark">Time to Live (TTL)</label>
+            <div class="input-group">
+              <input type="number" min="1" name="ttl_value" id="id_ttl_value" class="form-control" value="24" required>
+              <select name="ttl_unit" class="form-select" style="max-width: 110px;">
+                <option value="hours" selected>Hours</option>
+                <option value="days">Days</option>
+                <option value="minutes">Minutes</option>
+              </select>
+            </div>
+            <div class="form-text" style="font-size: 0.75rem;">Coupon automatically expires when TTL elapses.</div>
+          </div>
+
+          <div class="col-md-3">
+            <label for="id_max_failures" class="form-label fw-semibold small text-dark">Max Allowed Failures</label>
+            <input type="number" min="1" name="max_failures" id="id_max_failures" class="form-control" value="3" required>
+            <div class="form-text" style="font-size: 0.75rem;">Locked if failures reach this target.</div>
+          </div>
+
+          <div class="col-md-3">
+            <label for="id_max_uses" class="form-label fw-semibold small text-dark">Max Total Uses</label>
+            <input type="number" min="1" name="max_uses" id="id_max_uses" class="form-control" value="1" required>
+            <div class="form-text" style="font-size: 0.75rem;">Total teams allowed to redeem it.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="id_coupon_desc" class="form-label fw-semibold small text-dark">Description / Purpose (Optional)</label>
+            <input type="text" name="description" id="id_coupon_desc" class="form-control" placeholder="e.g. 50% discount waiver for workshop participants">
+          </div>
+
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-success fw-semibold w-100">
+              <i class="fa-solid fa-check me-1"></i> Create Coupon
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Coupons Table -->
+    <div class="card-body p-0 border-top">
+      {% if coupons %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr class="small text-muted text-uppercase">
+              <th class="ps-4">Code</th>
+              <th>Target Payable</th>
+              <th>TTL / Expiry</th>
+              <th>Redemptions</th>
+              <th>Failures (Targeted)</th>
+              <th>Status</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in coupons %}
+            <tr>
+              <td class="ps-4">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="font-monospace fw-bold fs-6 text-primary">{{ c.code }}</span>
+                  <button type="button" class="btn btn-sm btn-light border p-1 rounded" title="Copy code" onclick="navigator.clipboard.writeText('{{ c.code }}'); alert('Copied code: {{ c.code }}');">
+                    <i class="fa-regular fa-copy text-muted"></i>
+                  </button>
+                </div>
+                {% if c.description %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">{{ c.description }}</small>
+                {% endif %}
+              </td>
+              <td>
+                <span class="fw-bold text-dark font-monospace fs-6">₹{{ c.target_amount|floatformat:2 }}</span>
+                {% if c.discount_percent > 0 %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle small ms-1">-{{ c.discount_percent }}%</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge {% if c.is_expired %}bg-danger-subtle text-danger border border-danger-subtle{% else %}bg-info-subtle text-dark border{% endif %}">
+                  <i class="fa-solid fa-clock me-1"></i>{{ c.time_remaining_display }}
+                </span>
+                <span class="d-block text-muted" style="font-size: 0.75rem;">Exp: {{ c.expires_at|date:"M d, H:i" }}</span>
+              </td>
+              <td>
+                <span class="fw-semibold {% if c.is_depleted %}text-danger{% else %}text-dark{% endif %} font-monospace">
+                  {{ c.used_count }} / {{ c.max_uses }}
+                </span>
+              </td>
+              <td>
+                {% if c.failure_count >= c.max_failures %}
+                  <span class="badge bg-danger text-white">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ c.failure_count }} / {{ c.max_failures }} (Locked)
+                  </span>
+                {% elif c.failure_count > 0 %}
+                  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                    {{ c.failure_count }} / {{ c.max_failures }}
+                  </span>
+                {% else %}
+                  <span class="text-muted small">0 / {{ c.max_failures }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if not c.is_active %}
+                  <span class="badge bg-secondary-subtle text-secondary border">Inactive</span>
+                {% elif c.is_locked %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Failure Limit Hit</span>
+                {% elif c.is_expired %}
+                  <span class="badge bg-warning-subtle text-warning-emphasis border">Expired</span>
+                {% elif c.is_depleted %}
+                  <span class="badge bg-dark text-white">Depleted</span>
+                {% else %}
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                {% endif %}
+              </td>
+              <td class="text-end pe-4">
+                <div class="d-inline-flex gap-1">
+                  <!-- Toggle Active -->
+                  <form method="post" action="{% url 'verify_payments' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="toggle_coupon" value="1">
+                    <input type="hidden" name="coupon_id" value="{{ c.id }}">
+                    <button type="submit" class="btn btn-sm {% if c.is_active %}btn-outline-secondary{% else %}btn-outline-success{% endif %}" title="{% if c.is_active %}Deactivate{% else %}Activate{% endif %}">
+                      <i class="fa-solid {% if c.is_active %}fa-ban{% else %}fa-check{% endif %}"></i>
+                    </button>
+                  </form>
+
+                  <!-- Reset Failures -->
+                  {% if c.failure_count > 0 %}
+                  <form method="post" action="{% url 'verify_payments' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="reset_coupon_failures" value="1">
+                    <input type="hidden" name="coupon_id" value="{{ c.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reset failures to 0">
+                      <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+
+                  <!-- Extend TTL +24h -->
+                  <form method="post" action="{% url 'verify_payments' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="extend_coupon_ttl" value="1">
+                    <input type="hidden" name="coupon_id" value="{{ c.id }}">
+                    <input type="hidden" name="extend_hours" value="24">
+                    <button type="submit" class="btn btn-sm btn-outline-info" title="Extend TTL by 24 Hours">
+                      <i class="fa-solid fa-hourglass-half"></i> +24h
+                    </button>
+                  </form>
+
+                  <!-- Delete -->
+                  <form method="post" action="{% url 'verify_payments' %}" class="d-inline" onsubmit="return confirm('Delete coupon {{ c.code }}?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_coupon" value="1">
+                    <input type="hidden" name="coupon_id" value="{{ c.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Coupon">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4 text-muted small">
+        <i class="fa-solid fa-ticket-simple fs-4 mb-2 d-block text-secondary"></i>
+        No coupon codes created yet. Click <strong>Generate New Coupon</strong> to issue discounted codes with TTL.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- Search & Filter Controls -->
   <div class="card p-3 mb-4 shadow-sm border-0 bg-white rounded-3">
     <form method="get" class="row g-2 align-items-center">
       <div class="col-md-5 col-sm-12">
         <div class="input-group">
           <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-          <input type="text" name="q" class="form-control" placeholder="Search by team name, leader, email, or Transaction ID..." value="{{ query }}">
+          <input type="text" name="q" class="form-control" placeholder="Search by team name, leader, email, coupon code, or Transaction ID..." value="{{ query }}">
         </div>
       </div>
       <div class="col-md-4 col-sm-8">
@@ -123,12 +339,17 @@
       <div class="card shadow-sm border rounded-3 bg-white p-3 p-md-4">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3 pb-3 border-bottom">
           <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
               <h4 class="fw-bold text-dark mb-0 me-2">{{ team.name }}</h4>
               {% if team.is_outsider %}
                 <span class="badge bg-secondary">Outsider Team</span>
               {% else %}
                 <span class="badge bg-info text-dark">NITK Team</span>
+              {% endif %}
+              {% if team.applied_coupon %}
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                  <i class="fa-solid fa-ticket me-1"></i> Coupon: <strong>{{ team.applied_coupon.code }}</strong> (Target: ₹{{ team.discounted_amount|floatformat:2 }})
+                </span>
               {% endif %}
             </div>
             <p class="text-muted mb-0 small">
@@ -165,6 +386,12 @@
                 <span class="text-muted small d-block">Transaction ID / UPI Reference:</span>
                 <span class="fw-bold text-dark font-monospace fs-6">{{ team.payment_ref|default:"Not Provided" }}</span>
               </div>
+              {% if team.applied_coupon %}
+              <div class="mt-2 pt-2 border-top text-primary small">
+                <i class="fa-solid fa-ticket me-1"></i>
+                <strong>Coupon:</strong> <span class="font-monospace fw-bold">{{ team.applied_coupon.code }}</span> &bull; Target Fee: <strong>₹{{ team.discounted_amount|floatformat:2 }}</strong>
+              </div>
+              {% endif %}
               {% if team.rejection_reason %}
               <div class="mt-2 pt-2 border-top text-danger small">
                 <strong>Rejection Note:</strong> {{ team.rejection_reason }}

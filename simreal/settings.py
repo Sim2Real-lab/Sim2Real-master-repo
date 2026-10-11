@@ -44,7 +44,7 @@ for env_path in env_candidates:
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-default-key")
 
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = False
 
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost,sim2real.nitk.ac.in").split(",") if h.strip()]
 

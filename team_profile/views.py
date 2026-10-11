@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from decimal import Decimal
 from django.utils import timezone
 from .models import JoinRequest, Team
 from .forms import TeamCreationForm, JoinCodeForm, PaymentProofForm
-from staff_home.models import PaymentConfig, Track, RegistrationConfig
+from staff_home.models import PaymentConfig, Track, RegistrationConfig, Coupon
 from .decorator import user_view, profile_updated
 
 @login_required
@@ -268,6 +269,7 @@ def register_for_event(request):
 def payment_view(request):
     """
     Payment Portal for Participant Team Leaders:
+    - Apply / Remove Coupon code with TTL & Failure limit tracking
     - Upload Transaction ID & Screenshot
     - View status: Pending Approval, Approved/Verified, or Rejected with reason
     - Compliance Checkbox enforcement
@@ -285,6 +287,44 @@ def payment_view(request):
     is_nitk_team = not team.is_outsider()
 
     if request.method == 'POST':
+        # Action 1: Apply Coupon Code
+        if "apply_coupon" in request.POST:
+            if is_nitk_team:
+                messages.info(request, "NITK student teams already have free registration.")
+                return redirect('payment_page')
+
+            coupon_code = request.POST.get("coupon_code", "").strip().upper()
+            if not coupon_code:
+                messages.error(request, "Please enter a coupon code.")
+                return redirect('payment_page')
+
+            coupon = Coupon.objects.filter(code__iexact=coupon_code).first()
+            if not coupon:
+                messages.error(request, f"Coupon code '{coupon_code}' is invalid.")
+                return redirect('payment_page')
+
+            is_val, err_msg = coupon.is_valid()
+            if not is_val:
+                coupon.failure_count += 1
+                coupon.save()
+                messages.error(request, f"Cannot apply coupon '{coupon.code}': {err_msg}")
+                return redirect('payment_page')
+
+            team.applied_coupon = coupon
+            team.discounted_amount = coupon.target_amount
+            team.save()
+            messages.success(request, f"Coupon '{coupon.code}' applied! Registration fee reduced to ₹{coupon.target_amount:.2f}.")
+            return redirect('payment_page')
+
+        # Action 2: Remove Coupon
+        if "remove_coupon" in request.POST:
+            team.applied_coupon = None
+            team.discounted_amount = None
+            team.save()
+            messages.info(request, "Coupon removed. Fee reverted to standard.")
+            return redirect('payment_page')
+
+        # Action 3: Payment Proof Submission
         # Verify compliance checkbox if not set yet
         agree_terms = request.POST.get('agree_terms') or request.POST.get('complianceCheckbox')
         if agree_terms or not team.policy_accepted_at:
@@ -292,6 +332,21 @@ def payment_view(request):
 
         form = PaymentProofForm(request.POST, request.FILES, instance=team)
         if form.is_valid():
+            # Validate applied coupon before saving
+            if team.applied_coupon:
+                is_val, err_msg = team.applied_coupon.is_valid()
+                if not is_val:
+                    team.applied_coupon.failure_count += 1
+                    team.applied_coupon.save()
+                    team.applied_coupon = None
+                    team.discounted_amount = None
+                    team.save()
+                    messages.error(request, f"Applied coupon is no longer valid ({err_msg}). Payment details not submitted. Please re-check payable fee.")
+                    return redirect('payment_page')
+                else:
+                    team.applied_coupon.used_count += 1
+                    team.applied_coupon.save()
+
             team = form.save(commit=False)
             team.is_paid = True
             team.is_verified = False
@@ -333,9 +388,37 @@ def payment_view(request):
 
     payment_config, _ = PaymentConfig.objects.get_or_create(id=1)
 
+    # Compute fees and discount
+    standard_amount = Decimal(str(payment_config.amount)) if payment_config and payment_config.amount else Decimal('500.00')
+    if team.applied_coupon and team.discounted_amount is not None:
+        is_val, reason = team.applied_coupon.is_valid()
+        if not is_val:
+            team.applied_coupon.failure_count += 1
+            team.applied_coupon.save()
+            team.applied_coupon = None
+            team.discounted_amount = None
+            team.save()
+            messages.warning(request, f"Previously applied coupon is no longer valid: {reason}. Reverted to standard fee.")
+            effective_base_amount = standard_amount
+            discount_percentage = 0
+        else:
+            effective_base_amount = Decimal(str(team.discounted_amount))
+            discount_percentage = round(((standard_amount - effective_base_amount) / standard_amount) * 100, 1) if standard_amount > 0 else 0
+    else:
+        effective_base_amount = standard_amount
+        discount_percentage = 0
+
+    gst_amount = round(effective_base_amount * Decimal('0.18'), 2)
+    total_payable = round(effective_base_amount + gst_amount, 2)
+
     return render(request, 'team_profile/register_pay.html', {
         'team': team,
         'form': form,
         'is_nitk_team': is_nitk_team,
-        'payment_config': payment_config
+        'payment_config': payment_config,
+        'standard_amount': standard_amount,
+        'effective_base_amount': effective_base_amount,
+        'gst_amount': gst_amount,
+        'total_payable': total_payable,
+        'discount_percentage': discount_percentage,
     })

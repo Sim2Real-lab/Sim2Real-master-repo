@@ -9,10 +9,13 @@ from user_profile.models import UserProfile
 from team_profile.models import Team
 from django.db.models import Q
 import csv
+import datetime
+import secrets
+from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm,TrackForm
-from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig,RegistrationConfig
+from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig,RegistrationConfig,Coupon
 
 @login_required
 @organiser_only
@@ -488,13 +491,14 @@ def announcement_edit(request, pk):
 
     return render(request, 'staff_home/announcment_edit.html', {'form': form})
 @login_required
-@login_required
 @organiser_only
 def verify_payments(request, team_id=None):
     """
     Organizer Payment Portal:
-    - POST: Approve or Reject payment for a specific team OR update PaymentConfig (amount, payee name, QR code)
-    - GET: List all teams with search, status filters, and PaymentConfig settings
+    - POST: Approve or Reject payment for a specific team (records coupon failure if rejected)
+    - POST: Update PaymentConfig (amount, payee name, QR code)
+    - POST: Coupon Management (create with target amount and TTL, toggle active, reset failure count, extend TTL, delete)
+    - GET: List all teams with search/status filters and all created coupons
     """
     payment_config, _ = PaymentConfig.objects.get_or_create(id=1)
 
@@ -515,6 +519,94 @@ def verify_payments(request, team_id=None):
         messages.success(request, "Payment Settings (QR Code, Fee Amount, Payee Name) updated successfully!")
         return redirect('verify_payments')
 
+    # POST: handle create coupon
+    if request.method == "POST" and "create_coupon" in request.POST:
+        code = request.POST.get("code", "").strip().upper()
+        if not code:
+            code = f"S2R-{secrets.token_hex(3).upper()}"
+        target_amount = request.POST.get("target_amount")
+        ttl_value = request.POST.get("ttl_value", "24")
+        ttl_unit = request.POST.get("ttl_unit", "hours")
+        max_uses = request.POST.get("max_uses", "1")
+        max_failures = request.POST.get("max_failures", "3")
+        description = request.POST.get("description", "").strip()
+
+        try:
+            target_amount = float(target_amount)
+            ttl_val = int(ttl_value)
+            if ttl_unit == "days":
+                ttl_minutes = ttl_val * 1440
+            elif ttl_unit == "minutes":
+                ttl_minutes = ttl_val
+            else:  # hours
+                ttl_minutes = ttl_val * 60
+
+            if ttl_minutes <= 0:
+                ttl_minutes = 60
+
+            max_uses = max(1, int(max_uses))
+            max_failures = max(1, int(max_failures))
+
+            if Coupon.objects.filter(code__iexact=code).exists():
+                messages.error(request, f"Coupon code '{code}' already exists. Please choose a different code.")
+                return redirect('verify_payments')
+
+            expires_at = timezone.now() + datetime.timedelta(minutes=ttl_minutes)
+            coupon = Coupon.objects.create(
+                code=code,
+                target_amount=target_amount,
+                ttl_minutes=ttl_minutes,
+                expires_at=expires_at,
+                max_uses=max_uses,
+                max_failures=max_failures,
+                description=description,
+                created_by=request.user,
+                is_active=True
+            )
+            messages.success(request, f"Coupon '{coupon.code}' created successfully! Reduces fee to ₹{coupon.target_amount:.2f} (TTL: {ttl_val} {ttl_unit}, Max Failures: {coupon.max_failures}).")
+        except Exception as e:
+            messages.error(request, f"Failed to create coupon: {str(e)}")
+        return redirect('verify_payments')
+
+    # POST: toggle coupon active status
+    if request.method == "POST" and "toggle_coupon" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        coupon.is_active = not coupon.is_active
+        coupon.save()
+        status_str = "activated" if coupon.is_active else "deactivated"
+        messages.info(request, f"Coupon '{coupon.code}' has been {status_str}.")
+        return redirect('verify_payments')
+
+    # POST: reset coupon failure count
+    if request.method == "POST" and "reset_coupon_failures" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        coupon.failure_count = 0
+        coupon.save()
+        messages.success(request, f"Failure count for coupon '{coupon.code}' has been reset to 0.")
+        return redirect('verify_payments')
+
+    # POST: extend coupon TTL
+    if request.method == "POST" and "extend_coupon_ttl" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        extend_hours = int(request.POST.get("extend_hours", 24))
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        base_time = max(coupon.expires_at, timezone.now())
+        coupon.expires_at = base_time + datetime.timedelta(hours=extend_hours)
+        coupon.save()
+        messages.success(request, f"Coupon '{coupon.code}' TTL extended by {extend_hours} hours.")
+        return redirect('verify_payments')
+
+    # POST: delete coupon
+    if request.method == "POST" and "delete_coupon" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        code = coupon.code
+        coupon.delete()
+        messages.warning(request, f"Coupon '{code}' was deleted.")
+        return redirect('verify_payments')
+
     # POST: approve or reject team payment
     if request.method == "POST" and team_id:
         team = get_object_or_404(Team, id=team_id)
@@ -531,13 +623,19 @@ def verify_payments(request, team_id=None):
             team.is_paid = False
             team.is_verified = False
             team.rejection_reason = reason
+            coupon_info = ""
+            if team.applied_coupon:
+                c = team.applied_coupon
+                c.failure_count += 1
+                c.save()
+                coupon_info = f" (Recorded failure on coupon '{c.code}'. Failures: {c.failure_count}/{c.max_failures})"
             team.save()
-            messages.warning(request, f"Payment for team '{team.name}' has been REJECTED. Rejection note recorded.")
+            messages.warning(request, f"Payment for team '{team.name}' has been REJECTED. Rejection note recorded.{coupon_info}")
 
         return redirect('verify_payments')
 
     # GET: list all teams
-    teams = Team.objects.all().order_by('-id')
+    teams = Team.objects.all().select_related('leader', 'applied_coupon').order_by('-id')
 
     # Search filter
     query = request.GET.get("q", "").strip()
@@ -547,7 +645,8 @@ def verify_payments(request, team_id=None):
             Q(payment_ref__icontains=query) |
             Q(leader__first_name__icontains=query) |
             Q(leader__last_name__icontains=query) |
-            Q(leader__email__icontains=query)
+            Q(leader__email__icontains=query) |
+            Q(applied_coupon__code__icontains=query)
         )
 
     # Status filter
@@ -565,6 +664,18 @@ def verify_payments(request, team_id=None):
     approved_count = Team.objects.filter(is_paid=True, is_verified=True).count()
     rejected_count = Team.objects.filter(is_paid=False, rejection_reason__isnull=False).exclude(rejection_reason="").count()
 
+    # Coupons list and stats
+    coupons = Coupon.objects.all().select_related('created_by').order_by('-created_at')
+    base_fee = float(payment_config.amount) if payment_config.amount else 500.0
+    for c in coupons:
+        t_amt = float(c.target_amount)
+        if base_fee > 0 and t_amt < base_fee:
+            c.discount_percent = round(((base_fee - t_amt) / base_fee) * 100, 1)
+        else:
+            c.discount_percent = 0
+
+    active_coupons_count = sum(1 for c in coupons if c.is_active and not c.is_expired and not c.is_locked and not c.is_depleted)
+
     context = {
         "teams": teams,
         "query": query,
@@ -573,6 +684,8 @@ def verify_payments(request, team_id=None):
         "approved_count": approved_count,
         "rejected_count": rejected_count,
         "payment_config": payment_config,
+        "coupons": coupons,
+        "active_coupons_count": active_coupons_count,
     }
     return render(request, "staff_home/verify_payments.html", context)
 
