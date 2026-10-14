@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
 // Targets
-const START_DATE = new Date('2026-09-12T00:00:00+05:30').getTime();
-const END_DATE = new Date('2026-10-14T23:59:59+05:30').getTime();
+const START_DATE = new Date('2026-10-07T00:00:00+05:30').getTime();
+const END_DATE = new Date('2026-10-15T23:59:59+05:30').getTime();
 
 function calculateTimeLeft() {
   const now = new Date().getTime();
