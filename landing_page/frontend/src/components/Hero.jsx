@@ -6,7 +6,7 @@ import { Countdown } from './Countdown';
 
 export const Hero = () => {
   const [sequenceStep, setSequenceStep] = useState(0);
-  
+
   const handleComplete = useCallback(() => {
     setSequenceStep(1);
   }, []);
@@ -16,6 +16,7 @@ export const Hero = () => {
     'ROBOTICS',
     'WITH',
     'SIM2REAL',
+    'Ideathon',
   ];
 
   return (
@@ -24,7 +25,7 @@ export const Hero = () => {
       className="relative min-h-screen w-full flex bg-background pt-24 pb-12 overflow-hidden"
     >
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between z-10">
-        
+
         {/* ── Left Content Column ── */}
         <div className="w-full md:w-1/2 flex flex-col justify-center gap-12 z-20">
           {/* Sequence 1: Main Title */}
@@ -77,30 +78,30 @@ export const Hero = () => {
           </div>
         </div>
 
-{/* ── Right Decorative Column (Spline Robot Integration) ── */}
-<div className="hidden md:flex w-full md:w-1/2 h-[600px] relative items-center justify-center pointer-events-auto overflow-hidden">
-  {sequenceStep >= 1 && (
-    <FadeIn delay={0.4} duration={1.5} className="w-full h-full relative">
-      
-      <div className="w-full h-full scale-[1.05] origin-center relative">
-        
-        {/* THE COLOR FILTER: Hue shift to deep blue + lowered brightness for the "Dark" look */}
-        <div className="w-full h-full filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
-          <Spline 
-            scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode" 
-          />
-        </div>
-        
-        {/* SURGICAL WATERMARK REMOVAL:
+        {/* ── Right Decorative Column (Spline Robot Integration) ── */}
+        <div className="hidden md:flex w-full md:w-1/2 h-[600px] relative items-center justify-center pointer-events-auto overflow-hidden">
+          {sequenceStep >= 1 && (
+            <FadeIn delay={0.4} duration={1.5} className="w-full h-full relative">
+
+              <div className="w-full h-full scale-[1.05] origin-center relative">
+
+                {/* THE COLOR FILTER: Hue shift to deep blue + lowered brightness for the "Dark" look */}
+                <div className="w-full h-full filter hue-rotate-[195deg] saturate-[2] brightness-[1] contrast-[1.0]">
+                  <Spline
+                    scene="https://prod.spline.design/0hNXoMGPanwyTxgH/scene.splinecode"
+                  />
+                </div>
+
+                {/* SURGICAL WATERMARK REMOVAL:
             Spline badge is usually 120x30. We use a slightly larger div 
             to ensure it's fully clipped regardless of screen size.
         */}
-        <div className="absolute bottom-0 right-0 w-41.5 h-16 bg-white z-50 translate-x-2 translate-y-2" />
-        
-      </div>
-    </FadeIn>
-  )}
-</div>
+                <div className="absolute bottom-0 right-0 w-41.5 h-16 bg-white z-50 translate-x-2 translate-y-2" />
+
+              </div>
+            </FadeIn>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -175,9 +175,12 @@ def all_users_view(request):
     if filter_role is None:
         filter_role = "participant"
     filter_team = request.GET.get("team", "")
+    filter_track = request.GET.get("track", "")
     download_csv = request.GET.get("download") == "csv"
 
-    users = User.objects.select_related("userprofile", "userrole").all()
+    users = User.objects.select_related("userprofile", "userrole").prefetch_related(
+        Prefetch("team", queryset=Team.objects.select_related("track"))
+    ).all()
 
     # --- Search ---
     if query:
@@ -186,7 +189,8 @@ def all_users_view(request):
             Q(userprofile__last_name__icontains=query) |
             Q(email__icontains=query) |
             Q(username__icontains=query) |
-            Q(team__name__icontains=query)
+            Q(team__name__icontains=query) |
+            Q(team__track__name__icontains=query)
         )
 
     # --- Filters ---
@@ -202,19 +206,26 @@ def all_users_view(request):
         users = users.filter(userrole__is_organiser=True)
     if filter_team:
         users = users.filter(team__name__icontains=filter_team)
+    if filter_track:
+        if filter_track == "none":
+            users = users.filter(Q(team__isnull=True) | Q(team__track__isnull=True))
+        else:
+            users = users.filter(team__track_id=filter_track)
 
-    users = users.distinct()
+    users = users.distinct().order_by("username")
 
     # --- CSV Download ---
     if download_csv:
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="users.csv"'
         writer = csv.writer(response)
-        writer.writerow(["Name", "Email", "Contact", "College", "Branch", "Year", "Team", "Role"])
+        writer.writerow(["Name", "Email", "Contact", "College", "Branch", "Year", "Team", "Track", "Role"])
         for u in users:
             profile = getattr(u, "userprofile", None)
             team = getattr(u, "team", None)
-            team_name = team.first().name if team and team.exists() else ""
+            team_obj = team.first() if team and team.exists() else None
+            team_name = team_obj.name if team_obj else ""
+            track_name = team_obj.track.name if (team_obj and team_obj.track) else ("No Track" if team_obj else "N/A")
             role = "Organiser" if getattr(u, "userrole", None) and getattr(u.userrole, "is_organiser", False) else "Participant"
             writer.writerow([
                 f"{profile.first_name} {profile.last_name}" if profile else u.get_full_name(),
@@ -224,6 +235,7 @@ def all_users_view(request):
                 getattr(profile, "branch", "N/A") if profile else "N/A",
                 getattr(profile, "event_year", "N/A") if profile else "N/A",
                 team_name,
+                track_name,
                 role
             ])
         return response
@@ -242,6 +254,7 @@ def all_users_view(request):
 
     available_colleges = UserProfile.objects.values_list("college", flat=True).distinct().order_by("college")
     available_branches = UserProfile.objects.values_list("branch", flat=True).distinct().order_by("branch")
+    available_tracks = Track.objects.all().order_by("order", "name")
 
     context = {
         "users": page_obj,
@@ -252,9 +265,11 @@ def all_users_view(request):
         "filter_branch": filter_branch,
         "filter_role": filter_role,
         "filter_team": filter_team,
+        "filter_track": filter_track,
         "available_years": available_years,
         "available_colleges": available_colleges,
         "available_branches": available_branches,
+        "available_tracks": available_tracks,
     }
     return render(request, "staff_home/all_users.html", context)
 
@@ -311,10 +326,11 @@ def checkregistration(request):
     filter_verified = request.GET.get("verified")
     filter_outsider = request.GET.get("outsider")
     filter_year = request.GET.get("event_year", "")
+    filter_track = request.GET.get("track", "")
     download_csv = request.GET.get("download") == "csv"
 
     # Get all teams with prefetch of members and related profiles
-    teams = Team.objects.select_related("leader").prefetch_related(
+    teams = Team.objects.select_related("leader", "track").prefetch_related(
         Prefetch("members", queryset=User.objects.select_related("userprofile"))
     ).order_by("name")
 
@@ -326,6 +342,7 @@ def checkregistration(request):
             | Q(leader__email__icontains=query)
             | Q(members__username__icontains=query)
             | Q(members__email__icontains=query)
+            | Q(track__name__icontains=query)
         ).distinct()
 
     # --- Filters ---
@@ -337,6 +354,12 @@ def checkregistration(request):
 
     if filter_year:
         teams = teams.filter(leader__userprofile__event_year=filter_year)
+
+    if filter_track:
+        if filter_track == "none":
+            teams = teams.filter(track__isnull=True)
+        else:
+            teams = teams.filter(track_id=filter_track)
 
     # Outsider filter
     if filter_outsider in ["yes", "no"]:
@@ -354,7 +377,7 @@ def checkregistration(request):
 
         writer = csv.writer(response)
         writer.writerow([
-            "Team Name", "Leader", "Leader Email", "Leader Contact",
+            "Team Name", "Track", "Leader", "Leader Email", "Leader Contact",
             "Members", "Event Year", "Paid", "Verified"
         ])
 
@@ -371,6 +394,7 @@ def checkregistration(request):
 
             writer.writerow([
                 team.name,
+                team.track.name if team.track else "No Track",
                 team.leader.get_full_name(),
                 team.leader.email,
                 leader_contact,
@@ -394,15 +418,19 @@ def checkregistration(request):
         available_years.append("2026")
         available_years.sort()
 
+    available_tracks = Track.objects.all().order_by("order", "name")
+
     context = {
         "teams": page_obj,
         "page_obj": page_obj,
         "query": query,
+        "filter_track": filter_track,
         "filter_paid": filter_paid,
         "filter_verified": filter_verified,
         "filter_outsider": filter_outsider,
         "filter_year": filter_year,
         "available_years": available_years,
+        "available_tracks": available_tracks,
     }
     return render(request, "staff_home/registration.html", context)
 

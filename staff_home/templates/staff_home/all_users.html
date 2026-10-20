@@ -14,10 +14,19 @@
 
         <!-- Filters Form & CSV Download -->
         <form method="get" class="row g-2 mb-4" id="filterForm">
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-3">
                 <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search" onchange="this.form.submit()">
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-3">
+                <select name="track" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Tracks</option>
+                    <option value="none" {% if filter_track == "none" %}selected{% endif %}>No Track</option>
+                    {% for t in available_tracks %}
+                        <option value="{{ t.id }}" {% if filter_track|stringformat:"s" == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-1 col-md-2">
                 <select name="event_year" class="form-select" onchange="this.form.submit()">
                     <option value="">Year</option>
                     {% for y in available_years %}
@@ -25,7 +34,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
                 <select name="college" class="form-select" onchange="this.form.submit()">
                     <option value="">College</option>
                     {% for c in available_colleges %}
@@ -33,7 +42,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
                 <select name="branch" class="form-select" onchange="this.form.submit()">
                     <option value="">Branch</option>
                     {% for b in available_branches %}
@@ -41,17 +50,17 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
                 <select name="role" class="form-select" onchange="this.form.submit()">
                     <option value="participant" {% if filter_role == "participant" %}selected{% endif %}>Participant</option>
                     <option value="organiser" {% if filter_role == "organiser" %}selected{% endif %}>Organiser</option>
                     <option value="all" {% if filter_role == "all" %}selected{% endif %}>All Roles</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <a href="?{% if query %}q={{ query }}&{% endif %}{% if filter_year %}event_year={{ filter_year }}&{% endif %}{% if filter_college %}college={{ filter_college }}&{% endif %}{% if filter_branch %}branch={{ filter_branch }}&{% endif %}{% if filter_role %}role={{ filter_role }}&{% endif %}download=csv"
-                   class="btn btn-success w-100 text-nowrap">
-                    <i class="fa-solid fa-file-csv me-1"></i> Download CSV
+            <div class="col-lg-1 col-md-4">
+                <a href="?{% if query %}q={{ query }}&{% endif %}{% if filter_track %}track={{ filter_track }}&{% endif %}{% if filter_year %}event_year={{ filter_year }}&{% endif %}{% if filter_college %}college={{ filter_college }}&{% endif %}{% if filter_branch %}branch={{ filter_branch }}&{% endif %}{% if filter_role %}role={{ filter_role }}&{% endif %}download=csv"
+                   class="btn btn-success w-100 text-nowrap px-1" title="Download CSV">
+                    <i class="fa-solid fa-file-csv me-1"></i> CSV
                 </a>
             </div>
         </form>
@@ -69,6 +78,7 @@
                             <th>Branch</th>
                             <th>Year</th>
                             <th>Team</th>
+                            <th>Track</th>
                             <th>Role</th>
                         </tr>
                     </thead>
@@ -85,7 +95,20 @@
                                 <td>
                                     {% if user.team.all %}
                                         {{ user.team.first.name }}
+                                    {% else %}
+                                        <span class="text-muted small">-</span>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    {% with user_team=user.team.first %}
+                                        {% if user_team and user_team.track %}
+                                            <span class="badge bg-primary"><i class="fa-solid fa-layer-group me-1"></i>{{ user_team.track.name }}</span>
+                                        {% elif user_team %}
+                                            <span class="badge bg-secondary opacity-75">No Track</span>
+                                        {% else %}
+                                            <span class="text-muted small">-</span>
+                                        {% endif %}
+                                    {% endwith %}
                                 </td>
                                 <td>
                                     {% if user.userrole.is_organiser %}
@@ -106,13 +129,13 @@
                 <ul class="pagination justify-content-center mb-0">
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}{% if filter_college %}&college={{ filter_college }}{% endif %}{% if filter_branch %}&branch={{ filter_branch }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}{% if filter_team %}&team={{ filter_team }}{% endif %}">Previous</a>
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_track %}&track={{ filter_track }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}{% if filter_college %}&college={{ filter_college }}{% endif %}{% if filter_branch %}&branch={{ filter_branch }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}{% if filter_team %}&team={{ filter_team }}{% endif %}">Previous</a>
                         </li>
                     {% endif %}
                     <li class="page-item disabled"><a class="page-link" href="#">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</a></li>
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}{% if filter_college %}&college={{ filter_college }}{% endif %}{% if filter_branch %}&branch={{ filter_branch }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}{% if filter_team %}&team={{ filter_team }}{% endif %}">Next</a>
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_track %}&track={{ filter_track }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}{% if filter_college %}&college={{ filter_college }}{% endif %}{% if filter_branch %}&branch={{ filter_branch }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}{% if filter_team %}&team={{ filter_team }}{% endif %}">Next</a>
                         </li>
                     {% endif %}
                 </ul>

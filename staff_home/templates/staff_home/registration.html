@@ -13,32 +13,41 @@
         </div>
 
         <!-- Filters Form -->
-        <form method="get" class="row g-3 mb-4" id="filterForm">
-            <div class="col-md-3">
+        <form method="get" class="row g-2 mb-4" id="filterForm">
+            <div class="col-lg-3 col-md-4">
                 <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search" onchange="this.form.submit()">
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
+                <select name="track" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Tracks</option>
+                    <option value="none" {% if filter_track == "none" %}selected{% endif %}>No Track</option>
+                    {% for t in available_tracks %}
+                        <option value="{{ t.id }}" {% if filter_track|stringformat:"s" == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4">
                 <select name="paid" class="form-select" onchange="this.form.submit()">
                     <option value="">Paid Status</option>
                     <option value="yes" {% if filter_paid == "yes" %}selected{% endif %}>Yes</option>
                     <option value="no" {% if filter_paid == "no" %}selected{% endif %}>No</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-2 col-md-4">
                 <select name="verified" class="form-select" onchange="this.form.submit()">
                     <option value="">Verified Status</option>
                     <option value="yes" {% if filter_verified == "yes" %}selected{% endif %}>Yes</option>
                     <option value="no" {% if filter_verified == "no" %}selected{% endif %}>No</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-1 col-md-4">
                 <select name="outsider" class="form-select" onchange="this.form.submit()">
                     <option value="">Outsider</option>
                     <option value="yes" {% if filter_outsider == "yes" %}selected{% endif %}>Yes</option>
                     <option value="no" {% if filter_outsider == "no" %}selected{% endif %}>No</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-lg-2 col-md-4">
                 <select name="event_year" class="form-select" onchange="this.form.submit()">
                     <option value="">All Years</option>
                     {% for y in available_years %}
@@ -50,7 +59,7 @@
 
         <!-- CSV Download Button -->
         <div class="mb-4 text-end">
-            <a href="?{% if query %}q={{ query }}&{% endif %}{% if filter_paid %}paid={{ filter_paid }}&{% endif %}{% if filter_verified %}verified={{ filter_verified }}&{% endif %}{% if filter_outsider %}outsider={{ filter_outsider }}&{% endif %}{% if filter_year %}event_year={{ filter_year }}&{% endif %}download=csv"
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if filter_track %}track={{ filter_track }}&{% endif %}{% if filter_paid %}paid={{ filter_paid }}&{% endif %}{% if filter_verified %}verified={{ filter_verified }}&{% endif %}{% if filter_outsider %}outsider={{ filter_outsider }}&{% endif %}{% if filter_year %}event_year={{ filter_year }}&{% endif %}download=csv"
                class="btn btn-success">
                 <i class="fa-solid fa-file-csv me-1"></i> Download CSV
             </a>
@@ -60,8 +69,15 @@
         {% if page_obj %}
             {% for team in page_obj %}
                 <div class="card mb-4 text-dark border shadow-sm rounded-3">
-                    <div class="card-header bg-secondary text-white fw-bold d-flex justify-content-between align-items-center">
-                        <span>{{ team.name }}</span>
+                    <div class="card-header bg-secondary text-white fw-bold d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span>{{ team.name }}</span>
+                            {% if team.track %}
+                                <span class="badge bg-info text-dark fw-semibold"><i class="fa-solid fa-layer-group me-1"></i>{{ team.track.name }}</span>
+                            {% else %}
+                                <span class="badge bg-light text-muted fw-normal">No Track</span>
+                            {% endif %}
+                        </div>
                         <span class="badge bg-light text-dark">{{ team.members.all|length }} member{% if team.members.all|length > 1 %}s{% endif %}</span>
                     </div>
                     <div class="card-body p-0">
@@ -116,13 +132,13 @@
                 <ul class="pagination justify-content-center mb-0">
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_paid %}&paid={{ filter_paid }}{% endif %}{% if filter_verified %}&verified={{ filter_verified }}{% endif %}{% if filter_outsider %}&outsider={{ filter_outsider }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}">Previous</a>
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_track %}&track={{ filter_track }}{% endif %}{% if filter_paid %}&paid={{ filter_paid }}{% endif %}{% if filter_verified %}&verified={{ filter_verified }}{% endif %}{% if filter_outsider %}&outsider={{ filter_outsider }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}">Previous</a>
                         </li>
                     {% endif %}
                     <li class="page-item disabled"><a class="page-link" href="#">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</a></li>
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_paid %}&paid={{ filter_paid }}{% endif %}{% if filter_verified %}&verified={{ filter_verified }}{% endif %}{% if filter_outsider %}&outsider={{ filter_outsider }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}">Next</a>
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if filter_track %}&track={{ filter_track }}{% endif %}{% if filter_paid %}&paid={{ filter_paid }}{% endif %}{% if filter_verified %}&verified={{ filter_verified }}{% endif %}{% if filter_outsider %}&outsider={{ filter_outsider }}{% endif %}{% if filter_year %}&event_year={{ filter_year }}{% endif %}">Next</a>
                         </li>
                     {% endif %}
                 </ul>
