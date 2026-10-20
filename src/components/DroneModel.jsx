@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-export const DroneModel = forwardRef((props, ref) => {
+export const DroneModel = forwardRef(({ isMobile, ...props }, ref) => {
   const dronePath = `${import.meta.env.BASE_URL}droneage2.glb?v=3`;
   const { scene, nodes } = useGLTF(dronePath);
 
@@ -45,17 +45,21 @@ export const DroneModel = forwardRef((props, ref) => {
 
   return (
     <group ref={ref} {...props} dispose={null}>
-      {/* 1. Hyper-Intense Internal Core */}
-      <pointLight position={[0, 0, 0]} color="#0066FF" intensity={80} distance={3} />
+      {/* 1. Internal Core Light */}
+      <pointLight position={[0, 0, 0]} color="#0066FF" intensity={isMobile ? 50 : 80} distance={3} />
       
-      {/* 2. Propeller "Halo" Lights - One at each corner */}
-      <pointLight position={[1.5, 0.2, 1.5]} color="#0066FF" intensity={20} distance={3} />
-      <pointLight position={[-1.5, 0.2, 1.5]} color="#0066FF" intensity={20} distance={3} />
-      <pointLight position={[1.5, 0.2, -1.5]} color="#0066FF" intensity={20} distance={3} />
-      <pointLight position={[-1.5, 0.2, -1.5]} color="#0066FF" intensity={20} distance={3} />
+      {/* 2. Propeller "Halo" Lights - Desktop only */}
+      {!isMobile && (
+        <>
+          <pointLight position={[1.5, 0.2, 1.5]} color="#0066FF" intensity={20} distance={3} />
+          <pointLight position={[-1.5, 0.2, 1.5]} color="#0066FF" intensity={20} distance={3} />
+          <pointLight position={[1.5, 0.2, -1.5]} color="#0066FF" intensity={20} distance={3} />
+          <pointLight position={[-1.5, 0.2, -1.5]} color="#0066FF" intensity={20} distance={3} />
+        </>
+      )}
       
-      {/* 3. Rim Lighting - Placed behind and above to catch the glossy edges */}
-      <spotLight position={[0, 5, -5]} angle={0.5} penumbra={1} color="#00BFFF" intensity={40} />
+      {/* 3. Rim Lighting */}
+      <spotLight position={[0, 5, -5]} angle={0.5} penumbra={1} color="#00BFFF" intensity={isMobile ? 25 : 40} />
       
       <primitive object={scene} />
     </group>

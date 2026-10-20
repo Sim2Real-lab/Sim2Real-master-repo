@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 const TIMELINE_DATA = [
-  { date: '7th October 2026 00:00AM IST to 14th October 2026 11:59PM IST', title: 'Registration', desc: 'Event Registration Starts. Click here to Register' },
+  { date: '7th October 2026 00:00AM IST to 15th October 2026 11:59PM IST', title: 'Registration', desc: 'Event Registration Starts. Click here to Register' },
   { date: '14th October 2026 5:30AM IST', title: 'Setup and Simulate Round Starts', desc: 'The problem statement is given and the Simulation Round Starts' },
   { date: 'October 17, 2026, 09:00 IST', title: 'Submission', desc: 'Submission of the Simulation of Problem statement.' },
   { date: 'October 20, 2026, 16:00 IST', title: 'Shortlist', desc: 'Results for the simulation round will be out.' },

@@ -4,15 +4,25 @@
 {% block content %}
 <div class="team-card-container mx-auto" style="max-width: 850px;">
   
-  {% if not team.is_verified %}
+  {% if team.policy_accepted_at %}
+  <div class="alert alert-success border-success shadow-sm rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between">
+    <div>
+      <i class="fa-solid fa-circle-check text-success me-2 fs-5"></i>
+      <strong>Policies & Code of Conduct Accepted:</strong> {{ team.policy_accepted_at|date:"M d, Y • H:i" }}
+    </div>
+    <div>
+      <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="btn btn-sm btn-outline-success">View Code of Conduct</a>
+    </div>
+  </div>
+  {% else %}
   <div class="alert alert-light border shadow-sm rounded-3 p-3 mb-4">
     <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="complianceCheckbox" style="cursor: pointer; transform: scale(1.1); margin-top: 0.3em;">
+      <input class="form-check-input" type="checkbox" id="complianceCheckbox" name="agree_terms" required style="cursor: pointer; transform: scale(1.1); margin-top: 0.3em;">
       <label class="form-check-label text-dark" for="complianceCheckbox" style="cursor: pointer;">
-        By registering you are complying to the 
-        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">T&C</a>, 
-        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">Privacy Policy</a>, and 
-        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="fw-semibold text-primary text-decoration-none">Code of Conduct</a>.
+        By registering you agree to the 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Terms_and_Conditions.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Terms & Conditions</a>, 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Privacy_Policy.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Privacy Policy</a>, and 
+        <a href="{% static 'landing_page/react/assets/Sim2Real_2026_Code_of_Conduct.pdf' %}" target="_blank" class="fw-bold text-primary text-decoration-underline">Code of Conduct</a>.
       </label>
     </div>
   </div>
@@ -83,6 +93,12 @@
         <span class="text-muted d-block small">Status:</span>
         <strong class="text-success fs-6"><i class="fa-solid fa-shield-check me-1"></i>Verified & Unlocked</strong>
       </div>
+      {% if team.applied_coupon %}
+      <div class="col-12 mt-2 pt-2 border-top">
+        <span class="text-muted d-block small">Applied Coupon Code:</span>
+        <span class="badge bg-primary font-monospace">{{ team.applied_coupon.code }}</span> &bull; Target Fee: <strong>₹{{ team.discounted_amount|floatformat:2 }}</strong>
+      </div>
+      {% endif %}
       {% if team.payment_screenshot %}
       <div class="col-12 mt-3 pt-2 border-top">
         <span class="text-muted d-block small mb-2">Uploaded Proof Screenshot:</span>
@@ -117,6 +133,12 @@
           <span class="text-muted d-block small">Approval Status:</span>
           <strong class="text-warning-emphasis fs-6"><i class="fa-solid fa-spinner fa-spin me-1"></i>Under Organizer Review</strong>
         </div>
+        {% if team.applied_coupon %}
+        <div class="col-12 mt-2 pt-2 border-top">
+          <span class="text-muted d-block small">Applied Coupon Code:</span>
+          <span class="badge bg-primary font-monospace">{{ team.applied_coupon.code }}</span> &bull; Target Fee: <strong>₹{{ team.discounted_amount|floatformat:2 }}</strong>
+        </div>
+        {% endif %}
         {% if team.payment_screenshot %}
         <div class="col-12 mt-2 pt-2 border-top">
           <span class="text-muted d-block small mb-2">Submitted Screenshot:</span>
@@ -155,40 +177,172 @@
   <!-- Form for Uploading Transaction ID and Screenshot -->
   {% else %}
   
+  <!-- Proceed for Transaction Banner (Initial State) -->
+  <div id="proceedCard" class="card p-4 border-primary border-2 bg-primary bg-opacity-10 rounded-3 text-center mb-4 shadow-sm">
+    <div class="d-flex flex-column align-items-center">
+      <div class="rounded-circle bg-primary text-white p-3 mb-3 shadow" style="width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      <h4 class="fw-bold text-dark mb-1">Proceed to Payment & Transaction</h4>
+      <p class="text-muted mb-3" style="max-width: 580px; font-size: 0.95rem;">
+        Click <strong>Proceed for Transaction</strong> below to reveal the payment QR code and unlock the submission fields. You will have <strong>5 minutes</strong> to complete your transaction and submit your receipt.
+      </p>
+      <button type="button" id="btnProceedTransaction" class="btn btn-primary btn-lg rounded-pill px-5 py-2.5 fw-bold shadow">
+        <i class="fa-solid fa-lock-open me-2"></i> Proceed for Transaction
+      </button>
+    </div>
+  </div>
+
+  <!-- Active 5-Minute Timer Banner -->
+  <div id="timerBanner" class="alert alert-warning border-warning shadow-sm rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between text-dark" style="display: none;">
+    <div class="d-flex align-items-center gap-3">
+      <div class="spinner-grow text-danger spinner-grow-sm" role="status"></div>
+      <div>
+        <span class="fw-bold fs-6"><i class="fa-solid fa-clock me-1 text-danger"></i> Transaction Timer Active</span>
+        <span class="d-block small text-muted">Complete payment and submit your receipt details before the timer expires.</span>
+      </div>
+    </div>
+    <div class="badge bg-danger text-white fs-4 px-3 py-2 rounded-pill font-monospace shadow-sm" id="timerDisplay">
+      05:00
+    </div>
+  </div>
+
+  <!-- Expired Session Alert -->
+  <div id="timerExpiredAlert" class="alert alert-danger border-danger shadow-sm rounded-3 p-4 mb-4 text-center" style="display: none;">
+    <i class="fa-solid fa-hourglass-end fs-2 text-danger mb-2"></i>
+    <h5 class="fw-bold mb-1">5-Minute Payment Window Expired</h5>
+    <p class="mb-3 small text-muted">Your transaction time limit has ended. Click below to restart the payment session and re-enable submission.</p>
+    <button type="button" id="btnRestartTransaction" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">
+      <i class="fa-solid fa-rotate-right me-1"></i> Restart Transaction Timer (5 Mins)
+    </button>
+  </div>
+
   {% if is_nitk_team %}
   <div class="alert alert-info border-info rounded-3 p-3 mb-4">
     <i class="fa-solid fa-graduation-cap text-info me-2 fs-5"></i>
     <strong>NITK Student Team:</strong> As all team members are NITK students, event registration is free. Please upload your Student ID Card / Roll Number for organizer verification.
   </div>
   {% else %}
-  <div class="row g-4 mb-4 align-items-center">
+
+  <!-- Coupon Code Application Box -->
+  <div class="card p-3 mb-4 rounded-3 border shadow-sm bg-white">
+    {% if team.applied_coupon %}
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; font-size: 1.2rem;">
+            <i class="fa-solid fa-ticket"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="fw-bold text-success fs-6">Coupon Applied:</span>
+              <span class="badge bg-success font-monospace fs-6 px-2 py-1">{{ team.applied_coupon.code }}</span>
+              {% if discount_percentage > 0 %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle">-{{ discount_percentage }}% OFF</span>
+              {% endif %}
+            </div>
+            <div class="small text-muted mt-1">
+              Target Fee: <strong class="text-dark">₹{{ effective_base_amount|floatformat:2 }}</strong> 
+              (Standard fee: <del>₹{{ standard_amount|floatformat:2 }}</del>)
+            </div>
+          </div>
+        </div>
+        <div>
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="remove_coupon" value="1">
+            <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold px-3 py-1.5 rounded-pill">
+              <i class="fa-solid fa-xmark me-1"></i> Remove Coupon
+            </button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div class="row align-items-center g-3">
+        <div class="col-md-5">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 1.1rem;">
+              <i class="fa-solid fa-ticket"></i>
+            </div>
+            <div>
+              <span class="fw-bold text-dark d-block" style="font-size: 0.95rem;">Have a Coupon Code?</span>
+              <small class="text-muted" style="font-size: 0.8rem;">Enter your organizer coupon to reduce registration fee.</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <form method="post" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="apply_coupon" value="1">
+            <input type="text" name="coupon_code" class="form-control text-uppercase font-monospace" placeholder="e.g. S2R-PROMO" required style="font-size: 0.9rem;">
+            <button type="submit" class="btn btn-primary fw-semibold px-3 text-nowrap" style="font-size: 0.9rem;">
+              <i class="fa-solid fa-tag me-1"></i> Apply
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="row g-4 mb-4 align-items-stretch">
     <!-- QR Code Section -->
     <div class="col-md-5 text-center">
-      <div class="p-3 bg-light border rounded-3 shadow-sm">
-        <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
-        <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
-        <div id="qrCodeContainer" style="display: none;">
-          {% if payment_config and payment_config.qr_code %}
-          <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 220px; object-fit: contain;">
+      <div class="p-3 bg-light border rounded-3 shadow-sm h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h6 class="fw-bold text-dark mb-1">Scan & Pay via UPI</h6>
+          <p class="text-primary font-monospace fw-semibold small mb-2">{{ payment_config.payee_name|default:"Sim2Real Robotech NITK" }}</p>
+          <div id="qrCodeContainer" style="display: none;">
+            {% if payment_config and payment_config.qr_code %}
+            <img src="{{ payment_config.qr_code.url }}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-height: 200px; object-fit: contain;">
+            {% else %}
+            <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 180px;">
+            {% endif %}
+          </div>
+          <div id="qrHiddenMessage" class="text-muted small border rounded-3 p-4 mb-2 bg-white">
+            <i class="fa-solid fa-lock mb-2 fs-3 text-warning"></i><br>
+            Click 'Proceed for Transaction' above to unlock the QR code & payment form.
+          </div>
+          <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
+        </div>
+
+        <!-- Dynamic Fee Breakdown -->
+        <div class="mt-3 p-3 bg-white rounded-3 border text-start shadow-sm">
+          {% if team.applied_coupon and team.discounted_amount is not None %}
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Standard Fee:</span>
+              <del>₹{{ standard_amount|floatformat:2 }}</del>
+            </div>
+            <div class="d-flex justify-content-between text-success fw-semibold small mb-1">
+              <span>Target Fee (Discounted):</span>
+              <span>₹{{ effective_base_amount|floatformat:2 }}</span>
+            </div>
           {% else %}
-          <img src="{% static 'assets/upi_qr.jpg' %}?v=3" alt="UPI QR Code" class="img-fluid rounded-3 border mb-2" style="max-width: 200px;">
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Registration Fee:</span>
+              <span class="fw-semibold text-dark">₹{{ effective_base_amount|floatformat:2 }}</span>
+            </div>
           {% endif %}
+          <div class="d-flex justify-content-between text-muted small mb-1">
+            <span>GST (18%):</span>
+            <span>₹{{ gst_amount|floatformat:2 }}</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold text-dark border-top pt-2 mt-1">
+            <span>Total Payable:</span>
+            <span class="text-primary font-monospace fs-5">₹{{ total_payable|floatformat:2 }}</span>
+          </div>
         </div>
-        <div id="qrHiddenMessage" class="text-muted small border rounded-3 p-4 mb-2 bg-white">
-          <i class="fa-solid fa-lock mb-2 fs-3 text-warning"></i><br>
-          Please accept the T&C above to reveal the QR code
-        </div>
-        <p class="text-muted small mb-0">Scan using GPay, PhonePe, Paytm, or any UPI app.</p>
-        <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">Fee: ₹{{ payment_config.amount|default:"500"|floatformat:0 }} / team</div>
-        <div class="text-danger fw-bold mt-2 fs-5">❗ Excluding GST. 18% GST will be added.</div>
+
       </div>
     </div>
     <!-- Payment Instructions -->
     <div class="col-md-7">
-      <div class="p-3 bg-light border rounded-3">
+      <div class="p-3 bg-light border rounded-3 h-100">
         <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-list-check text-primary me-2"></i>Instructions</h6>
         <ol class="text-muted small ps-3 mb-0">
-          <li class="mb-2">Complete payment of <strong>₹{% widthratio payment_config.amount|default:"500" 100 118 %}</strong> (Fee + 18% GST) to the QR code / Payee name shown.</li>
+          <li class="mb-2">
+            Complete payment of <strong>₹{{ total_payable|floatformat:2 }}</strong> 
+            ({% if team.applied_coupon %}Target Fee ₹{{ effective_base_amount|floatformat:2 }}{% else %}Fee ₹{{ effective_base_amount|floatformat:2 }}{% endif %} + 18% GST) 
+            to the QR code / Payee name shown.
+          </li>
           <li class="mb-2">Copy the 12-digit <strong>UPI Reference Number / Transaction ID</strong> from your UPI app receipt.</li>
           <li class="mb-2">Take a clear <strong>screenshot</strong> of the completed payment page.</li>
           <li>Enter the Transaction ID and upload the screenshot image below.</li>
@@ -244,39 +398,130 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const complianceCb = document.getElementById('complianceCheckbox');
+    const proceedCard = document.getElementById('proceedCard');
+    const timerBanner = document.getElementById('timerBanner');
+    const timerExpiredAlert = document.getElementById('timerExpiredAlert');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const btnProceed = document.getElementById('btnProceedTransaction');
+    const btnRestart = document.getElementById('btnRestartTransaction');
+    
     const controlledInputs = document.querySelectorAll('.form-controlled-input');
     const controlledBtns = document.querySelectorAll('.form-controlled-btn');
     const qrCodeContainer = document.getElementById('qrCodeContainer');
     const qrHiddenMessage = document.getElementById('qrHiddenMessage');
 
-    function toggleFormElements() {
-      const isChecked = complianceCb ? complianceCb.checked : true;
+    let countdownInterval = null;
+    const TIMER_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+    function unlockPaymentFields() {
       controlledInputs.forEach(input => {
-        input.disabled = !isChecked;
+        input.disabled = false;
       });
       controlledBtns.forEach(btn => {
-        btn.disabled = !isChecked;
+        btn.disabled = false;
       });
-      if (qrCodeContainer && qrHiddenMessage) {
-        qrCodeContainer.style.display = isChecked ? 'block' : 'none';
-        qrHiddenMessage.style.display = isChecked ? 'none' : 'block';
-      }
+      if (qrCodeContainer) qrCodeContainer.style.display = 'block';
+      if (qrHiddenMessage) qrHiddenMessage.style.display = 'none';
     }
 
-    if (complianceCb) {
-      // Set initial state based on checkbox
-      toggleFormElements();
-      
-      // Listen for changes
-      complianceCb.addEventListener('change', toggleFormElements);
-    } else {
-      // If no checkbox (e.g., NITK student logic or already checked), just show it
-      if (qrCodeContainer && qrHiddenMessage) {
-        qrCodeContainer.style.display = 'block';
-        qrHiddenMessage.style.display = 'none';
-      }
+    function lockPaymentFields() {
+      controlledInputs.forEach(input => {
+        input.disabled = true;
+      });
+      controlledBtns.forEach(btn => {
+        btn.disabled = true;
+      });
+      if (qrCodeContainer) qrCodeContainer.style.display = 'none';
+      if (qrHiddenMessage) qrHiddenMessage.style.display = 'block';
     }
+
+    function updateTimerDisplay(remainingMs) {
+      if (remainingMs <= 0) {
+        if (timerDisplay) timerDisplay.textContent = "00:00";
+        return;
+      }
+      const totalSeconds = Math.floor(remainingMs / 1000);
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      const formatted = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      if (timerDisplay) timerDisplay.textContent = formatted;
+    }
+
+    function startTimer(endTimeMs) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      
+      if (proceedCard) proceedCard.style.display = 'none';
+      if (timerExpiredAlert) timerExpiredAlert.style.display = 'none';
+      if (timerBanner) timerBanner.style.display = 'flex';
+      
+      unlockPaymentFields();
+
+      function tick() {
+        const now = Date.now();
+        const remaining = endTimeMs - now;
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          sessionStorage.removeItem('payment_timer_end');
+          if (timerBanner) timerBanner.style.display = 'none';
+          if (timerExpiredAlert) timerExpiredAlert.style.display = 'block';
+          lockPaymentFields();
+        } else {
+          updateTimerDisplay(remaining);
+        }
+      }
+
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    function initTransactionSession() {
+      const endTimeStr = sessionStorage.getItem('payment_timer_end');
+      if (endTimeStr) {
+        const endTimeMs = parseInt(endTimeStr, 10);
+        if (endTimeMs > Date.now()) {
+          startTimer(endTimeMs);
+          return;
+        } else {
+          sessionStorage.removeItem('payment_timer_end');
+          if (timerExpiredAlert) timerExpiredAlert.style.display = 'block';
+          if (proceedCard) proceedCard.style.display = 'none';
+          lockPaymentFields();
+          return;
+        }
+      }
+      
+      // Initial state: not started
+      lockPaymentFields();
+      if (proceedCard) proceedCard.style.display = 'block';
+      if (timerBanner) timerBanner.style.display = 'none';
+      if (timerExpiredAlert) timerExpiredAlert.style.display = 'none';
+    }
+
+    if (btnProceed) {
+      btnProceed.addEventListener('click', function() {
+        const newEndTime = Date.now() + TIMER_DURATION_MS;
+        sessionStorage.setItem('payment_timer_end', newEndTime);
+        startTimer(newEndTime);
+      });
+    }
+
+    if (btnRestart) {
+      btnRestart.addEventListener('click', function() {
+        const newEndTime = Date.now() + TIMER_DURATION_MS;
+        sessionStorage.setItem('payment_timer_end', newEndTime);
+        startTimer(newEndTime);
+      });
+    }
+
+    // Clear session timer on form submit
+    const forms = document.querySelectorAll('form');
+    forms.forEach(f => {
+      f.addEventListener('submit', function() {
+        sessionStorage.removeItem('payment_timer_end');
+      });
+    });
+
+    initTransactionSession();
   });
 </script>
 

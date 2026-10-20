@@ -584,7 +584,14 @@
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 35px 30px 60px;
+      padding: 20px 24px 40px !important;
+    }
+    .main-content-area {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+    .main-content-area > section {
+      margin-top: 0 !important;
     }
 
     /* Mobile Backdrop */
@@ -705,17 +712,10 @@
           <span class="sidebar-nav-text">Dashboard</span>
         </a>
         
-        {% if user_in_team %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
+        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' or request.resolver_match.url_name == 'create_team' or request.resolver_match.url_name == 'join_team' %}active{% endif %}">
           <i class="fa-solid fa-users nav-icon"></i>
-          <span class="sidebar-nav-text">Team Management</span>
+          <span class="sidebar-nav-text">Manage Team</span>
         </a>
-        {% else %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
-          <i class="fa-solid fa-user-plus nav-icon"></i>
-          <span class="sidebar-nav-text">Register</span>
-        </a>
-        {% endif %}
         
         {% if user_team and user_team.members.count >= 2 %}
         <a href="{% url 'payment_page' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'payment_page' %}active{% endif %}">
@@ -742,6 +742,10 @@
           <i class="fa-solid fa-bullhorn nav-icon"></i>
           <span class="sidebar-nav-text">Announcements</span>
         </a>
+        <a href="{% url 'participant_leaderboard' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'participant_leaderboard' %}active{% endif %}">
+          <i class="fa-solid fa-trophy nav-icon text-warning"></i>
+          <span class="sidebar-nav-text">Leaderboard</span>
+        </a>
         <a href="{% url 'user_query' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'user_query' %}active{% endif %}">
           <i class="fa-solid fa-circle-question nav-icon"></i>
           <span class="sidebar-nav-text">Queries-Ask Us</span>
@@ -755,7 +759,11 @@
       <div class="dropdown">
         <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
           <div class="user-avatar-wrap">
-            <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            {% if user.userprofile and user.userprofile.photo %}
+              <img src="{{ user.userprofile.photo.url }}" alt="Profile" class="user-avatar">
+            {% else %}
+              <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            {% endif %}
             <span class="user-status-dot" style="background-color: #2da44e;"></span>
           </div>
           <div class="user-info-text">
@@ -793,19 +801,9 @@
     <div class="chatgpt-scroll-view">
       <div class="container-fluid p-0">
         {% block top_panel %}
-        <!-- Old top-panel and dashboard blocks injected here -->
-        <div class="top-panel">
-<header class="d-flex justify-content-between align-items-center px-4 py-3">
-  <div class="site-branding">
-    <h1 class="mb-0">SIM2REAL 2026</h1>
-    <p class="mb-0"><strong>ROBOTECH NITK</strong></p>
-    <p class="tagline">Simulate. Build. Compete.</p>
-  </div>
-</header>
-</div>
         {% endblock %}
 
-<div class="container main-content-area mt-4">
+<div class="container main-content-area mt-0 pt-0">
   {% block content %}
   <!-- Dynamic content relevant to a logged-in hackathon participant -->
   <section class="dashboard-section p-4 rounded-lg shadow-lg">
@@ -822,7 +820,7 @@
     <div class="card registration-card mb-4">
         <div class="card-body text-center">
             <h3 class="card-title"> Ready to Simulate to Real?</h3>
-            <p class="card-text">Registration Closes on 13 october 2026.</br>If you have registered on Google form make your team and upload necessary details to access problem Statement.</p>
+            <p class="card-text">Registration Closes on 15 October 2026 midnight.</br>If you have registered on Google form make your team and upload necessary details to access problem Statement.</p>
             <a href="{% url 'teamprofile' %}" class="btn btn-glow">Register Now!</a>
         </div>
     </div>
@@ -1037,14 +1035,23 @@
 {% endif %}
 
 {% if messages %}
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060;">
+<div class="toast-container p-3" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; pointer-events: none;">
   {% for message in messages %}
-  <div class="toast align-items-center text-white bg-{{ message.tags }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast show align-items-center 
+    {% if message.tags == 'success' %}bg-success text-white
+    {% elif 'error' in message.tags or 'danger' in message.tags %}bg-danger text-white
+    {% elif 'warning' in message.tags %}bg-warning text-dark
+    {% else %}bg-info text-white{% endif %} 
+    border-0 mb-2 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; border-radius: 12px;">
     <div class="d-flex">
-      <div class="toast-body">
-        {{ message }}
+      <div class="toast-body d-flex align-items-center gap-2">
+        <i class="fa-solid 
+          {% if message.tags == 'success' %}fa-circle-check
+          {% elif 'error' in message.tags or 'danger' in message.tags %}fa-circle-exclamation
+          {% elif 'warning' in message.tags %}fa-triangle-exclamation
+          {% else %}fa-circle-info{% endif %} me-2"></i>{{ message }}
       </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      <button type="button" class="btn-close {% if 'warning' in message.tags %}{% else %}btn-close-white{% endif %} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
   </div>
   {% endfor %}

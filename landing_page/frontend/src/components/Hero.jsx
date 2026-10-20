@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Spline from '@splinetool/react-spline';
 import { GSAPReveal } from './GSAPReveal';
 import { FadeIn } from './FadeIn';
@@ -6,6 +6,15 @@ import { Countdown } from './Countdown';
 
 export const Hero = () => {
   const [sequenceStep, setSequenceStep] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleComplete = useCallback(() => {
     setSequenceStep(1);
@@ -80,7 +89,7 @@ export const Hero = () => {
 
         {/* ── Right Decorative Column (Spline Robot Integration) ── */}
         <div className="hidden md:flex w-full md:w-1/2 h-[600px] relative items-center justify-center pointer-events-auto overflow-hidden">
-          {sequenceStep >= 1 && (
+          {sequenceStep >= 1 && !isMobile && (
             <FadeIn delay={0.4} duration={1.5} className="w-full h-full relative">
 
               <div className="w-full h-full scale-[1.05] origin-center relative">
@@ -93,9 +102,9 @@ export const Hero = () => {
                 </div>
 
                 {/* SURGICAL WATERMARK REMOVAL:
-            Spline badge is usually 120x30. We use a slightly larger div 
-            to ensure it's fully clipped regardless of screen size.
-        */}
+                    Spline badge is usually 120x30. We use a slightly larger div 
+                    to ensure it's fully clipped regardless of screen size.
+                */}
                 <div className="absolute bottom-0 right-0 w-41.5 h-16 bg-white z-50 translate-x-2 translate-y-2" />
 
               </div>

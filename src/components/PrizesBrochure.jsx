@@ -81,20 +81,39 @@ export const PrizesBrochure = () => {
       <div className="max-w-6xl mx-auto px-6 flex flex-col items-center" ref={containerRef}>
         
         {/* OUR COLLABORATORS SECTION */}
-        <div className="text-center mb-24 z-20 relative">
-          <h2 className="text-3xl md:text-5xl font-display font-bold mb-8 tracking-tight text-foreground">
+        <div className="text-center mb-24 z-20 relative w-full">
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-12 tracking-tight text-foreground">
             Our Collaborators
           </h2>
-          <div className="flex justify-center items-center">
-            <div className="p-6 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200/50 flex flex-col items-center gap-3 hover:scale-105 transition-transform duration-300">
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            {/* 1. Engineer NITK */}
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center gap-4 hover:scale-105 transition-all duration-300 w-72 h-48 justify-center">
               <img 
                 src="/static/landing_page/logo.jpeg" 
                 alt="Engineer NITK Logo" 
-                className="h-20 md:h-28 w-auto object-contain rounded-xl"
+                className="h-20 md:h-24 w-auto object-contain rounded-xl"
               />
               <span className="font-display font-bold text-lg md:text-xl tracking-widest text-zinc-900 uppercase">
                 ENGINEER
               </span>
+            </div>
+
+            {/* 2. Analog Devices */}
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-all duration-300 w-72 h-48">
+              <img 
+                src="/static/assets/analog_devices_logo.png" 
+                alt="Analog Devices Logo" 
+                className="h-20 w-auto object-contain"
+              />
+            </div>
+
+            {/* 3. Arcesium */}
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/60 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-all duration-300 w-72 h-48">
+              <img 
+                src="/static/assets/arcesium_logo.png" 
+                alt="Arcesium Logo" 
+                className="h-20 w-auto object-contain"
+              />
             </div>
           </div>
         </div>
@@ -177,7 +196,7 @@ export const PrizesBrochure = () => {
 
           {/* Bottom: Download PDF Link */}
           <a 
-            href="/sim2real-brochure.pdf" 
+            href="/media/brochures/Sim2Real_2026_Brochure.pdf" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-[#1a1a1a] font-display font-extrabold text-[4vw] uppercase cursor-pointer hover:text-[#0066FF] transition-colors duration-300"

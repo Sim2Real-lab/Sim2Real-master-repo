@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 100" width="340" height="100">
+  <g>
+    <!-- Arcesium Geometric Block Emblem -->
+    <rect x="15" y="15" width="26" height="70" rx="6" fill="#0066FF"/>
+    <rect x="47" y="15" width="26" height="30" rx="6" fill="#0A1329"/>
+    <rect x="47" y="55" width="26" height="30" rx="6" fill="#0066FF" opacity="0.7"/>
+    
+    <!-- Arcesium Wordmark -->
+    <text x="90" y="66" font-family="'Plus Jakarta Sans', 'Outfit', 'Segoe UI', sans-serif" font-weight="800" font-size="44" letter-spacing="-1.5" fill="#0A1329">arcesium</text>
+  </g>
+</svg>

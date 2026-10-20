@@ -1,0 +1,121 @@
+{% extends 'staff_home/base.html' %}
+{% load static %}
+
+{% block title %}Registration Control Panel | SIM2REAL Organisers{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3" style="max-width: 900px;">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: #0b2a5b;">
+        <i class="fa-solid fa-sliders text-primary me-2"></i>Registration Control Panel
+      </h2>
+      <p class="text-muted mb-0 small">
+        Start & stop participant registrations globally or toggle registration per competition track.
+      </p>
+    </div>
+    <div>
+      {% if reg_config.is_registration_open %}
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fs-6">
+          <i class="fa-solid fa-circle-check me-1"></i> Registrations OPEN
+        </span>
+      {% else %}
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fs-6">
+          <i class="fa-solid fa-circle-xmark me-1"></i> Registrations CLOSED
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: #ffffff;">
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Master Registration Toggle -->
+      <div class="p-3 mb-4 rounded-3 border" style="background: #f8fafc;">
+        <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
+          <div>
+            <label class="form-check-label fw-bold text-dark fs-5 mb-0" for="isRegistrationOpenSwitch">
+              Master Registration Toggle
+            </label>
+            <div class="text-muted small">
+              Master switch to open or close team registration across the entire platform.
+            </div>
+          </div>
+          <input class="form-check-input ms-3" type="checkbox" role="switch" id="isRegistrationOpenSwitch" name="is_registration_open" {% if reg_config.is_registration_open %}checked{% endif %} style="width: 3.2em; height: 1.6em; cursor: pointer;">
+        </div>
+      </div>
+
+      <!-- Track-Level Toggles -->
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="fa-solid fa-layer-group text-primary me-2"></i>Track Registration Toggles
+      </h5>
+      <div class="row g-3 mb-4">
+        <!-- Sim2Real Track Toggle -->
+        <div class="col-md-6">
+          <div class="p-3 border rounded-3 h-100" style="background: #ffffff;">
+            <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
+              <div>
+                <label class="form-check-label fw-semibold text-dark mb-0" for="sim2realSwitch">
+                  Sim2Real Track
+                </label>
+                <div class="text-muted small">Enable registration for standard Sim2Real track</div>
+              </div>
+              <input class="form-check-input ms-2" type="checkbox" role="switch" id="sim2realSwitch" name="sim2real_enabled" {% if reg_config.sim2real_enabled %}checked{% endif %} style="width: 2.8em; height: 1.4em; cursor: pointer;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Sim2Real Ideathon Track Toggle -->
+        <div class="col-md-6">
+          <div class="p-3 border rounded-3 h-100" style="background: #ffffff;">
+            <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
+              <div>
+                <label class="form-check-label fw-semibold text-dark mb-0" for="ideathonSwitch">
+                  Sim2Real Ideathon Track
+                </label>
+                <div class="text-muted small">Enable registration for Ideathon track</div>
+              </div>
+              <input class="form-check-input ms-2" type="checkbox" role="switch" id="ideathonSwitch" name="ideathon_enabled" {% if reg_config.ideathon_enabled %}checked{% endif %} style="width: 2.8em; height: 1.4em; cursor: pointer;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Default Track Selection -->
+      <div class="mb-4">
+        <label class="form-label fw-bold text-dark">
+          <i class="fa-solid fa-star text-warning me-1"></i>Default Track for New Registrations
+        </label>
+        <select name="default_track_id" class="form-select py-2">
+          {% for track in tracks %}
+            <option value="{{ track.id }}" {% if reg_config.default_track == track %}selected{% endif %}>
+              {{ track.name }}
+            </option>
+          {% endfor %}
+        </select>
+        <div class="form-text small">
+          This track will be automatically pre-selected when participants create a new team.
+        </div>
+      </div>
+
+      <!-- Closed Registration Custom Notice -->
+      <div class="mb-4">
+        <label class="form-label fw-bold text-dark">
+          <i class="fa-solid fa-comment-dots text-secondary me-1"></i>Closed Registration Message
+        </label>
+        <textarea name="closed_message" class="form-control" rows="3" placeholder="Message shown to participants when registration for a track is closed...">{{ reg_config.closed_message }}</textarea>
+        <div class="form-text small">
+          This note will be displayed to users on the team management page if registrations are currently closed.
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold">
+          <i class="fa-solid fa-floppy-disk me-1"></i> Save Configuration
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -202,6 +202,33 @@ def submit_to_window(request, window_id):
             defaults={"link": link}
         )
         messages.success(request, "Submission saved successfully!")
-        return redirect("user_submission_windows")
-
     return render(request, "home/submit_form.html", {"window": window})
+
+
+@login_required
+@user_view
+def participant_leaderboard_view(request):
+    """
+    Public Participant Leaderboard:
+    - Lists only paid/registered teams.
+    - Shows team ranks, names, tracks, Round 1 scores, and qualification status.
+    """
+    teams_qs = Team.objects.filter(is_paid=True).select_related('leader', 'track').prefetch_related('members').order_by('-round1_score', 'name')
+
+    filter_track = request.GET.get('track', '')
+    query = request.GET.get('q', '').strip()
+
+    if filter_track:
+        teams_qs = teams_qs.filter(track_id=filter_track)
+    if query:
+        teams_qs = teams_qs.filter(name__icontains=query)
+
+    tracks = Track.objects.all()
+
+    context = {
+        'teams': teams_qs,
+        'tracks': tracks,
+        'filter_track': filter_track,
+        'query': query,
+    }
+    return render(request, 'home/leaderboard.html', context)

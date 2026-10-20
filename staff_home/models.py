@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
@@ -99,6 +100,22 @@ class Brochure(models.Model):
     file = models.FileField(upload_to="brochures/")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.file and hasattr(self.file, 'path'):
+            try:
+                fpath = self.file.path
+                if os.path.exists(fpath):
+                    os.chmod(fpath, 0o644)
+                    dpath = os.path.dirname(fpath)
+                    if os.path.exists(dpath):
+                        os.chmod(dpath, 0o755)
+                    mpath = os.path.dirname(dpath)
+                    if os.path.exists(mpath):
+                        os.chmod(mpath, 0o755)
+            except Exception:
+                pass
+
     def __str__(self):
         return f"Brochure ({self.file.name})"
 
@@ -183,4 +200,116 @@ class PaymentConfig(models.Model):
 
     def __str__(self):
         return f"Payment Config (₹{self.amount} - {self.payee_name})"
+
+
+class RegistrationConfig(models.Model):
+    is_registration_open = models.BooleanField(default=True, help_text="Master toggle to start/stop all event registrations")
+    sim2real_enabled = models.BooleanField(default=True, help_text="Enable/disable registration for Sim2Real track")
+    ideathon_enabled = models.BooleanField(default=True, help_text="Enable/disable registration for Sim2Real Ideathon track")
+    default_track = models.ForeignKey(Track, on_delete=models.SET_NULL, null=True, blank=True, help_text="Default selected track for new registrations")
+    closed_message = models.TextField(default="Registrations for this track are currently closed by organizers.", help_text="Notice shown when registration is closed")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def get_config(cls):
+        config, _ = cls.objects.get_or_create(id=1)
+        if not config.default_track:
+            sim2real_track = Track.objects.filter(name__icontains="Sim2Real").exclude(name__icontains="Ideathon").first()
+            if not sim2real_track:
+                sim2real_track = Track.objects.first()
+            if sim2real_track:
+                config.default_track = sim2real_track
+                config.save()
+        return config
+
+    def is_track_open(self, track=None):
+        if not self.is_registration_open:
+            return False
+        if not track:
+            return self.is_registration_open
+        track_name = track.name.lower()
+        if "ideathon" in track_name:
+            return self.ideathon_enabled
+        elif "sim2real" in track_name:
+            return self.sim2real_enabled
+        return self.is_registration_open
+
+    def __str__(self):
+        return f"Registration Config (Master Open: {self.is_registration_open})"
+
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True, help_text="Unique coupon code")
+    target_amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Target final registration fee in INR")
+    ttl_minutes = models.PositiveIntegerField(default=1440, help_text="Time to live in minutes")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(help_text="Calculated expiration timestamp based on TTL")
+    max_uses = models.PositiveIntegerField(default=1, help_text="Maximum allowed successful uses")
+    used_count = models.PositiveIntegerField(default=0, help_text="Count of successful uses")
+    max_failures = models.PositiveIntegerField(default=3, help_text="Maximum allowed failures before coupon locks")
+    failure_count = models.PositiveIntegerField(default=0, help_text="Count of failed attempts / rejected payments")
+    is_active = models.BooleanField(default=True, help_text="Active toggle for coupon")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    description = models.CharField(max_length=255, blank=True, null=True, help_text="Organizer note/description")
+
+    def save(self, *args, **kwargs):
+        if self.code:
+            self.code = self.code.strip().upper()
+        if not self.expires_at:
+            self.expires_at = timezone.now() + datetime.timedelta(minutes=self.ttl_minutes)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        if not self.is_active:
+            return False, "This coupon is currently inactive."
+        if timezone.now() > self.expires_at:
+            return False, "This coupon has expired (TTL exceeded)."
+        if self.failure_count >= self.max_failures:
+            return False, f"This coupon is locked because maximum failure limit ({self.max_failures}) has been reached."
+        if self.used_count >= self.max_uses:
+            return False, "This coupon has already reached its maximum usage limit."
+        return True, "Valid"
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_locked(self):
+        return self.failure_count >= self.max_failures
+
+    @property
+    def is_depleted(self):
+        return self.used_count >= self.max_uses
+
+    @property
+    def status_label(self):
+        if not self.is_active:
+            return "Inactive"
+        if self.is_locked:
+            return "Failure Limit Reached"
+        if self.is_expired:
+            return "Expired"
+        if self.is_depleted:
+            return "Depleted"
+        return "Active"
+
+    def time_remaining_display(self):
+        now = timezone.now()
+        if now > self.expires_at:
+            return "Expired"
+        diff = self.expires_at - now
+        total_seconds = int(diff.total_seconds())
+        days = total_seconds // 86400
+        hours = (total_seconds % 86400) // 3600
+        minutes = (total_seconds % 3600) // 60
+        if days > 0:
+            return f"{days}d {hours}h left"
+        elif hours > 0:
+            return f"{hours}h {minutes}m left"
+        else:
+            return f"{max(minutes, 1)}m left"
+
+    def __str__(self):
+        return f"{self.code} (Target: ₹{self.target_amount})"
 

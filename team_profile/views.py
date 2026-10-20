@@ -1,223 +1,265 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import JoinRequest,Team
-from .forms import TeamCreationForm, JoinCodeForm, PaymentProofForm
-from staff_home.models import PaymentConfig
 from django.contrib import messages
 from django.db import transaction
-from .decorator import user_view,profile_updated
-# Create your views here.
-@login_required
-@user_view
-@profile_updated
-def team_profile_views(request):
-    if hasattr(request.user, 'led_team'):
-        return redirect('create_team_with_code')
-    
-    if request.user.team.exists():
-        return redirect('join_team_with_code')
-
-    existing_request = JoinRequest.objects.filter(user=request.user).order_by('-id').first()
-    
-    if existing_request:
-        if existing_request.status == "pending":
-            return render(request, 'team_profile/join_team.html', {
-                'pending': True,
-                'team_name': existing_request.team.name
-            })
-        elif existing_request.status == "accepted":
-            existing_request.team.members.add(request.user)
-            existing_request.delete()
-            return redirect('join_team_with_code')
-        elif existing_request.status == "declined":
-            existing_request.delete()
-    
-    # If no team, no pending request, and not a leader
-    return render(request, 'team_profile/team.html')
-
-@login_required
-@user_view
-@profile_updated
-def create_team(request):
-    if hasattr(request.user,'led_team'):
-        return redirect('create_team_with_code')
-    if request.method=='POST':
-        form =TeamCreationForm(request.POST)
-        if form.is_valid():
-            team=form.save(commit=False) #This creates team object but doesn't save it.
-            team.leader=request.user
-            team.save() # Makes the user as team leader then saves 
-            team.members.add(request.user) # makes the teamleader part of the team also
-            messages.success(request,f"Team '{team.name}'created with join code  '{team.join_code}'")
-            return redirect('create_team_with_code')
-    else:
-        form= TeamCreationForm()
-    return render(request, 'team_profile/create_team.html', {'form': form})
-
-
-@login_required
-@user_view
-@profile_updated
-def create_team_with_code(request):
-    if not hasattr(request.user, 'led_team'):
-        return redirect('create_team')
-    team = request.user.led_team
-
-    if team.is_paid and request.method == 'POST':
-        messages.error(request, "Team is registered and payment completed. No changes allowed.")
-        return redirect('create_team_with_code')
-
-    pending_requests = team.requests.filter(status='pending')
-    members=team.members.all()
-    context={'team': team,
-        'pending_requests': pending_requests,
-        'show_join_code': True,
-        'members':members,
-        'team_locked': team.is_paid,
-        'registered':team.is_registered(),
-        'is_pending': team.is_paid and not team.is_verified
-    }
-    return render(request, 'team_profile/create_team.html',context)
-
-@login_required
-@user_view
-@profile_updated
-def join_team_with_code(request):
-    if request.user.team.exists():
-        team = request.user.team.first()
-        members = team.members.all()
-        return render(request, 'team_profile/join_team.html', {
-            'joined_team': True,
-            'team': team,
-            'members': members,
-            'registered': team.is_registered(),
-            'is_pending': team.is_paid and not team.is_verified
-        })
-
-    existing_request = JoinRequest.objects.filter(user=request.user).order_by('-id').first()
-    
-    if existing_request:
-        if existing_request.status == 'pending':
-            return render(request, 'team_profile/join_team.html', {
-                'pending': True,
-                'team_name': existing_request.team.name
-            })
-        elif existing_request.status == 'accepted':
-            existing_request.team.members.add(request.user)
-            return redirect('join_team_with_code')
-        elif existing_request.status == 'declined':
-            existing_request.delete()
-            messages.error(request, "Request denied. Try joining with another code.")
-            return redirect('join_team')
-    
-    return redirect('join_team')
-
-@login_required
-@user_view
-@profile_updated
-def join_team(request):
-    if request.user.team.exists():
-        return render(request, 'team_profile/join_team.html', {
-            'already_in_team': True
-        })
-    existing_request = JoinRequest.objects.filter(user=request.user).order_by('-id').first()
-    if existing_request:
-        if existing_request.status == 'pending':
-            return render(request, 'team_profile/join_team.html', {
-                'pending': True,
-                'team_name': existing_request.team.name
-            })
-        elif existing_request.status == 'accepted':
-            existing_request.delete()
-            return redirect('join_team_with_code')
-
-        elif existing_request.status == 'declined':
-            existing_request.delete()
-            messages.error(request, "Your previous request was declined. Try a different join code.")
-            return redirect('join_team')
-    if request.method == 'POST':
-        form = JoinCodeForm(request.POST)
-        if form.is_valid():
-            code = form.cleaned_data['join_code']
-            team = get_object_or_404(Team, join_code=code)
-            if team.is_full():
-                messages.error(request, "Team is full.")
-            elif JoinRequest.objects.filter(user=request.user, team=team).exists():
-                messages.info(request, "You have already requested to join.")
-            else:
-                JoinRequest.objects.create(user=request.user, team=team)
-                messages.success(request, "Join request sent.")
-                return redirect('teamprofile')
-    else:
-        form = JoinCodeForm()
-    return render(request, 'team_profile/join_team.html', {'form': form})
+from decimal import Decimal
+from django.utils import timezone
+from .models import JoinRequest, Team
+from .forms import TeamCreationForm, JoinCodeForm, PaymentProofForm
+from staff_home.models import PaymentConfig, Track, RegistrationConfig, Coupon
+from .decorator import user_view, profile_updated
 
 @login_required
 @user_view
 @profile_updated
 @transaction.atomic
-def manage_requests(request):
-    if not hasattr(request.user, 'led_team'):
-        messages.error(request, "You are not a team leader.")
-        return redirect('teamprofile')
+def team_profile_views(request):
+    """
+    Unified Team Management View:
+    - If user belongs to a team (Leader or Member): renders full team dashboard (join code, members, pending requests, track selection, registration status).
+    - If user is not in a team: renders Create Team form & Join Team form in one place.
+    - Handles POST actions: create team, join with code, cancel join request, accept/decline member requests, update track, accept policies.
+    """
+    user = request.user
+    reg_config = RegistrationConfig.get_config()
+    
+    # 1. Determine user's current team state
+    team = None
+    try:
+        team = user.led_team
+    except Exception:
+        team = user.team.first() if user.team.exists() else None
 
-    team = request.user.led_team
-    team.refresh_from_db()
-    requests = team.requests.filter(status='pending')
-    members = team.members.all()
-    member_count = team.members.count()
+    is_leader = bool(team and team.leader == user)
 
-    # ✅ handle POST first
+    # 2. Handle POST Actions
     if request.method == 'POST':
         action = request.POST.get('action')
-        req_id = request.POST.get('request_id')
-        joinrequest = get_object_or_404(JoinRequest, id=req_id, team=team)
 
-        if action == 'accept' and not team.is_full():
-            joinrequest.status = 'accepted'
-            joinrequest.save()
-            team.members.add(joinrequest.user)
-            joinrequest.delete()
-            messages.success(request, f"{joinrequest.user.username} added to the team.")
-        elif action == 'decline':
-            joinrequest.status = 'declined'
-            joinrequest.save()
-            joinrequest.delete()
-            messages.info(request, f"{joinrequest.user.username}'s request was declined.")
+        # Create Team POST
+        if action == 'create_team':
+            if team:
+                messages.error(request, "You are already in a team.")
+                return redirect('teamprofile')
+            form = TeamCreationForm(request.POST)
+            if form.is_valid():
+                selected_track = form.cleaned_data.get('track') or reg_config.default_track
+                if not reg_config.is_track_open(selected_track):
+                    messages.error(request, reg_config.closed_message)
+                    return redirect('teamprofile')
 
-        return redirect('manage_requests')
+                new_team = form.save(commit=False)
+                new_team.leader = user
+                new_team.track = selected_track
+                new_team.policy_accepted_at = timezone.now()
+                new_team.save()
+                new_team.members.add(user)
+                messages.success(request, f"Team '{new_team.name}' created successfully with Join Code '{new_team.join_code}'!")
+                return redirect('teamprofile')
+            else:
+                for error in form.non_field_errors():
+                    messages.error(request, error)
+                for field in form:
+                    for error in field.errors:
+                        messages.error(request, f"{field.label}: {error}")
 
-    # ✅ now handle GET logic
-    if team.is_paid:
-        team_locked = True
-    else:
-        team_locked = False
+        # Join Team POST
+        elif action == 'join_team':
+            if team:
+                messages.error(request, "You are already in a team.")
+                return redirect('teamprofile')
+            form = JoinCodeForm(request.POST)
+            if form.is_valid():
+                code = form.cleaned_data['join_code']
+                try:
+                    target_team = Team.objects.get(join_code=code)
+                    if target_team.is_verified or target_team.is_registered():
+                        messages.error(request, "This team is verified/approved. Addition of new members is locked.")
+                    elif target_team.is_full():
+                        messages.error(request, "This team is already full (max 4 members).")
+                    elif JoinRequest.objects.filter(user=user, team=target_team).exists():
+                        messages.info(request, "You have already sent a request to join this team.")
+                    else:
+                        JoinRequest.objects.create(user=user, team=target_team)
+                        messages.success(request, f"Join request sent to team '{target_team.name}'.")
+                except (Team.DoesNotExist, ValueError):
+                    messages.error(request, "Invalid Join Code. Please double check and try again.")
+                return redirect('teamprofile')
 
-    return render(request, 'team_profile/manage_requests.html', {
-        'requests': requests,
-        'team_locked': team_locked,
+        # Cancel Join Request POST
+        elif action == 'cancel_request':
+            existing_req = JoinRequest.objects.filter(user=user, status='pending').first()
+            if existing_req:
+                existing_req.delete()
+                messages.info(request, "Your join request was cancelled.")
+            return redirect('teamprofile')
+
+        # Manage Join Requests POST (for Leaders)
+        elif action in ['accept_request', 'decline_request']:
+            if not is_leader:
+                messages.error(request, "Only team leaders can manage join requests.")
+                return redirect('teamprofile')
+            req_id = request.POST.get('request_id')
+            join_req = get_object_or_404(JoinRequest, id=req_id, team=team)
+            if action == 'accept_request':
+                if team.is_verified or team.is_registered():
+                    messages.error(request, "This team is verified/approved. Member additions are locked.")
+                elif team.is_full():
+                    messages.error(request, "Cannot accept: Team is already full (max 4 members).")
+                else:
+                    join_req.status = 'accepted'
+                    join_req.save()
+                    team.members.add(join_req.user)
+                    join_req.delete()
+                    messages.success(request, f"{join_req.user.username} was added to the team.")
+            elif action == 'decline_request':
+                join_req.status = 'declined'
+                join_req.save()
+                join_req.delete()
+                messages.info(request, f"{join_req.user.username}'s request was declined.")
+            return redirect('teamprofile')
+
+        # Update Competition Track POST (for Leaders)
+        elif action == 'update_track':
+            if not is_leader:
+                messages.error(request, "Only team leaders can update the track.")
+                return redirect('teamprofile')
+            if team.is_verified or team.is_registered() or team.is_paid:
+                messages.error(request, "Problem statement track is locked once team is approved/verified.")
+                return redirect('teamprofile')
+            track_id = request.POST.get('track_id')
+            if track_id:
+                try:
+                    selected_track = Track.objects.get(id=track_id)
+                    team.track = selected_track
+                    team.save()
+                    messages.success(request, f"Track updated to '{selected_track.name}'.")
+                except Track.DoesNotExist:
+                    messages.error(request, "Selected track does not exist.")
+            return redirect('teamprofile')
+
+        # Accept Compliance Policy POST
+        elif action == 'accept_policy':
+            if not team:
+                messages.error(request, "You are not in a team.")
+                return redirect('teamprofile')
+            team.policy_accepted_at = timezone.now()
+            team.save()
+            messages.success(request, "Compliance policy & Code of Conduct accepted.")
+            return redirect('teamprofile')
+
+    # 3. Handle GET Logic
+    if not team:
+        accepted_req = JoinRequest.objects.filter(user=user, status='accepted').first()
+        if accepted_req:
+            accepted_req.team.members.add(user)
+            team = accepted_req.team
+            accepted_req.delete()
+            messages.success(request, f"Your request was accepted! You are now a member of '{team.name}'.")
+            is_leader = bool(team and team.leader == user)
+
+    tracks = Track.objects.exclude(name='Default Track').order_by('order', 'name')
+    if not tracks.exists():
+        tracks = Track.objects.all()
+
+    existing_request = JoinRequest.objects.filter(user=user, status='pending').order_by('-id').first() if not team else None
+
+    active_track = team.track if (team and team.track) else reg_config.default_track
+    is_track_open = reg_config.is_track_open(active_track)
+
+    context = {
         'team': team,
-        'members_count': member_count
-    })
+        'is_leader': is_leader,
+        'members': team.members.all() if team else [],
+        'pending_requests': team.requests.filter(status='pending') if (team and is_leader) else [],
+        'existing_request': existing_request,
+        'create_form': TeamCreationForm(initial={'track': reg_config.default_track.id if reg_config.default_track else None}),
+        'join_form': JoinCodeForm(),
+        'tracks': tracks,
+        'registered': team.is_registered() if team else False,
+        'is_pending': (team.is_paid and not team.is_verified) if team else False,
+        'team_locked': (team.is_verified or team.is_paid) if team else False,
+        'policy_accepted_at': team.policy_accepted_at if team else None,
+        'reg_config': reg_config,
+        'is_track_open': is_track_open,
+        'default_track': reg_config.default_track,
+    }
+    return render(request, 'team_profile/team.html', context)
+
+
+@login_required
+@user_view
+@profile_updated
+def create_team(request):
+    """Legacy route compatibility - redirects to main unified team profile page."""
+    return redirect('teamprofile')
+
+@login_required
+@user_view
+@profile_updated
+def create_team_with_code(request):
+    """Legacy route compatibility - redirects to main unified team profile page."""
+    return redirect('teamprofile')
+
+@login_required
+@user_view
+@profile_updated
+def join_team_with_code(request):
+    """Legacy route compatibility - redirects to main unified team profile page."""
+    return redirect('teamprofile')
+
+@login_required
+@user_view
+@profile_updated
+def join_team(request):
+    """Legacy route compatibility - redirects to main unified team profile page."""
+    return redirect('teamprofile')
+
+@login_required
+@user_view
+@profile_updated
+def manage_requests(request):
+    """Legacy route compatibility - redirects to main unified team profile page."""
+    return redirect('teamprofile')
+
 
 @login_required
 @user_view
 @profile_updated
 def register_for_event(request):
     """
-    Redirect all team leaders to the payment page.
+    Redirect all team leaders to the payment page after checking requirements:
+    - Must be team leader
+    - Must have at least 2 members
+    - Must have accepted Code of Conduct & Policies
     """
-    if not hasattr(request.user, 'led_team'):
+    reg_config = RegistrationConfig.get_config()
+    team = None
+    try:
+        team = request.user.led_team
+    except Exception:
+        team = None
+
+    if not team:
         messages.error(request, "Only team leaders can register.")
         return redirect('teamprofile')
 
-    team = request.user.led_team
+    if not reg_config.is_track_open(team.track):
+        messages.error(request, reg_config.closed_message)
+        return redirect('teamprofile')
 
     if team.members.count() < 2:
-        messages.error(request, "You need at least 2 members to register your team.")
-        return redirect('create_team_with_code')
+        messages.error(request, "You need at least 2 members in your team to register.")
+        return redirect('teamprofile')
 
-    # Everyone goes to payment page (NITK teams will see free registration)
+    if request.method == 'POST' and request.POST.get('agree_terms'):
+        team.policy_accepted_at = timezone.now()
+        team.save()
+
+    if not team.policy_accepted_at:
+        messages.error(request, "You must accept the Code of Conduct, Privacy Policy, and Terms & Conditions before registering.")
+        return redirect('teamprofile')
+
     return redirect('payment_page')
 
 
@@ -227,23 +269,90 @@ def register_for_event(request):
 def payment_view(request):
     """
     Payment Portal for Participant Team Leaders:
+    - Apply / Remove Coupon code with TTL & Failure limit tracking
     - Upload Transaction ID & Screenshot
     - View status: Pending Approval, Approved/Verified, or Rejected with reason
+    - Compliance Checkbox enforcement
     """
-    if not hasattr(request.user, 'led_team'):
+    team = None
+    try:
+        team = request.user.led_team
+    except Exception:
+        team = None
+
+    if not team:
         messages.error(request, "You don't lead any team. Form or join a team first.")
         return redirect('teamprofile')
 
-    team = request.user.led_team
     is_nitk_team = not team.is_outsider()
 
     if request.method == 'POST':
+        # Action 1: Apply Coupon Code
+        if "apply_coupon" in request.POST:
+            if is_nitk_team:
+                messages.info(request, "NITK student teams already have free registration.")
+                return redirect('payment_page')
+
+            coupon_code = request.POST.get("coupon_code", "").strip().upper()
+            if not coupon_code:
+                messages.error(request, "Please enter a coupon code.")
+                return redirect('payment_page')
+
+            coupon = Coupon.objects.filter(code__iexact=coupon_code).first()
+            if not coupon:
+                messages.error(request, f"Coupon code '{coupon_code}' is invalid.")
+                return redirect('payment_page')
+
+            is_val, err_msg = coupon.is_valid()
+            if not is_val:
+                coupon.failure_count += 1
+                coupon.save()
+                messages.error(request, f"Cannot apply coupon '{coupon.code}': {err_msg}")
+                return redirect('payment_page')
+
+            team.applied_coupon = coupon
+            team.discounted_amount = coupon.target_amount
+            team.save()
+            messages.success(request, f"Coupon '{coupon.code}' applied! Registration fee reduced to ₹{coupon.target_amount:.2f}.")
+            return redirect('payment_page')
+
+        # Action 2: Remove Coupon
+        if "remove_coupon" in request.POST:
+            team.applied_coupon = None
+            team.discounted_amount = None
+            team.save()
+            messages.info(request, "Coupon removed. Fee reverted to standard.")
+            return redirect('payment_page')
+
+        # Action 3: Payment Proof Submission
+        # Verify compliance checkbox if not set yet
+        agree_terms = request.POST.get('agree_terms') or request.POST.get('complianceCheckbox')
+        if agree_terms or not team.policy_accepted_at:
+            team.policy_accepted_at = timezone.now()
+
         form = PaymentProofForm(request.POST, request.FILES, instance=team)
         if form.is_valid():
+            # Validate applied coupon before saving
+            if team.applied_coupon:
+                is_val, err_msg = team.applied_coupon.is_valid()
+                if not is_val:
+                    team.applied_coupon.failure_count += 1
+                    team.applied_coupon.save()
+                    team.applied_coupon = None
+                    team.discounted_amount = None
+                    team.save()
+                    messages.error(request, f"Applied coupon is no longer valid ({err_msg}). Payment details not submitted. Please re-check payable fee.")
+                    return redirect('payment_page')
+                else:
+                    team.applied_coupon.used_count += 1
+                    team.applied_coupon.save()
+
             team = form.save(commit=False)
             team.is_paid = True
             team.is_verified = False
-            team.rejection_reason = None  # Reset previous rejection reason on new submission
+            team.rejection_reason = None
+            if not team.policy_accepted_at:
+                team.policy_accepted_at = timezone.now()
 
             import os
             screenshot = form.cleaned_data.get("payment_screenshot") or team.payment_screenshot
@@ -266,7 +375,7 @@ def payment_view(request):
                 team.payment_screenshot = screenshot
 
             team.save()
-            messages.success(request, "Payment proof & Transaction ID submitted successfully! Waiting for organizer approval.")
+            messages.success(request, "Payment proof & details submitted successfully! Waiting for organizer approval.")
             return redirect('payment_page')
         else:
             error_msgs = []
@@ -279,10 +388,37 @@ def payment_view(request):
 
     payment_config, _ = PaymentConfig.objects.get_or_create(id=1)
 
+    # Compute fees and discount
+    standard_amount = Decimal(str(payment_config.amount)) if payment_config and payment_config.amount else Decimal('500.00')
+    if team.applied_coupon and team.discounted_amount is not None:
+        is_val, reason = team.applied_coupon.is_valid()
+        if not is_val:
+            team.applied_coupon.failure_count += 1
+            team.applied_coupon.save()
+            team.applied_coupon = None
+            team.discounted_amount = None
+            team.save()
+            messages.warning(request, f"Previously applied coupon is no longer valid: {reason}. Reverted to standard fee.")
+            effective_base_amount = standard_amount
+            discount_percentage = 0
+        else:
+            effective_base_amount = Decimal(str(team.discounted_amount))
+            discount_percentage = round(((standard_amount - effective_base_amount) / standard_amount) * 100, 1) if standard_amount > 0 else 0
+    else:
+        effective_base_amount = standard_amount
+        discount_percentage = 0
+
+    gst_amount = round(effective_base_amount * Decimal('0.18'), 2)
+    total_payable = round(effective_base_amount + gst_amount, 2)
+
     return render(request, 'team_profile/register_pay.html', {
         'team': team,
         'form': form,
         'is_nitk_team': is_nitk_team,
-        'payment_config': payment_config
+        'payment_config': payment_config,
+        'standard_amount': standard_amount,
+        'effective_base_amount': effective_base_amount,
+        'gst_amount': gst_amount,
+        'total_payable': total_payable,
+        'discount_percentage': discount_percentage,
     })
-

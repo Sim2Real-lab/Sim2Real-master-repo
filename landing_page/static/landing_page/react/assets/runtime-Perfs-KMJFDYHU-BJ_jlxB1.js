@@ -1,0 +1,1 @@
+import{A as e}from"./spline-engine-DQUA23Xo.js";export{e as Perfs};

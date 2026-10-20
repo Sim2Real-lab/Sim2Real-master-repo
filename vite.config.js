@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function moveIndexHtml() {
   return {
@@ -45,8 +49,11 @@ export default defineConfig(({ command }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              if (id.includes('three') || id.includes('@react-three') || id.includes('@splinetool')) {
-                return '3d-engine';
+              if (id.includes('@splinetool')) {
+                return 'spline-engine';
+              }
+              if (id.includes('three') || id.includes('@react-three')) {
+                return 'three-engine';
               }
               if (id.includes('react') || id.includes('react-dom')) {
                 return 'react-core';

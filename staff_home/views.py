@@ -9,10 +9,13 @@ from user_profile.models import UserProfile
 from team_profile.models import Team
 from django.db.models import Q
 import csv
+import datetime
+import secrets
+from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from .forms import AnnouncmentForm,TestForm,QuestionForm,ProblemStatementConfigForm,ProblemStatementSectionForm,ResourceForm,BrochureForm,SubmissionForm,SubmissionWindowForm,TrackForm
-from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig
+from .models import Announcments,ProblemStatementConfig,ProblemStatementSection,Resource,Brochure,SubmissionWindow,Submission,Track,Test,ParticipantTest,PaymentConfig,RegistrationConfig,Coupon
 
 @login_required
 @organiser_only
@@ -482,11 +485,14 @@ def create_announcement(request):
             announcement = form.save(commit=False)
             announcement.created_by = request.user
             announcement.save()
-            print(f"Announcement saved: {announcement}")
-            return redirect('make_announcments')  # Replace with your actual redirect
+            messages.success(request, "Announcement published successfully!")
+            return redirect('announcement_list')
+        else:
+            messages.error(request, "Error publishing announcement. Please check form inputs.")
+            return redirect('announcement_list')
     else:
         form = AnnouncmentForm()
-    return render(request, 'staff_home/announcment.html', {'form': form})
+    return render(request, 'staff_home/announcement_list.html', {'form': form, 'Announcments': Announcments.objects.order_by('-created_at')})
 
 
 @login_required
@@ -513,13 +519,14 @@ def announcement_edit(request, pk):
 
     return render(request, 'staff_home/announcment_edit.html', {'form': form})
 @login_required
-@login_required
 @organiser_only
 def verify_payments(request, team_id=None):
     """
     Organizer Payment Portal:
-    - POST: Approve or Reject payment for a specific team OR update PaymentConfig (amount, payee name, QR code)
-    - GET: List all teams with search, status filters, and PaymentConfig settings
+    - POST: Approve or Reject payment for a specific team (records coupon failure if rejected)
+    - POST: Update PaymentConfig (amount, payee name, QR code)
+    - POST: Coupon Management (create with target amount and TTL, toggle active, reset failure count, extend TTL, delete)
+    - GET: List all teams with search/status filters and all created coupons
     """
     payment_config, _ = PaymentConfig.objects.get_or_create(id=1)
 
@@ -540,6 +547,94 @@ def verify_payments(request, team_id=None):
         messages.success(request, "Payment Settings (QR Code, Fee Amount, Payee Name) updated successfully!")
         return redirect('verify_payments')
 
+    # POST: handle create coupon
+    if request.method == "POST" and "create_coupon" in request.POST:
+        code = request.POST.get("code", "").strip().upper()
+        if not code:
+            code = f"S2R-{secrets.token_hex(3).upper()}"
+        target_amount = request.POST.get("target_amount")
+        ttl_value = request.POST.get("ttl_value", "24")
+        ttl_unit = request.POST.get("ttl_unit", "hours")
+        max_uses = request.POST.get("max_uses", "1")
+        max_failures = request.POST.get("max_failures", "3")
+        description = request.POST.get("description", "").strip()
+
+        try:
+            target_amount = float(target_amount)
+            ttl_val = int(ttl_value)
+            if ttl_unit == "days":
+                ttl_minutes = ttl_val * 1440
+            elif ttl_unit == "minutes":
+                ttl_minutes = ttl_val
+            else:  # hours
+                ttl_minutes = ttl_val * 60
+
+            if ttl_minutes <= 0:
+                ttl_minutes = 60
+
+            max_uses = max(1, int(max_uses))
+            max_failures = max(1, int(max_failures))
+
+            if Coupon.objects.filter(code__iexact=code).exists():
+                messages.error(request, f"Coupon code '{code}' already exists. Please choose a different code.")
+                return redirect('verify_payments')
+
+            expires_at = timezone.now() + datetime.timedelta(minutes=ttl_minutes)
+            coupon = Coupon.objects.create(
+                code=code,
+                target_amount=target_amount,
+                ttl_minutes=ttl_minutes,
+                expires_at=expires_at,
+                max_uses=max_uses,
+                max_failures=max_failures,
+                description=description,
+                created_by=request.user,
+                is_active=True
+            )
+            messages.success(request, f"Coupon '{coupon.code}' created successfully! Reduces fee to ₹{coupon.target_amount:.2f} (TTL: {ttl_val} {ttl_unit}, Max Failures: {coupon.max_failures}).")
+        except Exception as e:
+            messages.error(request, f"Failed to create coupon: {str(e)}")
+        return redirect('verify_payments')
+
+    # POST: toggle coupon active status
+    if request.method == "POST" and "toggle_coupon" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        coupon.is_active = not coupon.is_active
+        coupon.save()
+        status_str = "activated" if coupon.is_active else "deactivated"
+        messages.info(request, f"Coupon '{coupon.code}' has been {status_str}.")
+        return redirect('verify_payments')
+
+    # POST: reset coupon failure count
+    if request.method == "POST" and "reset_coupon_failures" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        coupon.failure_count = 0
+        coupon.save()
+        messages.success(request, f"Failure count for coupon '{coupon.code}' has been reset to 0.")
+        return redirect('verify_payments')
+
+    # POST: extend coupon TTL
+    if request.method == "POST" and "extend_coupon_ttl" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        extend_hours = int(request.POST.get("extend_hours", 24))
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        base_time = max(coupon.expires_at, timezone.now())
+        coupon.expires_at = base_time + datetime.timedelta(hours=extend_hours)
+        coupon.save()
+        messages.success(request, f"Coupon '{coupon.code}' TTL extended by {extend_hours} hours.")
+        return redirect('verify_payments')
+
+    # POST: delete coupon
+    if request.method == "POST" and "delete_coupon" in request.POST:
+        coupon_id = request.POST.get("coupon_id")
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        code = coupon.code
+        coupon.delete()
+        messages.warning(request, f"Coupon '{code}' was deleted.")
+        return redirect('verify_payments')
+
     # POST: approve or reject team payment
     if request.method == "POST" and team_id:
         team = get_object_or_404(Team, id=team_id)
@@ -556,13 +651,19 @@ def verify_payments(request, team_id=None):
             team.is_paid = False
             team.is_verified = False
             team.rejection_reason = reason
+            coupon_info = ""
+            if team.applied_coupon:
+                c = team.applied_coupon
+                c.failure_count += 1
+                c.save()
+                coupon_info = f" (Recorded failure on coupon '{c.code}'. Failures: {c.failure_count}/{c.max_failures})"
             team.save()
-            messages.warning(request, f"Payment for team '{team.name}' has been REJECTED. Rejection note recorded.")
+            messages.warning(request, f"Payment for team '{team.name}' has been REJECTED. Rejection note recorded.{coupon_info}")
 
         return redirect('verify_payments')
 
     # GET: list all teams
-    teams = Team.objects.all().order_by('-id')
+    teams = Team.objects.all().select_related('leader', 'applied_coupon').order_by('-id')
 
     # Search filter
     query = request.GET.get("q", "").strip()
@@ -572,7 +673,8 @@ def verify_payments(request, team_id=None):
             Q(payment_ref__icontains=query) |
             Q(leader__first_name__icontains=query) |
             Q(leader__last_name__icontains=query) |
-            Q(leader__email__icontains=query)
+            Q(leader__email__icontains=query) |
+            Q(applied_coupon__code__icontains=query)
         )
 
     # Status filter
@@ -590,6 +692,18 @@ def verify_payments(request, team_id=None):
     approved_count = Team.objects.filter(is_paid=True, is_verified=True).count()
     rejected_count = Team.objects.filter(is_paid=False, rejection_reason__isnull=False).exclude(rejection_reason="").count()
 
+    # Coupons list and stats
+    coupons = Coupon.objects.all().select_related('created_by').order_by('-created_at')
+    base_fee = float(payment_config.amount) if payment_config.amount else 500.0
+    for c in coupons:
+        t_amt = float(c.target_amount)
+        if base_fee > 0 and t_amt < base_fee:
+            c.discount_percent = round(((base_fee - t_amt) / base_fee) * 100, 1)
+        else:
+            c.discount_percent = 0
+
+    active_coupons_count = sum(1 for c in coupons if c.is_active and not c.is_expired and not c.is_locked and not c.is_depleted)
+
     context = {
         "teams": teams,
         "query": query,
@@ -598,6 +712,8 @@ def verify_payments(request, team_id=None):
         "approved_count": approved_count,
         "rejected_count": rejected_count,
         "payment_config": payment_config,
+        "coupons": coupons,
+        "active_coupons_count": active_coupons_count,
     }
     return render(request, "staff_home/verify_payments.html", context)
 
@@ -662,8 +778,21 @@ def manage_resources(request):
 def upload_brochure(request):
     brochure = Brochure.objects.first()  # keep only one
     if request.method == "POST":
+        old_file_path = None
+        if brochure and brochure.file:
+            try:
+                old_file_path = brochure.file.path
+            except Exception:
+                old_file_path = None
+
         form = BrochureForm(request.POST, request.FILES, instance=brochure)
         if form.is_valid():
+            if old_file_path and 'file' in request.FILES:
+                try:
+                    if os.path.isfile(old_file_path):
+                        os.remove(old_file_path)
+                except Exception:
+                    pass
             form.save()
             messages.success(request, "Brochure uploaded successfully.")
             return redirect("upload_brochure")
@@ -877,3 +1006,109 @@ def grade_participant(request, participant_test_id):
         ptest.save()
         return JsonResponse({"success": True, "score": total})
     return JsonResponse({"success": False, "error": "Invalid request"})
+
+
+@login_required
+@organiser_only
+def manage_registration_config(request):
+    """
+    Registration Configuration Control Panel for Organisers:
+    - Master toggle to start & stop registration
+    - Individual toggles for Sim2Real and Sim2Real Ideathon tracks
+    - Default track selection for participant registration
+    - Custom message displayed when registrations are closed
+    """
+    reg_config = RegistrationConfig.get_config()
+    tracks = Track.objects.all().order_by('order', 'name')
+
+    if request.method == "POST":
+        is_registration_open = request.POST.get("is_registration_open") == "on"
+        sim2real_enabled = request.POST.get("sim2real_enabled") == "on"
+        ideathon_enabled = request.POST.get("ideathon_enabled") == "on"
+        default_track_id = request.POST.get("default_track_id")
+        closed_message = request.POST.get("closed_message", "").strip()
+
+        reg_config.is_registration_open = is_registration_open
+        reg_config.sim2real_enabled = sim2real_enabled
+        reg_config.ideathon_enabled = ideathon_enabled
+        if closed_message:
+            reg_config.closed_message = closed_message
+
+        if default_track_id:
+            try:
+                selected_default = Track.objects.get(id=default_track_id)
+                reg_config.default_track = selected_default
+            except Track.DoesNotExist:
+                pass
+
+        reg_config.save()
+        messages.success(request, "Registration Configuration updated successfully!")
+    return render(request, "staff_home/registration_config.html", {
+        "reg_config": reg_config,
+        "tracks": tracks,
+    })
+
+
+@login_required
+@organiser_only
+def leaderboard_view(request):
+    """
+    Leaderboard & Round 1 Qualification / Scoring Panel:
+    - Lists teams with Round 1 submissions, tracks, Round 1 score & qualification status.
+    - POST: Updates Round 1 score and qualification status for a team.
+    - Auto-switches track to Sim2Real Ideathon if status is 'moved_ideathon'.
+    """
+    if request.method == 'POST' and 'update_round1_status' in request.POST:
+        team_id = request.POST.get('team_id')
+        team = get_object_or_404(Team, id=team_id)
+        
+        status = request.POST.get('round1_status', 'pending')
+        score_val = request.POST.get('round1_score', '')
+
+        team.round1_status = status
+        if score_val != '':
+            try:
+                team.round1_score = float(score_val)
+            except ValueError:
+                pass
+        
+        # If moved to Sim2Real Ideathon -> Auto update track to Ideathon
+        if status == 'moved_ideathon':
+            ideathon_track = Track.objects.filter(name__icontains="Ideathon").first()
+            if ideathon_track:
+                team.track = ideathon_track
+                messages.info(request, f"Team '{team.name}' track auto-updated to '{ideathon_track.name}'.")
+
+        team.save()
+        messages.success(request, f"Round 1 status & score updated for team '{team.name}'.")
+        return redirect('leaderboard')
+
+    # Filter & Query teams (Only paid/registered teams appear on the leaderboard)
+    teams_qs = Team.objects.filter(is_paid=True).select_related('leader', 'track').prefetch_related('members', 'submissions__window').order_by('-round1_score', 'name')
+
+    filter_track = request.GET.get('track', '')
+    filter_status = request.GET.get('status', '')
+    query = request.GET.get('q', '').strip()
+
+    if filter_track:
+        teams_qs = teams_qs.filter(track_id=filter_track)
+    if filter_status:
+        teams_qs = teams_qs.filter(round1_status=filter_status)
+    if query:
+        teams_qs = teams_qs.filter(
+            Q(name__icontains=query) |
+            Q(leader__username__icontains=query) |
+            Q(leader__email__icontains=query)
+        )
+
+    tracks = Track.objects.all()
+
+    context = {
+        'teams': teams_qs,
+        'tracks': tracks,
+        'filter_track': filter_track,
+        'filter_status': filter_status,
+        'query': query,
+        'status_choices': Team.ROUND1_STATUS_CHOICES,
+    }
+    return render(request, 'staff_home/leaderboard.html', context)

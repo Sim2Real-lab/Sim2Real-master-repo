@@ -763,6 +763,12 @@
             <i class="fa-solid fa-file-arrow-up nav-icon"></i>
             <span class="sidebar-nav-text">Manage Submissions</span>
           </a>
+          <a href="{% url 'leaderboard' %}"
+            class="sidebar-nav-item {% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}">
+            <i class="fa-solid fa-trophy nav-icon"></i>
+            <span class="sidebar-nav-text">Round 1 Leaderboard</span>
+            <span class="nav-badge">Scoring</span>
+          </a>
         </div>
 
         <!-- Group 2: Participants & Teams -->
@@ -782,6 +788,11 @@
             class="sidebar-nav-item {% if request.resolver_match.url_name == 'verify_payments' or request.resolver_match.url_name == 'view_payment_screenshot' %}active{% endif %}">
             <i class="fa-solid fa-credit-card nav-icon"></i>
             <span class="sidebar-nav-text">Payment Portal</span>
+          </a>
+          <a href="{% url 'manage_registration_config' %}"
+            class="sidebar-nav-item {% if request.resolver_match.url_name == 'manage_registration_config' %}active{% endif %}">
+            <i class="fa-solid fa-sliders nav-icon"></i>
+            <span class="sidebar-nav-text">Registration Control</span>
           </a>
         </div>
 
@@ -838,7 +849,11 @@
           <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown"
             aria-expanded="false">
             <div class="user-avatar-wrap d-flex align-items-center justify-content-center">
-              <i class="fa-solid fa-user-tie text-primary" style="font-size: 1.8rem;"></i>
+              {% if user.userprofile and user.userprofile.photo %}
+                <img src="{{ user.userprofile.photo.url }}" alt="Profile" class="user-avatar">
+              {% else %}
+                <i class="fa-solid fa-user-tie text-primary" style="font-size: 1.8rem;"></i>
+              {% endif %}
               <span class="user-status-dot"></span>
             </div>
             <div class="user-info-text">
@@ -880,6 +895,32 @@
        2. MAIN VIEW AREA
        ========================================================= -->
     <main class="chatgpt-main">
+
+      <!-- Toast Notifications Container -->
+      {% if messages %}
+      <div class="toast-container p-3" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; pointer-events: none;">
+        {% for message in messages %}
+        <div class="toast show align-items-center border-0 mb-2 shadow-lg 
+          {% if message.tags == 'success' %}bg-success text-white
+          {% elif 'error' in message.tags or 'danger' in message.tags %}bg-danger text-white
+          {% elif 'warning' in message.tags %}bg-warning text-dark
+          {% else %}bg-primary text-white{% endif %}" 
+          role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; border-radius: 12px; min-width: 280px; backdrop-filter: blur(8px);">
+          <div class="d-flex align-items-center justify-content-between p-2 px-3">
+            <div class="toast-body d-flex align-items-center gap-2 p-1 font-semibold" style="font-size: 0.9rem;">
+              <i class="fa-solid 
+                {% if message.tags == 'success' %}fa-circle-check
+                {% elif 'error' in message.tags or 'danger' in message.tags %}fa-circle-exclamation
+                {% elif 'warning' in message.tags %}fa-triangle-exclamation
+                {% else %}fa-circle-info{% endif %} fs-6 me-1"></i>
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close {% if 'warning' in message.tags %}{% else %}btn-close-white{% endif %} ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
 
       <!-- Floating Hamburger Toggle (Mobile only) -->
       <button type="button" class="floating-sidebar-btn" id="floatingToggleBtn" onclick="toggleSidebar()"
@@ -1018,6 +1059,21 @@
         e.preventDefault();
         toggleSidebar();
       }
+    });
+
+    // Auto-dismiss Django Toast Notifications after 4 seconds
+    document.addEventListener("DOMContentLoaded", function () {
+      const toastEls = document.querySelectorAll('.toast');
+      toastEls.forEach(function (toastEl) {
+        setTimeout(function () {
+          try {
+            const bsToast = bootstrap.Toast.getInstance(toastEl) || new bootstrap.Toast(toastEl);
+            bsToast.hide();
+          } catch (e) {
+            toastEl.style.display = 'none';
+          }
+        }, 4000);
+      });
     });
   </script>
 

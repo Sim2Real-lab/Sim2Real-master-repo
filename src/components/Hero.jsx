@@ -1,4 +1,4 @@
-import { useState, useCallback, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 const Spline = lazy(() => import('@splinetool/react-spline'));
 import { GSAPReveal } from './GSAPReveal';
 import { FadeIn } from './FadeIn';
@@ -6,6 +6,15 @@ import { Countdown } from './Countdown';
 
 export const Hero = () => {
   const [sequenceStep, setSequenceStep] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const handleComplete = useCallback(() => {
     setSequenceStep(1);
@@ -64,21 +73,12 @@ export const Hero = () => {
                   {/* 1. Register Now */}
                   {!window.IS_REGISTERED && (
                     <div className="flex items-center gap-2">
-                      {!window.IS_AUTHENTICATED ? (
-                        <div
-                          title="Sign In to Participate!"
-                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary opacity-50 blur-[2px] cursor-not-allowed select-none inline-block uppercase"
-                        >
-                          Register Now!
-                        </div>
-                      ) : (
-                        <a
-                          href="/user/team/"
-                          className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase"
-                        >
-                          Register Now!
-                        </a>
-                      )}
+                      <a
+                        href={window.IS_AUTHENTICATED ? "/user/team/" : "/accounts/signup/"}
+                        className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase"
+                      >
+                        Register Now!
+                      </a>
 
                       <div
                         className="relative flex items-center cursor-help text-gray-500 hover:text-primary transition-colors"
@@ -109,18 +109,6 @@ export const Hero = () => {
                       GO TO DASHBOARD
                     </a>
                   )}
-
-                  {/* 3. Explore More */}
-                  <a href="#timeline" className="px-8 py-4 bg-primary text-white font-sans font-semibold tracking-tight text-sm border border-primary transition-colors hover:bg-transparent hover:text-primary inline-block uppercase">
-                    EXPLORE MORE
-                  </a>
-
-                  {/* 4. Sign In (if not authenticated) */}
-                  {!window.IS_AUTHENTICATED && (
-                    <a href="/accounts/login/" className="px-8 py-4 bg-transparent text-foreground font-sans font-semibold tracking-tight text-sm border border-border hover:border-foreground/30 transition-colors inline-block uppercase">
-                      SIGN IN
-                    </a>
-                  )}
                 </FadeIn>
 
                 <FadeIn delay={0.6}>
@@ -133,7 +121,7 @@ export const Hero = () => {
 
 {/* ── Right Decorative Column (Spline Robot Integration) ── */}
 <div className="hidden md:flex w-full md:w-1/2 h-[600px] relative items-center justify-center pointer-events-auto overflow-hidden">
-  {sequenceStep >= 1 && (
+  {sequenceStep >= 1 && !isMobile && (
     <FadeIn delay={0.4} duration={1.5} className="w-full h-full relative">
       
       <div className="w-full h-full scale-[1.05] origin-center relative">

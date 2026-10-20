@@ -27,7 +27,7 @@ def _execute_email_send(subject, message, from_email, recipient_email):
     return True
 
 def _send_with_retry(subject, message, recipient_email, task_type='announcement'):
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@sim2real.com')
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'sim2real.helpdesk@gmail.com')
     
     # 1. Create a pending log entry
     log_entry = EmailLog.objects.create(
@@ -95,7 +95,7 @@ def send_query_received_email(query):
     message = f"Contact: {query.contact}\nFrom: {query.email}\n\nMessage:\n{query.message}"
     
     # Designated email for organizers (can be changed)
-    designated_email = getattr(settings, 'ORGANIZER_EMAIL', 'support@sim2real.com')
+    designated_email = getattr(settings, 'ORGANIZER_EMAIL', 'sim2real.helpdesk@gmail.com')
     
     thread = threading.Thread(
         target=_send_with_retry, 

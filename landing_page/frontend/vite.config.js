@@ -44,8 +44,11 @@ export default defineConfig(({ command }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              if (id.includes('three') || id.includes('@react-three') || id.includes('@splinetool')) {
-                return '3d-engine';
+              if (id.includes('@splinetool')) {
+                return 'spline-engine';
+              }
+              if (id.includes('three') || id.includes('@react-three')) {
+                return 'three-engine';
               }
               if (id.includes('react') || id.includes('react-dom')) {
                 return 'react-core';

@@ -11,7 +11,7 @@ from .forms import UserProfileForm, NITK_COLLEGE_NAME
 def userprofile_view(request):
     user = request.user
     user_role = getattr(user, 'userrole', None)
-    is_organiser = bool(user_role and user_role.is_organiser)
+    is_organiser = bool((user_role and user_role.is_organiser) or user.is_staff or user.is_superuser)
     profile = UserProfile.objects.filter(user=user).first()
 
     # NITK email check

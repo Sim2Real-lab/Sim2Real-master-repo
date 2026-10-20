@@ -659,6 +659,39 @@
   </style>
 </head>
 <body>
+  <!-- Messages Toast Notification Container (Fixed Top Right Viewport) -->
+  {% if messages %}
+  <div class="toast-container p-3" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; pointer-events: none;">
+    {% for message in messages %}
+    <div class="toast show align-items-center 
+      {% if message.tags == 'success' %}bg-success text-white
+      {% elif 'error' in message.tags or 'danger' in message.tags %}bg-danger text-white
+      {% elif 'warning' in message.tags %}bg-warning text-dark
+      {% else %}bg-info text-white{% endif %} 
+      border-0 mb-2 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; border-radius: 12px;">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center gap-2">
+          <i class="fa-solid 
+            {% if message.tags == 'success' %}fa-circle-check
+            {% elif 'error' in message.tags or 'danger' in message.tags %}fa-circle-exclamation
+            {% elif 'warning' in message.tags %}fa-triangle-exclamation
+            {% else %}fa-circle-info{% endif %} me-2"></i>{{ message }}
+        </div>
+        <button type="button" class="btn-close {% if 'warning' in message.tags %}{% else %}btn-close-white{% endif %} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+      toastElList.forEach(function(toastEl) {
+        new bootstrap.Toast(toastEl, { delay: 5000 }).show();
+      });
+    });
+  </script>
+  {% endif %}
+
 <div class="chatgpt-app-layout">
   <!-- Overlay Backdrop for Mobile -->
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
@@ -685,6 +718,58 @@
 
     <div class="sidebar-nav-container" id="sidebarNavContainer">
       
+      {% if is_organiser or user.is_staff %}
+      <!-- Organiser Sidebar Navigation -->
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Primary Hub</div>
+        <a href="{% url 'staff_dashboard' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-chart-pie nav-icon"></i>
+          <span class="sidebar-nav-text">Overview</span>
+        </a>
+        <a href="{% url 'verify_payments' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-credit-card nav-icon"></i>
+          <span class="sidebar-nav-text">Verify Payments</span>
+          <span class="nav-badge">Finance</span>
+        </a>
+        <a href="{% url 'respond_queries' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-life-ring nav-icon"></i>
+          <span class="sidebar-nav-text">Support Queries</span>
+        </a>
+        <a href="{% url 'manage_submissions' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-file-arrow-up nav-icon"></i>
+          <span class="sidebar-nav-text">Manage Submissions</span>
+        </a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Users & Teams</div>
+        <a href="{% url 'user_data' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-address-card nav-icon"></i>
+          <span class="sidebar-nav-text">Check Users</span>
+        </a>
+        <a href="{% url 'check_registration' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-people-group nav-icon"></i>
+          <span class="sidebar-nav-text">Check Teams</span>
+        </a>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Content & Materials</div>
+        <a href="{% url 'manage_problem_statement' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-file-lines nav-icon"></i>
+          <span class="sidebar-nav-text">Problem Statement</span>
+        </a>
+        <a href="{% url 'upload_brochure' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-book-open nav-icon"></i>
+          <span class="sidebar-nav-text">Upload Brochure</span>
+        </a>
+        <a href="{% url 'announcement_list' %}" class="sidebar-nav-item">
+          <i class="fa-solid fa-bullhorn nav-icon"></i>
+          <span class="sidebar-nav-text">Announcements</span>
+        </a>
+      </div>
+      {% else %}
+      <!-- Participant Sidebar Navigation -->
       <div class="sidebar-group">
         <div class="sidebar-group-title">Primary Hub</div>
         <a href="{% url 'home' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
@@ -692,17 +777,10 @@
           <span class="sidebar-nav-text">Dashboard</span>
         </a>
         
-        {% if user_in_team %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
+        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' or request.resolver_match.url_name == 'create_team_with_code' %}active{% endif %}">
           <i class="fa-solid fa-users nav-icon"></i>
-          <span class="sidebar-nav-text">Team Management</span>
+          <span class="sidebar-nav-text">Manage Team</span>
         </a>
-        {% else %}
-        <a href="{% url 'teamprofile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'teamprofile' %}active{% endif %}">
-          <i class="fa-solid fa-user-plus nav-icon"></i>
-          <span class="sidebar-nav-text">Register</span>
-        </a>
-        {% endif %}
         
         {% if user_team and user_team.members.count >= 2 %}
         <a href="{% url 'payment_page' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'payment_page' %}active{% endif %}">
@@ -734,6 +812,7 @@
           <span class="sidebar-nav-text">Queries-Ask Us</span>
         </a>
       </div>
+      {% endif %}
 
     </div>
 
@@ -742,12 +821,18 @@
       <div class="dropdown">
         <button class="user-profile-widget" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
           <div class="user-avatar-wrap">
-            <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            {% if profile and profile.photo %}
+              <img src="{{ profile.photo.url }}" alt="Profile" class="user-avatar">
+            {% elif user.userprofile and user.userprofile.photo %}
+              <img src="{{ user.userprofile.photo.url }}" alt="Profile" class="user-avatar">
+            {% else %}
+              <img src="{% static 'assets/default.png' %}" alt="Profile" class="user-avatar">
+            {% endif %}
             <span class="user-status-dot" style="background-color: #2da44e;"></span>
           </div>
           <div class="user-info-text">
             <div class="user-display-name">{{ user.username|default:"Participant" }}</div>
-            <div class="user-role-tag">User Dashboard</div>
+            <div class="user-role-tag">{% if is_organiser or user.is_staff %}Staff Dashboard{% else %}User Dashboard{% endif %}</div>
           </div>
           <i class="fa-solid fa-ellipsis user-more-dots"></i>
         </button>
@@ -785,43 +870,10 @@
   <div class="container">
     <h1 style="color: #fff;">My Profile</h1>
 
-    <!-- Profile Form -->
-    <form id="profile-form" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <strong class="instruction">All the below fields are mandatory</strong>
-
-      <!-- Messages (Top Right Toast) -->
-      {% if messages %}
-      <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
-        {% for message in messages %}
-        <div class="toast show align-items-center text-white 
-          {% if message.tags == 'success' %}bg-success
-          {% elif message.tags == 'error' or message.tags == 'danger' %}bg-danger
-          {% elif message.tags == 'warning' %}bg-warning
-          {% else %}bg-info{% endif %} 
-          border-0 mb-2 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div class="toast-body">
-              <i class="fa-solid 
-                {% if message.tags == 'success' %}fa-circle-check
-                {% elif message.tags == 'error' or message.tags == 'danger' %}fa-circle-exclamation
-                {% elif message.tags == 'warning' %}fa-triangle-exclamation
-                {% else %}fa-circle-info{% endif %} me-2"></i>{{ message }}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          var toastElList = [].slice.call(document.querySelectorAll('.toast'));
-          toastElList.forEach(function(toastEl) {
-            new bootstrap.Toast(toastEl, { delay: 5000 }).show();
-          });
-        });
-      </script>
-      {% endif %}
+      <!-- Profile Form -->
+      <form id="profile-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <strong class="instruction">All the below fields are mandatory</strong>
 
       <section class="personal-details">
         <div class="form-group">

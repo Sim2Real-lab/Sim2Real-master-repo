@@ -1,52 +1,76 @@
 import js from '@eslint/js'
 import globals from 'globals'
+import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import reactPlugin from 'eslint-plugin-react'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores([
-    'dist', 
-    '.ci-venv', 
-    'venv', 
-    'env', 
-    'node_modules', 
-    '**/static/**', 
-    'staticfiles/**',
+    'node_modules/**',
+    'dist/**',
     'landing_page/frontend/**',
-    'vite.config.js'
+    'landing_page/static/**',
+    'staticfiles/**',
+    'media/**',
+    '.venv/**',
+    'venv/**',
+    '.ci-venv/**',
   ]),
+
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['src/**/*.{js,jsx}'],
+
     plugins: {
-      react: reactPlugin,
+      react,
     },
+
     extends: [
       js.configs.recommended,
+      react.configs.flat['jsx-runtime'],
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
-    rules: {
-      ...reactPlugin.configs.recommended.rules,
-      ...reactPlugin.configs['jsx-runtime'].rules,
-      'react/prop-types': 'off', // Optional but common for Vite
-      'react/no-unknown-property': 'off', // Essential for React Three Fiber (Three.js)
-      'react/no-unescaped-entities': 'off', // Prevents errors for apostrophes
-    },
+
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: globals.browser,
+
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
         },
       },
+
+      globals: {
+        ...globals.browser,
+      },
     },
+
     settings: {
       react: {
         version: 'detect',
+      },
+    },
+
+    rules: {
+      'no-unused-vars': 'off',
+      'react/jsx-uses-vars': 'error',
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      'react/no-unknown-property': 'off',
+    },
+  },
+
+  {
+    files: ['vite.config.js'],
+
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+
+      globals: {
+        ...globals.node,
       },
     },
   },
