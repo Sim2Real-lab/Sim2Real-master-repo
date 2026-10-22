@@ -1,76 +1,306 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Hero } from "./components/Hero";
+import { About } from "./components/About";
 import { Timeline } from "./components/Timeline";
 import { PrizesBrochure } from "./components/PrizesBrochure";
 import { Testimonials } from "./components/Testimonials";
 import { FAQ } from "./components/FAQ";
 import { ContactMap } from "./components/ContactMap";
 import { Footer } from "./components/Footer";
-import { DroneScene } from "./components/DroneScene";
+import { Ideathon } from "./components/Ideathon";
+import { Preloader } from "./components/Preloader";
+import { usePageTransition } from "./hooks/usePageTransition";
 import { CanvasErrorBoundary } from "./components/CanvasErrorBoundary";
 import { cn } from "./lib/utils";
 
+const DroneScene = lazy(() => import('./components/DroneScene').then(m => ({ default: m.DroneScene })));
+
+const IDEATHON_START = new Date("2026-10-18T15:00:00+05:30").getTime();
+
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  const [preloaderFinished, setPreloaderFinished] = useState(false);
+  const [isIdeathonOpen, setIsIdeathonOpen] = useState(() => Date.now() >= IDEATHON_START);
+  const { startTransition } = usePageTransition();
+
+  useEffect(() => {
+    const checkTimer = () => {
+      setIsIdeathonOpen(Date.now() >= IDEATHON_START);
+    };
+    const timer = setInterval(checkTimer, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const [currentView, setCurrentView] = useState(() => {
+    const hash = window.location.hash;
+    const path = window.location.pathname;
+    if (hash === "#ideathon" || path.includes("ideathon")) return "ideathon";
+    return "home";
+  });
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      const path = window.location.pathname;
+      if (hash === "#ideathon" || path.includes("ideathon")) {
+        setCurrentView("ideathon");
+      } else {
+        setCurrentView("home");
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("hashchange", handleHashChange);
+    };
   }, []);
+
+  const navigateToHome = () => {
+    startTransition(() => {
+      window.location.hash = "";
+      setCurrentView("home");
+    });
+  };
+
+  const navigateToIdeathon = (e) => {
+    e?.preventDefault();
+    startTransition(() => {
+      window.location.hash = "ideathon";
+      setCurrentView("ideathon");
+    });
+  };
 
   return (
     <>
-      <CanvasErrorBoundary>
-        <DroneScene />
-      </CanvasErrorBoundary>
+      {!preloaderFinished && (
+        <Preloader onComplete={() => setPreloaderFinished(true)} />
+      )}
+
+      <div className={currentView === "ideathon" ? "hidden" : "block"}>
+        <CanvasErrorBoundary>
+          <Suspense fallback={null}>
+            <DroneScene />
+          </Suspense>
+        </CanvasErrorBoundary>
+      </div>
 
       <main className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
         <nav
           className={cn(
-            "fixed top-0 w-full p-6 z-50 transition-all duration-300",
-            scrolled
-              ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm text-foreground py-4"
-              : "bg-transparent border-transparent text-foreground py-6"
+            "fixed top-0 w-full p-6 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm text-foreground",
+            scrolled ? "py-4" : "py-6"
           )}
         >
           <div className="flex justify-between items-center max-w-7xl mx-auto">
-            <a href="/" className="font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity">
-              SIM2REAL
+            <a
+              href="/"
+              onClick={(e) => {
+                if (currentView === "ideathon") {
+                  e.preventDefault();
+                  navigateToHome();
+                }
+              }}
+              className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter hover:opacity-80 transition-opacity"
+            >
+              <img src={`${import.meta.env.BASE_URL}assets/sim2real_icon.jpeg`} alt="Sim2Real Icon" className="h-8 w-8 object-contain rounded-md" />
+              <span>SIM2REAL</span>
             </a>
-            <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
-              <a href="#timeline" className="hover:text-primary transition-colors">Time Line</a>
-              <a href="#prizes" className="hover:text-primary transition-colors">Prizes</a>
-              <a href="#brochure" className="hover:text-primary transition-colors">Brochure</a>
-              <a href="#testimonials" className="hover:text-primary transition-colors">Testimonials</a>
-              <a href="#faq" className="hover:text-primary transition-colors">FAQ</a>
-              <a href="#queries" className="hover:text-primary transition-colors">Queries</a>
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-tight">
+              <a
+                href="#about"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                About
+              </a>
+              <a
+                href="#timeline"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("timeline")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Time Line
+              </a>
+              <a
+                href="#prizes"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("prizes")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Prizes
+              </a>
+              {isIdeathonOpen ? (
+                <a
+                  href="#ideathon"
+                  onClick={navigateToIdeathon}
+                  className={cn(
+                    "text-[16px] font-bold tracking-wider uppercase transition-all duration-300 px-3 py-0.5 rounded-full inline-flex items-center justify-center leading-normal",
+                    "bg-white/40 border border-slate-900/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_6px_rgba(0,0,0,0.03)] backdrop-blur-md",
+                    currentView === "ideathon"
+                      ? "text-primary border-primary/30 bg-primary/10 shadow-[0_0_12px_rgba(0,102,255,0.15)]"
+                      : "text-foreground/90 hover:text-primary hover:border-primary/20 hover:bg-white/60"
+                  )}
+                >
+                  IDEATHON
+                </a>
+              ) : (
+                <a
+                  href="#ideathon"
+                  onClick={navigateToIdeathon}
+                  className={cn(
+                    "font-semibold transition-colors",
+                    currentView === "ideathon" ? "text-primary border-b-2 border-primary" : "hover:text-primary"
+                  )}
+                >
+                  Ideathon
+                </a>
+              )}
+              <a
+                href="#brochure"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("brochure")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Brochure
+              </a>
+              <a
+                href="#testimonials"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("testimonials")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Testimonials
+              </a>
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                FAQ
+              </a>
+              <a
+                href="#queries"
+                onClick={(e) => {
+                  if (currentView === "ideathon") {
+                    e.preventDefault();
+                    navigateToHome();
+                    setTimeout(() => {
+                      document.getElementById("queries")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                Queries
+              </a>
+              
+              {!window.IS_REGISTERED && (
+                <div className="flex items-center gap-1">
+                  <a
+                    href={window.IS_AUTHENTICATED ? (window.PROFILE_COMPLETED ? "/user/team/manage/" : "/user/profile/") : "/accounts/signup/"}
+                    className="font-bold text-primary hover:opacity-80 transition-colors"
+                  >
+                    Register!
+                  </a>
+                  
+                  <div className="relative flex items-center cursor-help text-gray-500 hover:text-primary transition-colors" title="By registering you automatically comply to T & C, Privacy Policy And Code of Conduct">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex gap-4 items-center">
-              <a href="/accounts/login/" className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
-                Sign In
-              </a>
-              <a href="/accounts/signup/" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
-                Sign Up
-              </a>
+              {window.IS_AUTHENTICATED ? (
+                <a href="/user" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
+                  Go to Dashboard
+                </a>
+              ) : (
+                <>
+                  <a href="/accounts/login/" className="text-sm font-semibold tracking-tight text-foreground hover:opacity-70 transition-opacity">
+                    Sign In
+                  </a>
+                  <a href="/accounts/signup/" className="text-sm font-semibold tracking-tight px-6 py-2.5 bg-zinc-900 text-white rounded-full transition-all duration-300 hover:scale-95 hover:bg-zinc-800 shadow-none">
+                    Sign Up
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </nav>
 
-        <Hero />
+        {currentView === "ideathon" ? (
+          <Ideathon onGoHome={navigateToHome} />
+        ) : (
+          <>
+            <Hero />
 
-        <section id="timeline">
-          <Timeline />
-        </section>
+            <About />
 
-        <section id="content-area" className="min-h-[350vh] ">
-          <PrizesBrochure />
-          <Testimonials />
-          <FAQ />
-          <ContactMap />
-        </section>
+            <section id="timeline">
+              <Timeline />
+            </section>
+
+            <section id="content-area" className="min-h-[350vh] ">
+              <PrizesBrochure />
+              <Testimonials />
+              <FAQ />
+              <ContactMap />
+            </section>
+          </>
+        )}
 
         <footer id="footer">
           <Footer />

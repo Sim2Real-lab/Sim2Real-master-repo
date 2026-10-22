@@ -15,10 +15,21 @@ import { cn } from "./lib/utils";
 
 const DroneScene = lazy(() => import('./components/DroneScene').then(m => ({ default: m.DroneScene })));
 
+const IDEATHON_START = new Date("2026-10-18T15:00:00+05:30").getTime();
+
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const [preloaderFinished, setPreloaderFinished] = useState(false);
+  const [isIdeathonOpen, setIsIdeathonOpen] = useState(() => Date.now() >= IDEATHON_START);
   const { startTransition } = usePageTransition();
+
+  useEffect(() => {
+    const checkTimer = () => {
+      setIsIdeathonOpen(Date.now() >= IDEATHON_START);
+    };
+    const timer = setInterval(checkTimer, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash;
@@ -70,11 +81,13 @@ function App() {
         <Preloader onComplete={() => setPreloaderFinished(true)} />
       )}
 
-      <CanvasErrorBoundary>
-        <Suspense fallback={null}>
-          <DroneScene />
-        </Suspense>
-      </CanvasErrorBoundary>
+      <div className={currentView === "ideathon" ? "hidden" : "block"}>
+        <CanvasErrorBoundary>
+          <Suspense fallback={null}>
+            <DroneScene />
+          </Suspense>
+        </CanvasErrorBoundary>
+      </div>
 
       <main className="relative min-h-screen bg-background text-foreground overflow-x-hidden">
         <nav
@@ -97,7 +110,7 @@ function App() {
               <img src={`${import.meta.env.BASE_URL}assets/sim2real_icon.jpeg`} alt="Sim2Real Icon" className="h-8 w-8 object-contain rounded-md" />
               <span>SIM2REAL</span>
             </a>
-            <div className="hidden md:flex gap-8 text-sm font-medium tracking-tight">
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-tight">
               <a
                 href="#about"
                 onClick={(e) => {
@@ -143,16 +156,32 @@ function App() {
               >
                 Prizes
               </a>
-              <a
-                href="#ideathon"
-                onClick={navigateToIdeathon}
-                className={cn(
-                  "font-semibold transition-colors",
-                  currentView === "ideathon" ? "text-primary border-b-2 border-primary" : "hover:text-primary"
-                )}
-              >
-                Ideathon
-              </a>
+              {isIdeathonOpen ? (
+                <a
+                  href="#ideathon"
+                  onClick={navigateToIdeathon}
+                  className={cn(
+                    "text-[16px] font-bold tracking-wider uppercase transition-all duration-300 px-3 py-0.5 rounded-full inline-flex items-center justify-center leading-normal",
+                    "bg-white/40 border border-slate-900/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_6px_rgba(0,0,0,0.03)] backdrop-blur-md",
+                    currentView === "ideathon"
+                      ? "text-primary border-primary/30 bg-primary/10 shadow-[0_0_12px_rgba(0,102,255,0.15)]"
+                      : "text-foreground/90 hover:text-primary hover:border-primary/20 hover:bg-white/60"
+                  )}
+                >
+                  IDEATHON
+                </a>
+              ) : (
+                <a
+                  href="#ideathon"
+                  onClick={navigateToIdeathon}
+                  className={cn(
+                    "font-semibold transition-colors",
+                    currentView === "ideathon" ? "text-primary border-b-2 border-primary" : "hover:text-primary"
+                  )}
+                >
+                  Ideathon
+                </a>
+              )}
               <a
                 href="#brochure"
                 onClick={(e) => {
